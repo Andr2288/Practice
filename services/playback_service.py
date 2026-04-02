@@ -126,12 +126,14 @@ class PlaybackService:
         consumer = None
 
         try:
+            # Запускаємо yt-dlp
             producer = subprocess.Popen(
                 ytdlp_cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
 
+            # Запускаємо ffmpeg з stdin від producer
             processor = self.ffmpeg.spawn(
                 ffmpeg_cmd,
                 stdin_pipe=producer.stdout,
@@ -139,33 +141,27 @@ class PlaybackService:
                 stderr_pipe=subprocess.PIPE,
             )
 
-            if producer.stdout is not None:
-                producer.stdout.close()
-
+            # Запускаємо ffplay з stdin від processor
             consumer = subprocess.Popen(
                 ffplay_cmd,
                 stdin=processor.stdout,
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
             )
 
-            if processor.stdout is not None:
-                processor.stdout.close()
-
+            # Чекаємо завершення consumer (ffplay)
             consumer_stderr = consumer.communicate()[1] or b""
+            consumer_rc = consumer.returncode
 
-            processor_stderr = b""
-            producer_stderr = b""
+            # Чекаємо завершення processor (ffmpeg)
+            processor_stderr = processor.communicate()[1] or b""
+            processor_rc = processor.returncode
 
-            if processor is not None:
-                processor_stderr = processor.communicate()[1] or b""
+            # Чекаємо завершення producer (yt-dlp)
+            producer_stderr = producer.communicate()[1] or b""
+            producer_rc = producer.returncode
 
-            if producer is not None:
-                producer_stderr = producer.communicate()[1] or b""
-
-            consumer_rc = consumer.returncode if consumer else -999
-            processor_rc = processor.returncode if processor else -999
-            producer_rc = producer.returncode if producer else -999
-
+            # Перевірка помилок
             if consumer_rc != 0:
                 raise RuntimeError(
                     f"ffplay failed for video_id={item.video_id}, return_code={consumer_rc}\n"
@@ -184,10 +180,12 @@ class PlaybackService:
                     f"{self._read_stderr_tail(producer_stderr)}"
                 )
 
-        finally:
+        except Exception as e:
+            # У разі помилки завершуємо всі процеси
             self._terminate_process(consumer, "ffplay")
             self._terminate_process(processor, "ffmpeg")
             self._terminate_process(producer, "yt-dlp")
+            raise
 
         log_play(
             f"END   | channel={item.channel_title} | "
@@ -216,6 +214,7 @@ class PlaybackService:
         consumer = None
 
         try:
+            # Запускаємо ffmpeg
             processor = self.ffmpeg.spawn(
                 ffmpeg_cmd,
                 stdin_pipe=None,
@@ -223,21 +222,23 @@ class PlaybackService:
                 stderr_pipe=subprocess.PIPE,
             )
 
+            # Запускаємо ffplay
             consumer = subprocess.Popen(
                 ffplay_cmd,
                 stdin=processor.stdout,
+                stdout=subprocess.DEVNULL,
                 stderr=subprocess.PIPE,
             )
 
-            if processor.stdout is not None:
-                processor.stdout.close()
-
+            # Чекаємо завершення consumer
             consumer_stderr = consumer.communicate()[1] or b""
+            consumer_rc = consumer.returncode
+
+            # Чекаємо завершення processor
             processor_stderr = processor.communicate()[1] or b""
+            processor_rc = processor.returncode
 
-            consumer_rc = consumer.returncode if consumer else -999
-            processor_rc = processor.returncode if processor else -999
-
+            # Перевірка помилок
             if consumer_rc != 0:
                 raise RuntimeError(
                     f"ffplay filler failed, return_code={consumer_rc}\n"
@@ -250,9 +251,11 @@ class PlaybackService:
                     f"{self._read_stderr_tail(processor_stderr)}"
                 )
 
-        finally:
+        except Exception as e:
+            # У разі помилки завершуємо всі процеси
             self._terminate_process(consumer, "ffplay")
             self._terminate_process(processor, "ffmpeg")
+            raise
 
         log_play(f"END   | channel=System | title={FILLER_TITLE} | id={FILLER_VIDEO_ID}")
         log_blank()
