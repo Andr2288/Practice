@@ -44,7 +44,6 @@ def load_channels(file_path: Path) -> list[str]:
     with file_path.open("r", encoding="utf-8") as f:
         channels = [line.strip() for line in f if line.strip()]
 
-    # прибираємо дублікати, зберігаючи порядок
     unique_channels: list[str] = []
     seen = set()
 

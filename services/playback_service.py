@@ -1,5 +1,6 @@
 import subprocess
 import time
+from typing import Optional
 
 from config import (
     FFPLAY_BIN,
@@ -13,14 +14,16 @@ from config import (
     TEST_PLAYBACK_SECONDS,
     YT_DLP_BIN,
 )
+from services.ffmpeg_service import FFmpegService
 from services.models import VideoItem
 from services.ytdlp_client import YtDlpClient
-from utils.logger import log_blank, log_play
+from utils.logger import log_blank, log_info, log_play
 
 
 class PlaybackService:
     def __init__(self) -> None:
         self.ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
+        self.ffmpeg = FFmpegService()
 
     def create_filler_item(self) -> VideoItem:
         return VideoItem(
@@ -69,6 +72,39 @@ class PlaybackService:
         )
         log_blank()
 
+    def _build_ffplay_preview_cmd(self, window_title: str) -> list[str]:
+        return [
+            FFPLAY_BIN,
+            "-autoexit",
+            "-window_title",
+            window_title,
+            "-x",
+            str(FFPLAY_WIDTH),
+            "-y",
+            str(FFPLAY_HEIGHT),
+            "-i",
+            "pipe:0",
+        ]
+
+    def _terminate_process(self, proc: Optional[subprocess.Popen], name: str) -> None:
+        if proc is None:
+            return
+
+        if proc.poll() is not None:
+            return
+
+        try:
+            proc.terminate()
+            proc.wait(timeout=5)
+        except Exception:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+
+    def _read_stderr_tail(self, stderr_data: bytes, max_chars: int = 1500) -> str:
+        return stderr_data.decode("utf-8", errors="ignore")[-max_chars:]
+
     def _play_real_video(self, item: VideoItem) -> None:
         log_blank()
         log_play(
@@ -76,64 +112,82 @@ class PlaybackService:
             f"title={item.title} | id={item.video_id}"
         )
 
-        ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
-        ffplay_cmd = [
-            FFPLAY_BIN,
-            "-autoexit",
-            "-window_title",
-            item.title,
-            "-x",
-            str(FFPLAY_WIDTH),
-            "-y",
-            str(FFPLAY_HEIGHT),
-            "-fflags",
-            "nobuffer",
-            "-flags",
-            "low_delay",
-            "-i",
-            "pipe:0",
-        ]
+        if self.ffmpeg.logo_available():
+            log_info("Logo overlay: ENABLED")
+        else:
+            log_info("Logo overlay: DISABLED (assets/logo.png not found)")
 
-        producer = subprocess.Popen(
-            ytdlp_cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE,
-        )
+        ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
+        ffmpeg_cmd = self.ffmpeg.build_video_pipeline(source_is_pipe=True)
+        ffplay_cmd = self._build_ffplay_preview_cmd(item.title)
+
+        producer = None
+        processor = None
+        consumer = None
 
         try:
-            consumer = subprocess.Popen(
-                ffplay_cmd,
-                stdin=producer.stdout,
+            producer = subprocess.Popen(
+                ytdlp_cmd,
+                stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
-        finally:
+
+            processor = self.ffmpeg.spawn(
+                ffmpeg_cmd,
+                stdin_pipe=producer.stdout,
+                stdout_pipe=subprocess.PIPE,
+                stderr_pipe=subprocess.PIPE,
+            )
+
             if producer.stdout is not None:
                 producer.stdout.close()
 
-        consumer_stderr = b""
-        producer_stderr = b""
+            consumer = subprocess.Popen(
+                ffplay_cmd,
+                stdin=processor.stdout,
+                stderr=subprocess.PIPE,
+            )
 
-        try:
+            if processor.stdout is not None:
+                processor.stdout.close()
+
             consumer_stderr = consumer.communicate()[1] or b""
+
+            processor_stderr = b""
+            producer_stderr = b""
+
+            if processor is not None:
+                processor_stderr = processor.communicate()[1] or b""
+
+            if producer is not None:
+                producer_stderr = producer.communicate()[1] or b""
+
+            consumer_rc = consumer.returncode if consumer else -999
+            processor_rc = processor.returncode if processor else -999
+            producer_rc = producer.returncode if producer else -999
+
+            if consumer_rc != 0:
+                raise RuntimeError(
+                    f"ffplay failed for video_id={item.video_id}, return_code={consumer_rc}\n"
+                    f"{self._read_stderr_tail(consumer_stderr)}"
+                )
+
+            if processor_rc != 0:
+                raise RuntimeError(
+                    f"ffmpeg pipeline failed for video_id={item.video_id}, return_code={processor_rc}\n"
+                    f"{self._read_stderr_tail(processor_stderr)}"
+                )
+
+            if producer_rc != 0:
+                raise RuntimeError(
+                    f"yt-dlp stream failed for video_id={item.video_id}, return_code={producer_rc}\n"
+                    f"{self._read_stderr_tail(producer_stderr)}"
+                )
+
         finally:
-            producer_stderr = producer.communicate()[1] or b""
-
-        consumer_rc = consumer.returncode
-        producer_rc = producer.returncode
-
-        if consumer_rc != 0:
-            raise RuntimeError(
-                f"ffplay failed for video_id={item.video_id}, return_code={consumer_rc}\n"
-                f"{consumer_stderr.decode('utf-8', errors='ignore')[-1500:]}"
-            )
-
-        # Якщо ffplay дочекався кінця, а yt-dlp теж завершився нормально — ок.
-        # Якщо yt-dlp впав, це вже помилка джерела.
-        if producer_rc != 0:
-            raise RuntimeError(
-                f"yt-dlp stream failed for video_id={item.video_id}, return_code={producer_rc}\n"
-                f"{producer_stderr.decode('utf-8', errors='ignore')[-1500:]}"
-            )
+            self._terminate_process(consumer, "ffplay")
+            self._terminate_process(processor, "ffmpeg")
+            self._terminate_process(producer, "yt-dlp")
 
         log_play(
             f"END   | channel={item.channel_title} | "
@@ -150,32 +204,55 @@ class PlaybackService:
             f"id={FILLER_VIDEO_ID} | duration={filler_seconds}s"
         )
 
-        cmd = [
-            FFPLAY_BIN,
-            "-autoexit",
-            "-window_title",
-            FILLER_TITLE,
-            "-x",
-            str(FFPLAY_WIDTH),
-            "-y",
-            str(FFPLAY_HEIGHT),
-            "-f",
-            "lavfi",
-            "-i",
-            f"testsrc=size=1280x720:rate=25:duration={filler_seconds},format=yuv420p",
-        ]
+        if self.ffmpeg.logo_available():
+            log_info("Logo overlay: ENABLED")
+        else:
+            log_info("Logo overlay: DISABLED (assets/logo.png not found)")
 
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
+        ffmpeg_cmd = self.ffmpeg.build_filler_pipeline(seconds=filler_seconds)
+        ffplay_cmd = self._build_ffplay_preview_cmd(FILLER_TITLE)
 
-        if result.returncode != 0:
-            raise RuntimeError(
-                f"ffplay filler failed, return_code={result.returncode}\n{result.stderr[-1500:]}"
+        processor = None
+        consumer = None
+
+        try:
+            processor = self.ffmpeg.spawn(
+                ffmpeg_cmd,
+                stdin_pipe=None,
+                stdout_pipe=subprocess.PIPE,
+                stderr_pipe=subprocess.PIPE,
             )
+
+            consumer = subprocess.Popen(
+                ffplay_cmd,
+                stdin=processor.stdout,
+                stderr=subprocess.PIPE,
+            )
+
+            if processor.stdout is not None:
+                processor.stdout.close()
+
+            consumer_stderr = consumer.communicate()[1] or b""
+            processor_stderr = processor.communicate()[1] or b""
+
+            consumer_rc = consumer.returncode if consumer else -999
+            processor_rc = processor.returncode if processor else -999
+
+            if consumer_rc != 0:
+                raise RuntimeError(
+                    f"ffplay filler failed, return_code={consumer_rc}\n"
+                    f"{self._read_stderr_tail(consumer_stderr)}"
+                )
+
+            if processor_rc != 0:
+                raise RuntimeError(
+                    f"ffmpeg filler pipeline failed, return_code={processor_rc}\n"
+                    f"{self._read_stderr_tail(processor_stderr)}"
+                )
+
+        finally:
+            self._terminate_process(consumer, "ffplay")
+            self._terminate_process(processor, "ffmpeg")
 
         log_play(f"END   | channel=System | title={FILLER_TITLE} | id={FILLER_VIDEO_ID}")
         log_blank()

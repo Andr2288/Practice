@@ -85,10 +85,6 @@ class YtDlpClient:
         return videos
 
     def build_progressive_stream_cmd(self, video_page_url: str) -> list[str]:
-        """
-        Повертає команду yt-dlp, яка стрімить progressive-відео в stdout.
-        Це стабільніше для локального MVP, ніж брати expiring URL і віддавати його напряму ffplay.
-        """
         return [
             self.yt_dlp_bin,
             "-f",
