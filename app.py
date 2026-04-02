@@ -5,8 +5,10 @@ from config import (
     CHANNELS_FILE,
     CURRENT_ITEM_FILE,
     LAST_VIDEOS_LIMIT,
+    PLAYBACK_ERROR_DELAY_SECONDS,
     POLL_INTERVAL_MINUTES,
     QUEUE_FILE,
+    SCAN_ERROR_DELAY_SECONDS,
     SEEN_VIDEOS_FILE,
     STATE_DIR,
     YT_DLP_BIN,
@@ -42,7 +44,17 @@ def load_channels(file_path: Path) -> list[str]:
     with file_path.open("r", encoding="utf-8") as f:
         channels = [line.strip() for line in f if line.strip()]
 
-    return channels
+    # прибираємо дублікати, зберігаючи порядок
+    unique_channels: list[str] = []
+    seen = set()
+
+    for url in channels:
+        if url in seen:
+            continue
+        seen.add(url)
+        unique_channels.append(url)
+
+    return unique_channels
 
 
 def scan_for_new_videos() -> None:
@@ -54,6 +66,9 @@ def scan_for_new_videos() -> None:
 
     ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
     parser = ParserService(ytdlp_client=ytdlp)
+    queue_service = QueueService()
+
+    queue = queue_service.dedupe_queue(queue)
 
     log_scan(f"Channels loaded: {len(channels)}")
     log_scan(f"Seen videos: {len(seen)}")
@@ -65,6 +80,8 @@ def scan_for_new_videos() -> None:
         current_queue=queue,
         limit_per_channel=LAST_VIDEOS_LIMIT,
     )
+
+    updated_queue = queue_service.dedupe_queue(updated_queue)
 
     save_seen_videos(SEEN_VIDEOS_FILE, updated_seen)
     save_queue(QUEUE_FILE, updated_queue)
@@ -88,13 +105,16 @@ def playback_step() -> None:
 
     current_item = load_current_item(CURRENT_ITEM_FILE)
     queue = load_queue(QUEUE_FILE)
+    queue = queue_service.dedupe_queue(queue)
 
     if current_item is not None:
         log_warn(
             f"Recovery playback detected: {current_item.title} ({current_item.video_id})"
         )
-        playback_service.play(current_item)
-        save_current_item(CURRENT_ITEM_FILE, None)
+        try:
+            playback_service.play(current_item)
+        finally:
+            save_current_item(CURRENT_ITEM_FILE, None)
         return
 
     next_item, new_queue = queue_service.pop_next_item(queue)
@@ -129,7 +149,9 @@ def main() -> None:
                 log_blank()
                 log_error(f"SCAN FAILED: {e}")
                 log_blank()
-            last_scan_time = now
+                time.sleep(SCAN_ERROR_DELAY_SECONDS)
+            finally:
+                last_scan_time = now
 
         try:
             playback_step()
@@ -137,7 +159,7 @@ def main() -> None:
             log_blank()
             log_error(f"PLAYBACK FAILED: {e}")
             log_blank()
-            time.sleep(2)
+            time.sleep(PLAYBACK_ERROR_DELAY_SECONDS)
 
 
 if __name__ == "__main__":

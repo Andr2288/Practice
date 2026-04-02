@@ -1,4 +1,4 @@
-from dataclasses import dataclass, asdict
+from dataclasses import asdict, dataclass
 from typing import Optional
 
 
@@ -17,10 +17,10 @@ class VideoItem:
     @staticmethod
     def from_dict(data: dict) -> "VideoItem":
         return VideoItem(
-            video_id=data["video_id"],
-            title=data["title"],
-            url=data["url"],
-            channel_url=data["channel_url"],
+            video_id=str(data["video_id"]),
+            title=str(data["title"]),
+            url=str(data["url"]),
+            channel_url=str(data["channel_url"]),
             channel_title=data.get("channel_title"),
             duration=data.get("duration"),
         )

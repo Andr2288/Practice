@@ -2,12 +2,13 @@ import subprocess
 import time
 
 from config import (
-    FILLER_TITLE,
-    FILLER_URL,
-    FILLER_VIDEO_ID,
     FFPLAY_BIN,
     FFPLAY_HEIGHT,
     FFPLAY_WIDTH,
+    FILLER_SECONDS,
+    FILLER_TITLE,
+    FILLER_URL,
+    FILLER_VIDEO_ID,
     TEST_MODE,
     TEST_PLAYBACK_SECONDS,
     YT_DLP_BIN,
@@ -28,7 +29,7 @@ class PlaybackService:
             url=FILLER_URL,
             channel_url="local://filler",
             channel_title="System",
-            duration=None,
+            duration=FILLER_SECONDS,
         )
 
     def get_playback_duration(self, item: VideoItem) -> int:
@@ -69,15 +70,14 @@ class PlaybackService:
         log_blank()
 
     def _play_real_video(self, item: VideoItem) -> None:
-        playback_url = self.ytdlp.resolve_playback_url(item.url)
-
         log_blank()
         log_play(
             f"START | channel={item.channel_title} | "
             f"title={item.title} | id={item.video_id}"
         )
 
-        cmd = [
+        ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
+        ffplay_cmd = [
             FFPLAY_BIN,
             "-autoexit",
             "-window_title",
@@ -86,17 +86,53 @@ class PlaybackService:
             str(FFPLAY_WIDTH),
             "-y",
             str(FFPLAY_HEIGHT),
-            playback_url,
+            "-fflags",
+            "nobuffer",
+            "-flags",
+            "low_delay",
+            "-i",
+            "pipe:0",
         ]
 
-        result = subprocess.run(
-            cmd,
-            check=False,
+        producer = subprocess.Popen(
+            ytdlp_cmd,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
         )
 
-        if result.returncode != 0:
+        try:
+            consumer = subprocess.Popen(
+                ffplay_cmd,
+                stdin=producer.stdout,
+                stderr=subprocess.PIPE,
+            )
+        finally:
+            if producer.stdout is not None:
+                producer.stdout.close()
+
+        consumer_stderr = b""
+        producer_stderr = b""
+
+        try:
+            consumer_stderr = consumer.communicate()[1] or b""
+        finally:
+            producer_stderr = producer.communicate()[1] or b""
+
+        consumer_rc = consumer.returncode
+        producer_rc = producer.returncode
+
+        if consumer_rc != 0:
             raise RuntimeError(
-                f"ffplay failed for video_id={item.video_id}, return code={result.returncode}"
+                f"ffplay failed for video_id={item.video_id}, return_code={consumer_rc}\n"
+                f"{consumer_stderr.decode('utf-8', errors='ignore')[-1500:]}"
+            )
+
+        # Якщо ffplay дочекався кінця, а yt-dlp теж завершився нормально — ок.
+        # Якщо yt-dlp впав, це вже помилка джерела.
+        if producer_rc != 0:
+            raise RuntimeError(
+                f"yt-dlp stream failed for video_id={item.video_id}, return_code={producer_rc}\n"
+                f"{producer_stderr.decode('utf-8', errors='ignore')[-1500:]}"
             )
 
         log_play(
@@ -106,19 +142,19 @@ class PlaybackService:
         log_blank()
 
     def _play_filler(self) -> None:
-        filler_seconds = TEST_PLAYBACK_SECONDS
+        filler_seconds = FILLER_SECONDS
 
         log_blank()
         log_play(
-            f"START | channel=System | title=FILLER_LOOP | "
-            f"id=__FILLER__ | duration={filler_seconds}s"
+            f"START | channel=System | title={FILLER_TITLE} | "
+            f"id={FILLER_VIDEO_ID} | duration={filler_seconds}s"
         )
 
         cmd = [
             FFPLAY_BIN,
             "-autoexit",
             "-window_title",
-            "FILLER_LOOP",
+            FILLER_TITLE,
             "-x",
             str(FFPLAY_WIDTH),
             "-y",
@@ -131,11 +167,15 @@ class PlaybackService:
 
         result = subprocess.run(
             cmd,
+            capture_output=True,
+            text=True,
             check=False,
         )
 
         if result.returncode != 0:
-            raise RuntimeError(f"ffplay filler failed, return code={result.returncode}")
+            raise RuntimeError(
+                f"ffplay filler failed, return_code={result.returncode}\n{result.stderr[-1500:]}"
+            )
 
-        log_play("END   | channel=System | title=FILLER_LOOP | id=__FILLER__")
+        log_play(f"END   | channel=System | title={FILLER_TITLE} | id={FILLER_VIDEO_ID}")
         log_blank()

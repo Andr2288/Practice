@@ -9,23 +9,27 @@ def ensure_parent_dir(path: Path) -> None:
     path.parent.mkdir(parents=True, exist_ok=True)
 
 
-def load_seen_videos(path: Path) -> Set[str]:
+def _read_json(path: Path):
     if not path.exists():
-        return set()
+        return None
 
     try:
         with path.open("r", encoding="utf-8") as f:
             content = f.read().strip()
             if not content:
-                return set()
-            data = json.loads(content)
-    except (json.JSONDecodeError, ValueError):
-        return set()
+                return None
+            return json.loads(content)
+    except (json.JSONDecodeError, ValueError, OSError):
+        return None
+
+
+def load_seen_videos(path: Path) -> Set[str]:
+    data = _read_json(path)
 
     if not isinstance(data, list):
         return set()
 
-    return set(str(x) for x in data)
+    return {str(x) for x in data if str(x).strip()}
 
 
 def save_seen_videos(path: Path, seen: Set[str]) -> None:
@@ -35,22 +39,24 @@ def save_seen_videos(path: Path, seen: Set[str]) -> None:
 
 
 def load_queue(path: Path) -> List[VideoItem]:
-    if not path.exists():
-        return []
-
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            content = f.read().strip()
-            if not content:
-                return []
-            data = json.loads(content)
-    except (json.JSONDecodeError, ValueError):
-        return []
+    data = _read_json(path)
 
     if not isinstance(data, list):
         return []
 
-    return [VideoItem.from_dict(item) for item in data]
+    queue: List[VideoItem] = []
+
+    for item in data:
+        if not isinstance(item, dict):
+            continue
+        if "video_id" not in item:
+            continue
+        try:
+            queue.append(VideoItem.from_dict(item))
+        except Exception:
+            continue
+
+    return queue
 
 
 def save_queue(path: Path, queue: List[VideoItem]) -> None:
@@ -60,26 +66,18 @@ def save_queue(path: Path, queue: List[VideoItem]) -> None:
 
 
 def load_current_item(path: Path) -> Optional[VideoItem]:
-    if not path.exists():
-        return None
-
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            content = f.read().strip()
-            if not content:
-                return None
-            data = json.loads(content)
-    except (json.JSONDecodeError, ValueError):
-        return None
+    data = _read_json(path)
 
     if not isinstance(data, dict):
         return None
 
-    # 🔥 КЛЮЧОВИЙ ФІКС
     if "video_id" not in data:
         return None
 
-    return VideoItem.from_dict(data)
+    try:
+        return VideoItem.from_dict(data)
+    except Exception:
+        return None
 
 
 def save_current_item(path: Path, item: Optional[VideoItem]) -> None:

@@ -2,6 +2,7 @@ import json
 import subprocess
 from typing import List, Optional
 
+from config import YT_DLP_PROGRESSIVE_FORMAT
 from services.models import VideoItem
 
 
@@ -48,7 +49,7 @@ class YtDlpClient:
             raise RuntimeError(
                 f"\n[yt-dlp INVALID JSON]\n"
                 f"Channel: {channel_url}\n"
-                f"RAW OUTPUT:\n{result.stdout[:500]}\n"
+                f"RAW OUTPUT:\n{result.stdout[:1000]}\n"
             )
 
         entries = data.get("entries", [])
@@ -57,6 +58,9 @@ class YtDlpClient:
         videos: List[VideoItem] = []
 
         for entry in entries:
+            if not isinstance(entry, dict):
+                continue
+
             video_id = entry.get("id")
             title = entry.get("title") or "Untitled"
             url = entry.get("url") or video_id
@@ -69,9 +73,9 @@ class YtDlpClient:
 
             videos.append(
                 VideoItem(
-                    video_id=video_id,
-                    title=title,
-                    url=url,
+                    video_id=str(video_id),
+                    title=str(title),
+                    url=str(url),
                     channel_url=channel_url,
                     channel_title=channel_title,
                     duration=entry.get("duration"),
@@ -80,51 +84,21 @@ class YtDlpClient:
 
         return videos
 
-    def resolve_playback_url(self, video_page_url: str) -> str:
+    def build_progressive_stream_cmd(self, video_page_url: str) -> list[str]:
         """
-        Для локального MVP намагаємось взяти ОДИН прямий URL потоку,
-        щоб ffplay міг відкрити його без окремого злиття audio/video.
-
-        Пріоритет:
-        1. best progressive mp4/webm
-        2. будь-який best single-file stream
+        Повертає команду yt-dlp, яка стрімить progressive-відео в stdout.
+        Це стабільніше для локального MVP, ніж брати expiring URL і віддавати його напряму ffplay.
         """
-        format_selector = (
-            "best[protocol!=m3u8][ext=mp4]/"
-            "best[protocol!=m3u8][ext=webm]/"
-            "best"
-        )
-
-        cmd = [
+        return [
             self.yt_dlp_bin,
             "-f",
-            format_selector,
-            "-g",
+            YT_DLP_PROGRESSIVE_FORMAT,
+            "-o",
+            "-",
+            "--no-part",
+            "--quiet",
             video_page_url,
         ]
-
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        if result.returncode != 0:
-            raise RuntimeError(
-                f"Failed to resolve playback URL for {video_page_url}\n"
-                f"stdout:\n{result.stdout}\n\nstderr:\n{result.stderr}"
-            )
-
-        lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
-
-        if not lines:
-            raise RuntimeError(
-                f"yt-dlp returned empty playback URL for {video_page_url}\n"
-                f"stderr:\n{result.stderr}"
-            )
-
-        return lines[0]
 
     def resolve_title(self, video_page_url: str) -> Optional[str]:
         cmd = [
