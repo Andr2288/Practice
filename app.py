@@ -3,6 +3,7 @@ from pathlib import Path
 
 from config import (
     CHANNELS_FILE,
+    CURRENT_ITEM_FILE,
     LAST_VIDEOS_LIMIT,
     POLL_INTERVAL_MINUTES,
     QUEUE_FILE,
@@ -11,13 +12,25 @@ from config import (
     YT_DLP_BIN,
 )
 from services.parser_service import ParserService
+from services.playback_service import PlaybackService
+from services.queue_service import QueueService
 from services.storage import (
+    load_current_item,
     load_queue,
     load_seen_videos,
+    save_current_item,
     save_queue,
     save_seen_videos,
 )
 from services.ytdlp_client import YtDlpClient
+from utils.logger import (
+    log_blank,
+    log_block,
+    log_error,
+    log_play,
+    log_scan,
+    log_warn,
+)
 
 
 def load_channels(file_path: Path) -> list[str]:
@@ -32,8 +45,8 @@ def load_channels(file_path: Path) -> list[str]:
     return channels
 
 
-def run_once() -> None:
-    STATE_DIR.mkdir(parents=True, exist_ok=True)
+def scan_for_new_videos() -> None:
+    log_block("SCAN START")
 
     channels = load_channels(CHANNELS_FILE)
     seen = load_seen_videos(SEEN_VIDEOS_FILE)
@@ -42,9 +55,9 @@ def run_once() -> None:
     ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
     parser = ParserService(ytdlp_client=ytdlp)
 
-    print(f"[INFO] Loaded channels: {len(channels)}")
-    print(f"[INFO] Seen videos: {len(seen)}")
-    print(f"[INFO] Queue length before scan: {len(queue)}")
+    log_scan(f"Channels loaded: {len(channels)}")
+    log_scan(f"Seen videos: {len(seen)}")
+    log_scan(f"Queue before scan: {len(queue)}")
 
     new_videos, updated_seen, updated_queue = parser.scan_channels(
         channel_urls=channels,
@@ -56,27 +69,75 @@ def run_once() -> None:
     save_seen_videos(SEEN_VIDEOS_FILE, updated_seen)
     save_queue(QUEUE_FILE, updated_queue)
 
-    print(f"[INFO] New videos found: {len(new_videos)}")
-    for idx, video in enumerate(new_videos, start=1):
-        print(
-            f"  {idx}. [{video.channel_title or 'Unknown channel'}] "
-            f"{video.title} ({video.video_id})"
-        )
+    log_scan(f"New videos found: {len(new_videos)}")
 
-    print(f"[INFO] Queue length after scan: {len(updated_queue)}")
+    if new_videos:
+        for idx, video in enumerate(new_videos, start=1):
+            print(
+                f"  {idx}. [{video.channel_title or 'Unknown channel'}] "
+                f"{video.title} ({video.video_id})"
+            )
+
+    log_scan(f"Queue after scan: {len(updated_queue)}")
+    log_blank()
+
+
+def playback_step() -> None:
+    queue_service = QueueService()
+    playback_service = PlaybackService()
+
+    current_item = load_current_item(CURRENT_ITEM_FILE)
+    queue = load_queue(QUEUE_FILE)
+
+    if current_item is not None:
+        log_warn(
+            f"Recovery playback detected: {current_item.title} ({current_item.video_id})"
+        )
+        playback_service.play(current_item)
+        save_current_item(CURRENT_ITEM_FILE, None)
+        return
+
+    next_item, new_queue = queue_service.pop_next_item(queue)
+
+    if next_item is None:
+        log_play("Queue is empty -> using filler")
+        next_item = playback_service.create_filler_item()
+    else:
+        save_queue(QUEUE_FILE, new_queue)
+
+    save_current_item(CURRENT_ITEM_FILE, next_item)
+
+    try:
+        playback_service.play(next_item)
+    finally:
+        save_current_item(CURRENT_ITEM_FILE, None)
 
 
 def main() -> None:
-    # Для першої перевірки запускаємо одразу.
-    while True:
-        try:
-            run_once()
-        except Exception as e:
-            print(f"[ERROR] {e}")
+    STATE_DIR.mkdir(parents=True, exist_ok=True)
 
-        sleep_seconds = POLL_INTERVAL_MINUTES * 60
-        print(f"[INFO] Sleeping for {POLL_INTERVAL_MINUTES} minutes...")
-        time.sleep(sleep_seconds)
+    last_scan_time = 0.0
+    scan_interval_seconds = POLL_INTERVAL_MINUTES * 60
+
+    while True:
+        now = time.time()
+
+        if now - last_scan_time >= scan_interval_seconds:
+            try:
+                scan_for_new_videos()
+            except Exception as e:
+                log_blank()
+                log_error(f"SCAN FAILED: {e}")
+                log_blank()
+            last_scan_time = now
+
+        try:
+            playback_step()
+        except Exception as e:
+            log_blank()
+            log_error(f"PLAYBACK FAILED: {e}")
+            log_blank()
+            time.sleep(2)
 
 
 if __name__ == "__main__":

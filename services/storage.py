@@ -1,6 +1,6 @@
 import json
 from pathlib import Path
-from typing import List, Set
+from typing import List, Optional, Set
 
 from services.models import VideoItem
 
@@ -57,3 +57,36 @@ def save_queue(path: Path, queue: List[VideoItem]) -> None:
     ensure_parent_dir(path)
     with path.open("w", encoding="utf-8") as f:
         json.dump([item.to_dict() for item in queue], f, ensure_ascii=False, indent=2)
+
+
+def load_current_item(path: Path) -> Optional[VideoItem]:
+    if not path.exists():
+        return None
+
+    try:
+        with path.open("r", encoding="utf-8") as f:
+            content = f.read().strip()
+            if not content:
+                return None
+            data = json.loads(content)
+    except (json.JSONDecodeError, ValueError):
+        return None
+
+    if not isinstance(data, dict):
+        return None
+
+    # 🔥 КЛЮЧОВИЙ ФІКС
+    if "video_id" not in data:
+        return None
+
+    return VideoItem.from_dict(data)
+
+
+def save_current_item(path: Path, item: Optional[VideoItem]) -> None:
+    ensure_parent_dir(path)
+
+    with path.open("w", encoding="utf-8") as f:
+        if item is None:
+            json.dump({}, f, ensure_ascii=False, indent=2)
+        else:
+            json.dump(item.to_dict(), f, ensure_ascii=False, indent=2)
