@@ -1,6 +1,6 @@
 import json
 import subprocess
-from typing import List
+from typing import List, Optional
 
 from services.models import VideoItem
 
@@ -11,9 +11,7 @@ class YtDlpClient:
 
     def fetch_latest_videos(self, channel_url: str, limit: int = 7) -> List[VideoItem]:
         cmd = [
-            "python",
-            "-m",
-            "yt_dlp",
+            self.yt_dlp_bin,
             "--flat-playlist",
             "--dump-single-json",
             "--playlist-end",
@@ -81,3 +79,70 @@ class YtDlpClient:
             )
 
         return videos
+
+    def resolve_playback_url(self, video_page_url: str) -> str:
+        """
+        Для локального MVP намагаємось взяти ОДИН прямий URL потоку,
+        щоб ffplay міг відкрити його без окремого злиття audio/video.
+
+        Пріоритет:
+        1. best progressive mp4/webm
+        2. будь-який best single-file stream
+        """
+        format_selector = (
+            "best[protocol!=m3u8][ext=mp4]/"
+            "best[protocol!=m3u8][ext=webm]/"
+            "best"
+        )
+
+        cmd = [
+            self.yt_dlp_bin,
+            "-f",
+            format_selector,
+            "-g",
+            video_page_url,
+        ]
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            raise RuntimeError(
+                f"Failed to resolve playback URL for {video_page_url}\n"
+                f"stdout:\n{result.stdout}\n\nstderr:\n{result.stderr}"
+            )
+
+        lines = [line.strip() for line in result.stdout.splitlines() if line.strip()]
+
+        if not lines:
+            raise RuntimeError(
+                f"yt-dlp returned empty playback URL for {video_page_url}\n"
+                f"stderr:\n{result.stderr}"
+            )
+
+        return lines[0]
+
+    def resolve_title(self, video_page_url: str) -> Optional[str]:
+        cmd = [
+            self.yt_dlp_bin,
+            "--print",
+            "%(title)s",
+            video_page_url,
+        ]
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            return None
+
+        title = result.stdout.strip()
+        return title or None

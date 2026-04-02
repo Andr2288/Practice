@@ -8,16 +8,23 @@ SEEN_VIDEOS_FILE = STATE_DIR / "seen_videos.json"
 QUEUE_FILE = STATE_DIR / "queue.json"
 CURRENT_ITEM_FILE = STATE_DIR / "current_item.json"
 
-POLL_INTERVAL_MINUTES = 1
+POLL_INTERVAL_MINUTES = 0.5
 LAST_VIDEOS_LIMIT = 7
 
 YT_DLP_BIN = "yt-dlp"
+FFPLAY_BIN = "ffplay"
 
-# Для тестів: симуляція відтворення без ffmpeg
-TEST_MODE = True
+# Режим відтворення:
+# True  -> fake playback через time.sleep
+# False -> реальне локальне playback через ffplay
+TEST_MODE = False
 TEST_PLAYBACK_SECONDS = 10
 
-# Filler-заставка для випадку порожньої черги
+# Filler-заставка
 FILLER_TITLE = "FILLER_LOOP"
 FILLER_VIDEO_ID = "__FILLER__"
 FILLER_URL = "filler://loop"
+
+# Локальне тестове вікно ffplay
+FFPLAY_WIDTH = 1280
+FFPLAY_HEIGHT = 720
