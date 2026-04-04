@@ -3,9 +3,6 @@ import time
 from typing import Optional
 
 from config import (
-    FFPLAY_BIN,
-    FFPLAY_HEIGHT,
-    FFPLAY_WIDTH,
     FILLER_SECONDS,
     FILLER_TITLE,
     FILLER_URL,
@@ -13,6 +10,7 @@ from config import (
     TEST_MODE,
     TEST_PLAYBACK_SECONDS,
     YT_DLP_BIN,
+    get_youtube_rtmp_url,
 )
 from services.ffmpeg_service import FFmpegService
 from services.models import VideoItem
@@ -72,19 +70,14 @@ class PlaybackService:
         )
         log_blank()
 
-    def _build_ffplay_preview_cmd(self, window_title: str) -> list[str]:
-        return [
-            FFPLAY_BIN,
-            "-autoexit",
-            "-window_title",
-            window_title,
-            "-x",
-            str(FFPLAY_WIDTH),
-            "-y",
-            str(FFPLAY_HEIGHT),
-            "-i",
-            "pipe:0",
-        ]
+    def _require_youtube_rtmp_url(self) -> str:
+        url = get_youtube_rtmp_url()
+        if not url:
+            raise RuntimeError(
+                "YouTube stream is not configured. Set YOUTUBE_RTMP_URL or YOUTUBE_STREAM_KEY "
+                "in the environment, or put the stream key in youtube_stream_key.txt (see .gitignore)."
+            )
+        return url
 
     def _terminate_process(self, proc: Optional[subprocess.Popen], name: str) -> None:
         if proc is None:
@@ -112,61 +105,39 @@ class PlaybackService:
             f"title={item.title} | id={item.video_id}"
         )
 
+        rtmp_url = self._require_youtube_rtmp_url()
+        log_info("Output: YouTube Live (RTMP)")
+
         if self.ffmpeg.logo_available():
             log_info("Logo overlay: ENABLED")
         else:
             log_info("Logo overlay: DISABLED (assets/logo.png not found)")
 
         ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
-        ffmpeg_cmd = self.ffmpeg.build_video_pipeline(source_is_pipe=True)
-        ffplay_cmd = self._build_ffplay_preview_cmd(item.title)
+        ffmpeg_cmd = self.ffmpeg.build_video_pipeline(rtmp_url=rtmp_url, source_is_pipe=True)
 
         producer = None
         processor = None
-        consumer = None
 
         try:
-            # Запускаємо yt-dlp
             producer = subprocess.Popen(
                 ytdlp_cmd,
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
             )
 
-            # Запускаємо ffmpeg з stdin від producer
             processor = self.ffmpeg.spawn(
                 ffmpeg_cmd,
                 stdin_pipe=producer.stdout,
-                stdout_pipe=subprocess.PIPE,
+                stdout_pipe=subprocess.DEVNULL,
                 stderr_pipe=subprocess.PIPE,
             )
 
-            # Запускаємо ffplay з stdin від processor
-            consumer = subprocess.Popen(
-                ffplay_cmd,
-                stdin=processor.stdout,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
-            )
-
-            # Чекаємо завершення consumer (ffplay)
-            consumer_stderr = consumer.communicate()[1] or b""
-            consumer_rc = consumer.returncode
-
-            # Чекаємо завершення processor (ffmpeg)
             processor_stderr = processor.communicate()[1] or b""
             processor_rc = processor.returncode
 
-            # Чекаємо завершення producer (yt-dlp)
             producer_stderr = producer.communicate()[1] or b""
             producer_rc = producer.returncode
-
-            # Перевірка помилок
-            if consumer_rc != 0:
-                raise RuntimeError(
-                    f"ffplay failed for video_id={item.video_id}, return_code={consumer_rc}\n"
-                    f"{self._read_stderr_tail(consumer_stderr)}"
-                )
 
             if processor_rc != 0:
                 raise RuntimeError(
@@ -180,9 +151,7 @@ class PlaybackService:
                     f"{self._read_stderr_tail(producer_stderr)}"
                 )
 
-        except Exception as e:
-            # У разі помилки завершуємо всі процеси
-            self._terminate_process(consumer, "ffplay")
+        except Exception:
             self._terminate_process(processor, "ffmpeg")
             self._terminate_process(producer, "yt-dlp")
             raise
@@ -202,48 +171,28 @@ class PlaybackService:
             f"id={FILLER_VIDEO_ID} | duration={filler_seconds}s"
         )
 
+        rtmp_url = self._require_youtube_rtmp_url()
+        log_info("Output: YouTube Live (RTMP)")
+
         if self.ffmpeg.logo_available():
             log_info("Logo overlay: ENABLED")
         else:
             log_info("Logo overlay: DISABLED (assets/logo.png not found)")
 
-        ffmpeg_cmd = self.ffmpeg.build_filler_pipeline(seconds=filler_seconds)
-        ffplay_cmd = self._build_ffplay_preview_cmd(FILLER_TITLE)
+        ffmpeg_cmd = self.ffmpeg.build_filler_pipeline(rtmp_url=rtmp_url, seconds=filler_seconds)
 
         processor = None
-        consumer = None
 
         try:
-            # Запускаємо ffmpeg
             processor = self.ffmpeg.spawn(
                 ffmpeg_cmd,
                 stdin_pipe=None,
-                stdout_pipe=subprocess.PIPE,
+                stdout_pipe=subprocess.DEVNULL,
                 stderr_pipe=subprocess.PIPE,
             )
 
-            # Запускаємо ffplay
-            consumer = subprocess.Popen(
-                ffplay_cmd,
-                stdin=processor.stdout,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.PIPE,
-            )
-
-            # Чекаємо завершення consumer
-            consumer_stderr = consumer.communicate()[1] or b""
-            consumer_rc = consumer.returncode
-
-            # Чекаємо завершення processor
             processor_stderr = processor.communicate()[1] or b""
             processor_rc = processor.returncode
-
-            # Перевірка помилок
-            if consumer_rc != 0:
-                raise RuntimeError(
-                    f"ffplay filler failed, return_code={consumer_rc}\n"
-                    f"{self._read_stderr_tail(consumer_stderr)}"
-                )
 
             if processor_rc != 0:
                 raise RuntimeError(
@@ -251,9 +200,7 @@ class PlaybackService:
                     f"{self._read_stderr_tail(processor_stderr)}"
                 )
 
-        except Exception as e:
-            # У разі помилки завершуємо всі процеси
-            self._terminate_process(consumer, "ffplay")
+        except Exception:
             self._terminate_process(processor, "ffmpeg")
             raise
 

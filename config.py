@@ -1,6 +1,14 @@
+import os
 from pathlib import Path
+from typing import Optional
 
 BASE_DIR = Path(__file__).resolve().parent
+YOUTUBE_STREAM_KEY_FILE = BASE_DIR / "youtube_stream_key.txt"
+
+# Повний RTMP URL (пріоритет), або лише ключ — тоді використовується стандартний ingest YouTube.
+YOUTUBE_RTMP_URL = os.environ.get("YOUTUBE_RTMP_URL", "").strip()
+YOUTUBE_STREAM_KEY = os.environ.get("YOUTUBE_STREAM_KEY", "").strip()
+YOUTUBE_INGEST_BASE = "rtmp://a.rtmp.youtube.com/live2/"
 STATE_DIR = BASE_DIR / "state"
 ASSETS_DIR = BASE_DIR / "assets"
 
@@ -15,10 +23,9 @@ LAST_VIDEOS_LIMIT = 7
 
 YT_DLP_BIN = "yt-dlp"
 FFMPEG_BIN = "ffmpeg"
-FFPLAY_BIN = "ffplay"
 
 # True  -> тестова імітація sleep
-# False -> реальна обробка yt-dlp -> ffmpeg -> ffplay
+# False -> реальна обробка yt-dlp -> ffmpeg -> YouTube Live (RTMP)
 TEST_MODE = False
 TEST_PLAYBACK_SECONDS = 10
 
@@ -30,10 +37,6 @@ FILLER_TITLE = "FILLER_LOOP"
 FILLER_VIDEO_ID = "__FILLER__"
 FILLER_URL = "filler://loop"
 FILLER_SECONDS = 20
-
-# Preview window
-FFPLAY_WIDTH = 1280
-FFPLAY_HEIGHT = 720
 
 # Формат, який yt-dlp стрімить у stdout.
 # Для локального MVP краще брати progressive/single stream, щоб менше ламалось.
@@ -72,3 +75,18 @@ FILLER_BACKGROUND = "black"
 FILLER_TEXT = "MEDIAHUB UOS - FILLER"
 FILLER_FONT_SIZE = 48
 FILLER_TONE_FREQUENCY = 440
+
+
+def get_youtube_rtmp_url() -> Optional[str]:
+    """RTMP URL для YouTube Live. Ключ: YOUTUBE_RTMP_URL, YOUTUBE_STREAM_KEY або youtube_stream_key.txt."""
+    if YOUTUBE_RTMP_URL:
+        return YOUTUBE_RTMP_URL
+    key = YOUTUBE_STREAM_KEY
+    if not key and YOUTUBE_STREAM_KEY_FILE.is_file():
+        try:
+            key = YOUTUBE_STREAM_KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
+        except OSError:
+            key = ""
+    if key:
+        return f"{YOUTUBE_INGEST_BASE}{key}"
+    return None

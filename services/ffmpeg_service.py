@@ -46,13 +46,16 @@ class FFmpegService:
 
     def build_video_pipeline(
         self,
+        rtmp_url: str,
         source_is_pipe: bool = True,
     ) -> list[str]:
         """
         Вхід:
           - stdin (pipe:0) від yt-dlp
         Вихід:
-          - MPEG-TS у stdout для ffplay preview
+          - FLV на YouTube Live (RTMP)
+
+        Опція -re тримає темп 1× відносно реального часу (важливо для live на YouTube).
         """
         cmd = [
             self.ffmpeg_bin,
@@ -62,7 +65,7 @@ class FFmpegService:
         ]
 
         if source_is_pipe:
-            cmd += ["-i", "pipe:0"]
+            cmd += ["-re", "-i", "pipe:0"]
         else:
             raise ValueError("Only pipe input is supported in build_video_pipeline().")
 
@@ -120,15 +123,18 @@ class FFmpegService:
             "-ac",
             str(OUTPUT_AUDIO_CHANNELS),
             "-shortest",
+            "-flvflags",
+            "no_duration_filesize",
             "-f",
-            "mpegts",
-            "pipe:1",
+            "flv",
+            rtmp_url,
         ]
 
         return cmd
 
     def build_filler_pipeline(
         self,
+        rtmp_url: str,
         seconds: Optional[int] = None,
     ) -> list[str]:
         duration = int(seconds or FILLER_SECONDS)
@@ -148,10 +154,12 @@ class FFmpegService:
             "-hide_banner",
             "-loglevel",
             "error",
+            "-re",
             "-f",
             "lavfi",
             "-i",
             video_src,
+            "-re",
             "-f",
             "lavfi",
             "-i",
@@ -209,9 +217,11 @@ class FFmpegService:
             "-ac",
             str(OUTPUT_AUDIO_CHANNELS),
             "-shortest",
+            "-flvflags",
+            "no_duration_filesize",
             "-f",
-            "mpegts",
-            "pipe:1",
+            "flv",
+            rtmp_url,
         ]
 
         return cmd
