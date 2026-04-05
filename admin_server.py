@@ -79,6 +79,20 @@ def create_app() -> Flask:
     def api_status():
         return jsonify(_queue_payload())
 
+    @app.post("/api/scan")
+    def api_scan_channels():
+        try:
+            from services.channel_scan_service import run_channel_scan
+
+            added = run_channel_scan()
+            return jsonify({"ok": True, "added": added, **_queue_payload()})
+        except RuntimeError as e:
+            return jsonify({"ok": False, "error": str(e)}), 409
+        except FileNotFoundError as e:
+            return jsonify({"ok": False, "error": str(e)}), 400
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 500
+
     @app.put("/api/queue")
     def api_queue_replace():
         data = request.get_json(silent=True) or {}

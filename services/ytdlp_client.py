@@ -71,6 +71,13 @@ class YtDlpClient:
             if url and not str(url).startswith("http"):
                 url = f"https://www.youtube.com/watch?v={video_id}"
 
+            dur = entry.get("duration")
+            if dur is not None:
+                try:
+                    dur = int(dur)
+                except (TypeError, ValueError):
+                    dur = None
+
             videos.append(
                 VideoItem(
                     video_id=str(video_id),
@@ -78,7 +85,7 @@ class YtDlpClient:
                     url=str(url),
                     channel_url=channel_url,
                     channel_title=channel_title,
-                    duration=entry.get("duration"),
+                    duration=dur,
                 )
             )
 

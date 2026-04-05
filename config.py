@@ -20,7 +20,10 @@ HISTORY_FILE = STATE_DIR / "history.json"
 
 # За ТЗ перевірка кожні 150 хв
 POLL_INTERVAL_MINUTES = 150
+# Скільки останніх записів знімати з кожного каналу (кандидати на додавання)
 LAST_VIDEOS_LIMIT = 7
+# Скільки нових відео максимум додати в чергу за один скан (усі канали разом)
+SCAN_MAX_NEW_VIDEOS_PER_RUN = 7
 
 YT_DLP_BIN = "yt-dlp"
 FFMPEG_BIN = "ffmpeg"
