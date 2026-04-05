@@ -46,6 +46,12 @@ class PlaybackService:
     def _effective_logo_path(self):
         return resolve_logo_path(load_settings())
 
+    def _effective_logo_opacity(self) -> float:
+        return max(0.0, min(1.0, float(load_settings().logo_opacity)))
+
+    def _effective_logo_zoom(self) -> float:
+        return max(0.05, min(8.0, float(load_settings().logo_zoom)))
+
     def _builtin_filler_item(self) -> VideoItem:
         return VideoItem(
             video_id=FILLER_VIDEO_ID,
@@ -248,6 +254,8 @@ class PlaybackService:
             rtmp_url=rtmp_url,
             source_is_pipe=True,
             logo_file=logo,
+            logo_opacity=self._effective_logo_opacity(),
+            logo_zoom=self._effective_logo_zoom(),
         )
 
         producer = None
@@ -328,6 +336,8 @@ class PlaybackService:
             rtmp_url=rtmp_url,
             seconds=filler_seconds,
             logo_file=logo,
+            logo_opacity=self._effective_logo_opacity(),
+            logo_zoom=self._effective_logo_zoom(),
         )
 
         processor = None

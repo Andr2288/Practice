@@ -71,6 +71,8 @@ def create_app() -> Flask:
             "settings": {
                 "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
+                "logo_opacity": settings.logo_opacity,
+                "logo_zoom": settings.logo_zoom,
             },
             "youtube_stream_key_configured": key_present,
         }
@@ -200,6 +202,8 @@ def create_app() -> Flask:
             {
                 "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
+                "logo_opacity": settings.logo_opacity,
+                "logo_zoom": settings.logo_zoom,
                 "youtube_stream_key_configured": key_present,
             }
         )

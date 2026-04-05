@@ -11,8 +11,12 @@ from config import (
     FILLER_TEXT,
     FILLER_TONE_FREQUENCY,
     LOGO_FILE,
+    LOGO_FIT_MAX_H,
+    LOGO_FIT_MAX_W,
     LOGO_OFFSET_X,
     LOGO_OFFSET_Y,
+    LOGO_OPACITY,
+    LOGO_ZOOM,
     OUTPUT_AUDIO_BITRATE,
     OUTPUT_AUDIO_CHANNELS,
     OUTPUT_AUDIO_SAMPLE_RATE,
@@ -52,11 +56,41 @@ class FFmpegService:
     def _audio_filter(self) -> str:
         return AUDIO_FILTER
 
+    @staticmethod
+    def _logo_preprocess_filter(
+        input_pad: str,
+        opacity: float,
+        zoom: float,
+        out_label: str = "lg",
+    ) -> str:
+        """PNG → rgba, вміщення в рамку кадру (пропорції), scale за zoom, опційно альфа."""
+        o = max(0.0, min(1.0, float(opacity)))
+        z = max(0.05, min(8.0, float(zoom)))
+        inp = f"[{input_pad}]"
+        parts: list[str] = [
+            "format=rgba",
+            f"scale=w={LOGO_FIT_MAX_W}:h={LOGO_FIT_MAX_H}:force_original_aspect_ratio=decrease",
+        ]
+        z_str = format(z, ".6f").rstrip("0").rstrip(".") or "0"
+        parts.append(
+            f"scale=w=iw*{z_str}:h=-2:flags=lanczos+accurate_rnd+full_chroma_int"
+        )
+        if o <= 0.001:
+            parts.append("geq=r='0':g='0':b='0':a='0'")
+        elif o < 0.999:
+            o_str = format(o, ".6f").rstrip("0").rstrip(".") or "0"
+            parts.append(
+                f"geq=r='r(X,Y)':g='g(X,Y)':b='b(X,Y)':a='alpha(X,Y)*{o_str}'"
+            )
+        return f"{inp}{','.join(parts)}[{out_label}]"
+
     def build_video_pipeline(
         self,
         rtmp_url: str,
         source_is_pipe: bool = True,
         logo_file: Optional[Path] = None,
+        logo_opacity: float = LOGO_OPACITY,
+        logo_zoom: float = LOGO_ZOOM,
     ) -> list[str]:
         """
         Вхід:
@@ -81,9 +115,11 @@ class FFmpegService:
         logo_path = self._logo_path(logo_file)
         if logo_path is not None:
             cmd += ["-loop", "1", "-i", str(logo_path)]
+            lg = self._logo_preprocess_filter("1:v", logo_opacity, logo_zoom)
             filter_complex = (
                 f"[0:v]{self._video_base_filter()}[base];"
-                f"[base][1:v]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
+                f"{lg};"
+                f"[base][lg]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
             )
             cmd += [
                 "-filter_complex",
@@ -152,6 +188,8 @@ class FFmpegService:
         rtmp_url: str,
         seconds: Optional[int] = None,
         logo_file: Optional[Path] = None,
+        logo_opacity: float = LOGO_OPACITY,
+        logo_zoom: float = LOGO_ZOOM,
     ) -> list[str]:
         duration = int(seconds or FILLER_SECONDS)
 
@@ -185,8 +223,10 @@ class FFmpegService:
         logo_path = self._logo_path(logo_file)
         if logo_path is not None:
             cmd += ["-loop", "1", "-i", str(logo_path)]
+            lg = self._logo_preprocess_filter("2:v", logo_opacity, logo_zoom)
             filter_complex = (
-                f"[0:v][2:v]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
+                f"{lg};"
+                f"[0:v][lg]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
             )
             cmd += [
                 "-filter_complex",

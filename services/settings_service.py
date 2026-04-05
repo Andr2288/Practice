@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-from config import BASE_DIR, LOGO_FILE, STATE_DIR
+from config import BASE_DIR, LOGO_FILE, LOGO_OPACITY, LOGO_ZOOM, STATE_DIR
 
 SETTINGS_FILE = STATE_DIR / "settings.json"
 
@@ -16,6 +16,10 @@ class AppSettings:
     filler_url: str = ""
     """Шлях до PNG для накладання (відносно кореня проєкту або абсолютний). Порожньо = config.LOGO_FILE."""
     logo_path: str = ""
+    """Множник альфа-каналу логотипу (0…1). У JSON відсутній ключ → config.LOGO_OPACITY."""
+    logo_opacity: float = 1.0
+    """Множник після підгонки PNG у рамку кадру; 1 = базовий розмір. У JSON немає ключа → config.LOGO_ZOOM."""
+    logo_zoom: float = 1.0
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -27,9 +31,27 @@ class AppSettings:
             filler_url = ""
         else:
             filler_url = str(raw).strip()
+        raw_lo = data.get("logo_opacity")
+        if raw_lo is None:
+            logo_opacity = float(LOGO_OPACITY)
+        else:
+            try:
+                logo_opacity = max(0.0, min(1.0, float(raw_lo)))
+            except (TypeError, ValueError):
+                logo_opacity = float(LOGO_OPACITY)
+        raw_lz = data.get("logo_zoom")
+        if raw_lz is None:
+            logo_zoom = float(LOGO_ZOOM)
+        else:
+            try:
+                logo_zoom = max(0.05, min(8.0, float(raw_lz)))
+            except (TypeError, ValueError):
+                logo_zoom = float(LOGO_ZOOM)
         return AppSettings(
             filler_url=filler_url,
             logo_path=str(data.get("logo_path") or "").strip(),
+            logo_opacity=logo_opacity,
+            logo_zoom=logo_zoom,
         )
 
 
@@ -40,18 +62,18 @@ def _ensure_state_dir() -> None:
 def load_settings() -> AppSettings:
     _ensure_state_dir()
     if not SETTINGS_FILE.is_file():
-        return AppSettings()
+        return AppSettings(logo_opacity=float(LOGO_OPACITY), logo_zoom=float(LOGO_ZOOM))
 
     try:
         raw = SETTINGS_FILE.read_text(encoding="utf-8").strip()
         if not raw:
-            return AppSettings()
+            return AppSettings(logo_opacity=float(LOGO_OPACITY), logo_zoom=float(LOGO_ZOOM))
         data = json.loads(raw)
         if not isinstance(data, dict):
-            return AppSettings()
+            return AppSettings(logo_opacity=float(LOGO_OPACITY), logo_zoom=float(LOGO_ZOOM))
         return AppSettings.from_dict(data)
     except (OSError, json.JSONDecodeError, TypeError, KeyError):
-        return AppSettings()
+        return AppSettings(logo_opacity=float(LOGO_OPACITY), logo_zoom=float(LOGO_ZOOM))
 
 
 def save_settings(settings: AppSettings) -> None:
@@ -77,4 +99,14 @@ def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
         cur.filler_url = str(patch["filler_url"]).strip()
     if "logo_path" in patch and patch["logo_path"] is not None:
         cur.logo_path = str(patch["logo_path"]).strip()
+    if "logo_opacity" in patch and patch["logo_opacity"] is not None:
+        try:
+            cur.logo_opacity = max(0.0, min(1.0, float(patch["logo_opacity"])))
+        except (TypeError, ValueError):
+            pass
+    if "logo_zoom" in patch and patch["logo_zoom"] is not None:
+        try:
+            cur.logo_zoom = max(0.05, min(8.0, float(patch["logo_zoom"])))
+        except (TypeError, ValueError):
+            pass
     return cur
