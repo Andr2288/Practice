@@ -37,6 +37,8 @@ SCAN_ERROR_DELAY_SECONDS = 5
 FILLER_TITLE = "FILLER_LOOP"
 FILLER_VIDEO_ID = "__FILLER__"
 FILLER_URL = "filler://loop"
+# Усі варіанти filler у черзі позначаються цим channel_url (не потрапляють в історію для «попереднє»).
+FILLER_CHANNEL_URL = "local://filler"
 FILLER_SECONDS = 20
 
 # Формат, який yt-dlp стрімить у stdout.

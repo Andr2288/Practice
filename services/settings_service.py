@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-from config import BASE_DIR, FILLER_URL, LOGO_FILE, STATE_DIR
+from config import BASE_DIR, LOGO_FILE, STATE_DIR
 
 SETTINGS_FILE = STATE_DIR / "settings.json"
 
@@ -12,7 +12,8 @@ SETTINGS_FILE = STATE_DIR / "settings.json"
 class AppSettings:
     """Параметри, що можна змінювати з адмінки (файл state/settings.json)."""
 
-    filler_url: str = FILLER_URL
+    # Порожньо → вбудований lavfi-filler; інакше URL (https://...) для свого кліпу.
+    filler_url: str = ""
     """Шлях до PNG для накладання (відносно кореня проєкту або абсолютний). Порожньо = config.LOGO_FILE."""
     logo_path: str = ""
 
@@ -21,8 +22,13 @@ class AppSettings:
 
     @staticmethod
     def from_dict(data: dict) -> "AppSettings":
+        raw = data.get("filler_url")
+        if raw is None:
+            filler_url = ""
+        else:
+            filler_url = str(raw).strip()
         return AppSettings(
-            filler_url=str(data.get("filler_url") or FILLER_URL),
+            filler_url=filler_url,
             logo_path=str(data.get("logo_path") or "").strip(),
         )
 
@@ -68,7 +74,7 @@ def resolve_logo_path(settings: AppSettings) -> Optional[Path]:
 def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
     cur = load_settings()
     if "filler_url" in patch and patch["filler_url"] is not None:
-        cur.filler_url = str(patch["filler_url"]).strip() or FILLER_URL
+        cur.filler_url = str(patch["filler_url"]).strip()
     if "logo_path" in patch and patch["logo_path"] is not None:
         cur.logo_path = str(patch["logo_path"]).strip()
     return cur

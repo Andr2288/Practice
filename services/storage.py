@@ -3,6 +3,7 @@ from pathlib import Path
 from typing import List, Optional, Set
 
 from services.models import VideoItem
+from services.playback_service import is_filler_item
 
 
 def ensure_parent_dir(path: Path) -> None:
@@ -126,3 +127,13 @@ def pop_history_last(path: Path) -> Optional[VideoItem]:
     last = hist.pop()
     save_history(path, hist)
     return last
+
+
+def pop_history_last_non_filler(path: Path) -> Optional[VideoItem]:
+    """Останній запис історії, який не є filler (для кнопки «попереднє»)."""
+    while True:
+        candidate = pop_history_last(path)
+        if candidate is None:
+            return None
+        if not is_filler_item(candidate):
+            return candidate

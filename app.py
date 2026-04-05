@@ -6,7 +6,6 @@ from pathlib import Path
 from config import (
     CHANNELS_FILE,
     CURRENT_ITEM_FILE,
-    FILLER_VIDEO_ID,
     HISTORY_FILE,
     LAST_VIDEOS_LIMIT,
     PLAYBACK_ERROR_DELAY_SECONDS,
@@ -19,7 +18,7 @@ from config import (
 )
 from services.models import VideoItem
 from services.parser_service import ParserService
-from services.playback_service import PlayOutcome, PlaybackService
+from services.playback_service import PlayOutcome, PlaybackService, is_filler_item
 from services.queue_service import QueueService
 from services.runtime_control import (
     PlaybackCommand,
@@ -32,7 +31,7 @@ from services.storage import (
     load_current_item,
     load_queue,
     load_seen_videos,
-    pop_history_last,
+    pop_history_last_non_filler,
     save_current_item,
     save_queue,
     save_seen_videos,
@@ -113,7 +112,7 @@ def scan_for_new_videos() -> None:
 
 def _apply_playback_outcome(item: VideoItem, outcome: PlayOutcome) -> None:
     if outcome == "completed":
-        if item.video_id != FILLER_VIDEO_ID:
+        if not is_filler_item(item):
             append_history(HISTORY_FILE, item)
         return
 
@@ -121,7 +120,7 @@ def _apply_playback_outcome(item: VideoItem, outcome: PlayOutcome) -> None:
         return
 
     if outcome == "previous":
-        prev = pop_history_last(HISTORY_FILE)
+        prev = pop_history_last_non_filler(HISTORY_FILE)
         q = load_queue(QUEUE_FILE)
         if prev:
             q = [prev, item] + q
@@ -139,7 +138,7 @@ def _handle_idle_transport_commands(queue: list) -> bool:
         clear_command()
         return True
     if cmd == PlaybackCommand.PREVIOUS.value:
-        prev = pop_history_last(HISTORY_FILE)
+        prev = pop_history_last_non_filler(HISTORY_FILE)
         if prev:
             q = load_queue(QUEUE_FILE)
             save_queue(QUEUE_FILE, [prev] + q)

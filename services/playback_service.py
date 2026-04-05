@@ -3,6 +3,7 @@ import time
 from typing import Literal, Optional
 
 from config import (
+    FILLER_CHANNEL_URL,
     FILLER_SECONDS,
     FILLER_TITLE,
     FILLER_URL,
@@ -27,6 +28,15 @@ from utils.logger import log_blank, log_info, log_play
 
 PlayOutcome = Literal["completed", "skipped", "previous"]
 
+_FILLER_CH_URL = FILLER_CHANNEL_URL.strip().lower()
+
+
+def is_filler_item(item: VideoItem) -> bool:
+    """Вбудований filler або кліп з налаштувань — не в історію для «попереднє»."""
+    if item.video_id == FILLER_VIDEO_ID:
+        return True
+    return (item.channel_url or "").strip().lower() == _FILLER_CH_URL
+
 
 class PlaybackService:
     def __init__(self) -> None:
@@ -36,32 +46,33 @@ class PlaybackService:
     def _effective_logo_path(self):
         return resolve_logo_path(load_settings())
 
-    def create_filler_item(self) -> VideoItem:
-        settings = load_settings()
-        raw = (settings.filler_url or "").strip() or FILLER_URL
-
-        if raw.startswith("http://") or raw.startswith("https://"):
-            try:
-                return self.ytdlp.fetch_video_by_url(raw)
-            except Exception:
-                log_info("Filler URL недоступний — вбудований filler")
-                return VideoItem(
-                    video_id=FILLER_VIDEO_ID,
-                    title=FILLER_TITLE,
-                    url=FILLER_URL,
-                    channel_url="local://filler",
-                    channel_title="System",
-                    duration=FILLER_SECONDS,
-                )
-
+    def _builtin_filler_item(self) -> VideoItem:
         return VideoItem(
             video_id=FILLER_VIDEO_ID,
             title=FILLER_TITLE,
             url=FILLER_URL,
-            channel_url="local://filler",
+            channel_url=FILLER_CHANNEL_URL,
             channel_title="System",
             duration=FILLER_SECONDS,
         )
+
+    def create_filler_item(self) -> VideoItem:
+        settings = load_settings()
+        raw = (settings.filler_url or "").strip()
+        if not raw:
+            return self._builtin_filler_item()
+
+        if raw.startswith("http://") or raw.startswith("https://"):
+            try:
+                item = self.ytdlp.fetch_video_by_url(raw)
+                item.channel_url = FILLER_CHANNEL_URL
+                item.channel_title = item.channel_title or "System"
+                return item
+            except Exception:
+                log_info("Filler URL недоступний — вбудований filler")
+                return self._builtin_filler_item()
+
+        return self._builtin_filler_item()
 
     def get_playback_duration(self, item: VideoItem) -> int:
         if TEST_MODE:

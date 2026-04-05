@@ -8,15 +8,13 @@ from config import (
     ASSETS_DIR,
     BASE_DIR,
     CURRENT_ITEM_FILE,
-    FILLER_TITLE,
-    FILLER_URL,
-    FILLER_VIDEO_ID,
     HISTORY_FILE,
     QUEUE_FILE,
     YOUTUBE_STREAM_KEY_FILE,
     YT_DLP_BIN,
 )
 from services.models import VideoItem
+from services.playback_service import PlaybackService
 from services.queue_service import QueueService
 from services.runtime_control import (
     is_paused,
@@ -26,7 +24,12 @@ from services.runtime_control import (
     save_control,
 )
 from services.settings_service import load_settings, merge_settings_patch, save_settings
-from services.storage import load_current_item, load_queue, pop_history_last, save_queue
+from services.storage import (
+    load_current_item,
+    load_queue,
+    pop_history_last_non_filler,
+    save_queue,
+)
 from services.ytdlp_client import YtDlpClient
 
 
@@ -109,14 +112,7 @@ def create_app() -> Flask:
         q = QueueService().dedupe_queue(load_queue(QUEUE_FILE))
 
         if kind == "filler":
-            item = VideoItem(
-                video_id=FILLER_VIDEO_ID,
-                title=FILLER_TITLE,
-                url=FILLER_URL,
-                channel_url="local://filler",
-                channel_title="System",
-                duration=None,
-            )
+            item = PlaybackService().create_filler_item()
         else:
             url = (data.get("url") or "").strip()
             if not url:
@@ -174,7 +170,7 @@ def create_app() -> Flask:
     @app.post("/api/control/previous")
     def api_previous():
         if is_paused():
-            prev = pop_history_last(HISTORY_FILE)
+            prev = pop_history_last_non_filler(HISTORY_FILE)
             if prev:
                 q = load_queue(QUEUE_FILE)
                 save_queue(QUEUE_FILE, [prev] + q)
