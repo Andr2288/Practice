@@ -8,11 +8,11 @@
     "duration": 49.0
   },
   {
-    "video_id": "5G6fmm6st4g",
-    "title": "Подолання стресу - поради військового психолога",
-    "url": "https://www.youtube.com/watch?v=5G6fmm6st4g",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
-    "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 83.0
+    "video_id": "__FILLER__",
+    "title": "FILLER_LOOP",
+    "url": "filler://loop",
+    "channel_url": "local://filler",
+    "channel_title": "System",
+    "duration": 20
   }
 ]

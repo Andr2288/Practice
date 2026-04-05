@@ -52,9 +52,18 @@ YT_DLP_PROGRESSIVE_FORMAT = (
 OUTPUT_WIDTH = 1920
 OUTPUT_HEIGHT = 1080
 OUTPUT_FPS = 25
-OUTPUT_VIDEO_BITRATE = "3500k"
-OUTPUT_MAXRATE = "3500k"
-OUTPUT_BUFSIZE = "7000k"
+# Для 1080p YouTube очікує стабільний потік; занадто низький бітрейт або слабкий upload → попередження
+# «Потік надходить недостатньо швидко». Підлаштування без редагування коду:
+#   MEDIAHUB_VIDEO_BITRATE=5500k  MEDIAHUB_VIDEO_MAXRATE=5500k  MEDIAHUB_VIDEO_BUFSIZE=11000k
+# Якщо інтернет вузький — зменшіть роздільну здатність (OUTPUT_WIDTH/HEIGHT) або бітрейт.
+def _env_bitrate(name: str, default: str) -> str:
+    v = os.environ.get(name, "").strip()
+    return v if v else default
+
+
+OUTPUT_VIDEO_BITRATE = _env_bitrate("MEDIAHUB_VIDEO_BITRATE", "3500k")
+OUTPUT_MAXRATE = _env_bitrate("MEDIAHUB_VIDEO_MAXRATE", OUTPUT_VIDEO_BITRATE)
+OUTPUT_BUFSIZE = _env_bitrate("MEDIAHUB_VIDEO_BUFSIZE", "7000k")
 OUTPUT_AUDIO_BITRATE = "128k"
 OUTPUT_AUDIO_SAMPLE_RATE = 48000
 OUTPUT_AUDIO_CHANNELS = 2
