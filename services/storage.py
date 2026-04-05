@@ -88,3 +88,41 @@ def save_current_item(path: Path, item: Optional[VideoItem]) -> None:
             json.dump({}, f, ensure_ascii=False, indent=2)
         else:
             json.dump(item.to_dict(), f, ensure_ascii=False, indent=2)
+
+
+def load_history(path: Path, max_items: int = 80) -> List[VideoItem]:
+    data = _read_json(path)
+    if not isinstance(data, list):
+        return []
+    out: List[VideoItem] = []
+    for item in data:
+        if not isinstance(item, dict) or "video_id" not in item:
+            continue
+        try:
+            out.append(VideoItem.from_dict(item))
+        except Exception:
+            continue
+    return out[-max_items:]
+
+
+def save_history(path: Path, items: List[VideoItem]) -> None:
+    ensure_parent_dir(path)
+    with path.open("w", encoding="utf-8") as f:
+        json.dump([item.to_dict() for item in items], f, ensure_ascii=False, indent=2)
+
+
+def append_history(path: Path, item: VideoItem, max_items: int = 80) -> None:
+    hist = load_history(path, max_items=max_items * 2)
+    hist.append(item)
+    if len(hist) > max_items:
+        hist = hist[-max_items:]
+    save_history(path, hist)
+
+
+def pop_history_last(path: Path) -> Optional[VideoItem]:
+    hist = load_history(path)
+    if not hist:
+        return None
+    last = hist.pop()
+    save_history(path, hist)
+    return last

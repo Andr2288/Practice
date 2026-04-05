@@ -1,6 +1,6 @@
 import subprocess
 import time
-from typing import Optional
+from typing import Literal, Optional
 
 from config import (
     FILLER_SECONDS,
@@ -14,8 +14,18 @@ from config import (
 )
 from services.ffmpeg_service import FFmpegService
 from services.models import VideoItem
+from services.runtime_control import (
+    PlaybackCommand,
+    clear_command,
+    clear_pids,
+    read_command_value,
+    write_pids,
+)
+from services.settings_service import load_settings, resolve_logo_path
 from services.ytdlp_client import YtDlpClient
 from utils.logger import log_blank, log_info, log_play
+
+PlayOutcome = Literal["completed", "skipped", "previous"]
 
 
 class PlaybackService:
@@ -23,7 +33,27 @@ class PlaybackService:
         self.ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
         self.ffmpeg = FFmpegService()
 
+    def _effective_logo_path(self):
+        return resolve_logo_path(load_settings())
+
     def create_filler_item(self) -> VideoItem:
+        settings = load_settings()
+        raw = (settings.filler_url or "").strip() or FILLER_URL
+
+        if raw.startswith("http://") or raw.startswith("https://"):
+            try:
+                return self.ytdlp.fetch_video_by_url(raw)
+            except Exception:
+                log_info("Filler URL недоступний — вбудований filler")
+                return VideoItem(
+                    video_id=FILLER_VIDEO_ID,
+                    title=FILLER_TITLE,
+                    url=FILLER_URL,
+                    channel_url="local://filler",
+                    channel_title="System",
+                    duration=FILLER_SECONDS,
+                )
+
         return VideoItem(
             video_id=FILLER_VIDEO_ID,
             title=FILLER_TITLE,
@@ -42,19 +72,32 @@ class PlaybackService:
 
         return 30
 
-    def play(self, item: VideoItem) -> None:
+    def play(self, item: VideoItem) -> PlayOutcome:
+        c = read_command_value()
+        if c == PlaybackCommand.SKIP:
+            clear_command()
+            return "skipped"
+        if c == PlaybackCommand.PREVIOUS:
+            clear_command()
+            return "previous"
+
         if TEST_MODE:
-            self._play_fake(item)
-            return
+            return self._play_fake(item)
 
         if item.video_id == FILLER_VIDEO_ID:
-            self._play_filler()
-            return
+            return self._play_filler()
 
-        self._play_real_video(item)
+        return self._play_real_video(item)
 
-    def _play_fake(self, item: VideoItem) -> None:
+    def _poll_command(self) -> Optional[str]:
+        c = read_command_value()
+        if c in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
+            return c
+        return None
+
+    def _play_fake(self, item: VideoItem) -> PlayOutcome:
         seconds = self.get_playback_duration(item)
+        end = time.monotonic() + seconds
 
         log_blank()
         log_play(
@@ -62,13 +105,26 @@ class PlaybackService:
             f"title={item.title} | id={item.video_id} | duration={seconds}s"
         )
 
-        time.sleep(seconds)
+        while time.monotonic() < end:
+            cmd = self._poll_command()
+            if cmd == PlaybackCommand.SKIP:
+                clear_command()
+                log_play(f"SKIP  | id={item.video_id}")
+                log_blank()
+                return "skipped"
+            if cmd == PlaybackCommand.PREVIOUS:
+                clear_command()
+                log_play(f"PREV  | id={item.video_id}")
+                log_blank()
+                return "previous"
+            time.sleep(0.25)
 
         log_play(
             f"END   | channel={item.channel_title} | "
             f"title={item.title} | id={item.video_id}"
         )
         log_blank()
+        return "completed"
 
     def _require_youtube_rtmp_url(self) -> str:
         url = get_youtube_rtmp_url()
@@ -98,7 +154,69 @@ class PlaybackService:
     def _read_stderr_tail(self, stderr_data: bytes, max_chars: int = 1500) -> str:
         return stderr_data.decode("utf-8", errors="ignore")[-max_chars:]
 
-    def _play_real_video(self, item: VideoItem) -> None:
+    def _interruptible_wait_two(
+        self,
+        producer: subprocess.Popen,
+        processor: subprocess.Popen,
+    ) -> tuple[bytes, bytes, int, int, Optional[str]]:
+        """Очікує завершення yt-dlp + ffmpeg, або перериває за SKIP/PREVIOUS."""
+        try:
+            write_pids(processor.pid, producer.pid)
+            while True:
+                p_done = producer.poll() is not None
+                f_done = processor.poll() is not None
+                if p_done and f_done:
+                    break
+                cmd = self._poll_command()
+                if cmd in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
+                    clear_command()
+                    self._terminate_process(processor, "ffmpeg")
+                    self._terminate_process(producer, "yt-dlp")
+                    proc_err = b""
+                    prod_err = b""
+                    try:
+                        if processor.stderr:
+                            proc_err = processor.stderr.read() or b""
+                    except Exception:
+                        pass
+                    try:
+                        if producer.stderr:
+                            prod_err = producer.stderr.read() or b""
+                    except Exception:
+                        pass
+                    return proc_err, prod_err, -1, -1, cmd
+                time.sleep(0.35)
+
+            proc_err = processor.communicate()[1] or b""
+            prod_err = producer.communicate()[1] or b""
+            return proc_err, prod_err, processor.returncode or 0, producer.returncode or 0, None
+        finally:
+            clear_pids()
+
+    def _interruptible_wait_one(self, processor: subprocess.Popen) -> tuple[bytes, int, Optional[str]]:
+        try:
+            write_pids(processor.pid, None)
+            while True:
+                if processor.poll() is not None:
+                    break
+                cmd = self._poll_command()
+                if cmd in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
+                    clear_command()
+                    self._terminate_process(processor, "ffmpeg")
+                    proc_err = b""
+                    try:
+                        if processor.stderr:
+                            proc_err = processor.stderr.read() or b""
+                    except Exception:
+                        pass
+                    return proc_err, -1, cmd
+                time.sleep(0.35)
+            proc_err = processor.communicate()[1] or b""
+            return proc_err, processor.returncode or 0, None
+        finally:
+            clear_pids()
+
+    def _play_real_video(self, item: VideoItem) -> PlayOutcome:
         log_blank()
         log_play(
             f"START | channel={item.channel_title} | "
@@ -108,13 +226,18 @@ class PlaybackService:
         rtmp_url = self._require_youtube_rtmp_url()
         log_info("Output: YouTube Live (RTMP)")
 
-        if self.ffmpeg.logo_available():
-            log_info("Logo overlay: ENABLED")
+        logo = self._effective_logo_path()
+        if logo and self.ffmpeg.logo_available(logo):
+            log_info(f"Logo overlay: ENABLED ({logo})")
         else:
-            log_info("Logo overlay: DISABLED (assets/logo.png not found)")
+            log_info("Logo overlay: DISABLED")
 
         ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
-        ffmpeg_cmd = self.ffmpeg.build_video_pipeline(rtmp_url=rtmp_url, source_is_pipe=True)
+        ffmpeg_cmd = self.ffmpeg.build_video_pipeline(
+            rtmp_url=rtmp_url,
+            source_is_pipe=True,
+            logo_file=logo,
+        )
 
         producer = None
         processor = None
@@ -133,27 +256,36 @@ class PlaybackService:
                 stderr_pipe=subprocess.PIPE,
             )
 
-            processor_stderr = processor.communicate()[1] or b""
-            processor_rc = processor.returncode
+            processor_stderr, producer_stderr, prc, yrc, interrupt = self._interruptible_wait_two(
+                producer, processor
+            )
 
-            producer_stderr = producer.communicate()[1] or b""
-            producer_rc = producer.returncode
+            if interrupt == PlaybackCommand.PREVIOUS:
+                log_play(f"PREV  | id={item.video_id}")
+                log_blank()
+                return "previous"
 
-            if processor_rc != 0:
+            if interrupt == PlaybackCommand.SKIP:
+                log_play(f"SKIP  | id={item.video_id}")
+                log_blank()
+                return "skipped"
+
+            if prc != 0:
                 raise RuntimeError(
-                    f"ffmpeg pipeline failed for video_id={item.video_id}, return_code={processor_rc}\n"
+                    f"ffmpeg pipeline failed for video_id={item.video_id}, return_code={prc}\n"
                     f"{self._read_stderr_tail(processor_stderr)}"
                 )
 
-            if producer_rc != 0:
+            if yrc != 0:
                 raise RuntimeError(
-                    f"yt-dlp stream failed for video_id={item.video_id}, return_code={producer_rc}\n"
+                    f"yt-dlp stream failed for video_id={item.video_id}, return_code={yrc}\n"
                     f"{self._read_stderr_tail(producer_stderr)}"
                 )
 
         except Exception:
             self._terminate_process(processor, "ffmpeg")
             self._terminate_process(producer, "yt-dlp")
+            clear_pids()
             raise
 
         log_play(
@@ -161,8 +293,9 @@ class PlaybackService:
             f"title={item.title} | id={item.video_id}"
         )
         log_blank()
+        return "completed"
 
-    def _play_filler(self) -> None:
+    def _play_filler(self) -> PlayOutcome:
         filler_seconds = FILLER_SECONDS
 
         log_blank()
@@ -174,12 +307,17 @@ class PlaybackService:
         rtmp_url = self._require_youtube_rtmp_url()
         log_info("Output: YouTube Live (RTMP)")
 
-        if self.ffmpeg.logo_available():
-            log_info("Logo overlay: ENABLED")
+        logo = self._effective_logo_path()
+        if logo and self.ffmpeg.logo_available(logo):
+            log_info(f"Logo overlay: ENABLED ({logo})")
         else:
-            log_info("Logo overlay: DISABLED (assets/logo.png not found)")
+            log_info("Logo overlay: DISABLED")
 
-        ffmpeg_cmd = self.ffmpeg.build_filler_pipeline(rtmp_url=rtmp_url, seconds=filler_seconds)
+        ffmpeg_cmd = self.ffmpeg.build_filler_pipeline(
+            rtmp_url=rtmp_url,
+            seconds=filler_seconds,
+            logo_file=logo,
+        )
 
         processor = None
 
@@ -191,8 +329,17 @@ class PlaybackService:
                 stderr_pipe=subprocess.PIPE,
             )
 
-            processor_stderr = processor.communicate()[1] or b""
-            processor_rc = processor.returncode
+            processor_stderr, processor_rc, interrupt = self._interruptible_wait_one(processor)
+
+            if interrupt == PlaybackCommand.PREVIOUS:
+                log_play(f"PREV  | id={FILLER_VIDEO_ID}")
+                log_blank()
+                return "previous"
+
+            if interrupt == PlaybackCommand.SKIP:
+                log_play(f"SKIP  | id={FILLER_VIDEO_ID}")
+                log_blank()
+                return "skipped"
 
             if processor_rc != 0:
                 raise RuntimeError(
@@ -202,7 +349,9 @@ class PlaybackService:
 
         except Exception:
             self._terminate_process(processor, "ffmpeg")
+            clear_pids()
             raise
 
         log_play(f"END   | channel=System | title={FILLER_TITLE} | id={FILLER_VIDEO_ID}")
         log_blank()
+        return "completed"

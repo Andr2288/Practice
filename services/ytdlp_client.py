@@ -116,3 +116,60 @@ class YtDlpClient:
 
         title = result.stdout.strip()
         return title or None
+
+    def fetch_video_by_url(self, page_url: str) -> VideoItem:
+        """Метадані одного відео за посиланням (watch, youtu.be, shorts)."""
+        cmd = [
+            self.yt_dlp_bin,
+            "--dump-json",
+            "--no-playlist",
+            page_url,
+        ]
+
+        result = subprocess.run(
+            cmd,
+            capture_output=True,
+            text=True,
+            check=False,
+        )
+
+        if result.returncode != 0:
+            err = (result.stderr or result.stdout or "").strip()
+            raise RuntimeError(f"yt-dlp не зміг прочитати відео: {err[:800]}")
+
+        raw = result.stdout.strip()
+        if not raw:
+            raise RuntimeError("yt-dlp повернув порожній вивід")
+
+        try:
+            data = json.loads(raw)
+        except json.JSONDecodeError as e:
+            raise RuntimeError(f"Невалідний JSON від yt-dlp: {e}") from e
+
+        if not isinstance(data, dict):
+            raise RuntimeError("Неочікуваний формат від yt-dlp")
+
+        video_id = data.get("id")
+        title = data.get("title") or "Untitled"
+        if not video_id:
+            raise RuntimeError("Не вдалося визначити id відео")
+
+        url = data.get("webpage_url") or data.get("url") or page_url
+        if url and not str(url).startswith("http"):
+            url = f"https://www.youtube.com/watch?v={video_id}"
+
+        channel_url = data.get("channel_url") or data.get("uploader_url") or ""
+        channel_title = data.get("channel") or data.get("uploader")
+
+        duration = data.get("duration")
+        if duration is not None:
+            duration = int(duration)
+
+        return VideoItem(
+            video_id=str(video_id),
+            title=str(title),
+            url=str(url),
+            channel_url=str(channel_url or "https://www.youtube.com/"),
+            channel_title=str(channel_title) if channel_title else None,
+            duration=duration,
+        )

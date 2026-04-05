@@ -30,8 +30,16 @@ class FFmpegService:
     def __init__(self, ffmpeg_bin: str = FFMPEG_BIN) -> None:
         self.ffmpeg_bin = ffmpeg_bin
 
-    def logo_available(self) -> bool:
-        return ENABLE_LOGO_OVERLAY and Path(LOGO_FILE).exists()
+    def logo_available(self, logo_file: Optional[Path] = None) -> bool:
+        path = Path(logo_file) if logo_file is not None else Path(LOGO_FILE)
+        return ENABLE_LOGO_OVERLAY and path.is_file()
+
+    def _logo_path(self, logo_file: Optional[Path]) -> Optional[Path]:
+        if logo_file is not None and Path(logo_file).is_file():
+            return Path(logo_file)
+        if ENABLE_LOGO_OVERLAY and Path(LOGO_FILE).is_file():
+            return Path(LOGO_FILE)
+        return None
 
     def _video_base_filter(self) -> str:
         return (
@@ -48,6 +56,7 @@ class FFmpegService:
         self,
         rtmp_url: str,
         source_is_pipe: bool = True,
+        logo_file: Optional[Path] = None,
     ) -> list[str]:
         """
         Вхід:
@@ -69,8 +78,9 @@ class FFmpegService:
         else:
             raise ValueError("Only pipe input is supported in build_video_pipeline().")
 
-        if self.logo_available():
-            cmd += ["-loop", "1", "-i", str(LOGO_FILE)]
+        logo_path = self._logo_path(logo_file)
+        if logo_path is not None:
+            cmd += ["-loop", "1", "-i", str(logo_path)]
             filter_complex = (
                 f"[0:v]{self._video_base_filter()}[base];"
                 f"[base][1:v]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
@@ -136,6 +146,7 @@ class FFmpegService:
         self,
         rtmp_url: str,
         seconds: Optional[int] = None,
+        logo_file: Optional[Path] = None,
     ) -> list[str]:
         duration = int(seconds or FILLER_SECONDS)
 
@@ -166,8 +177,9 @@ class FFmpegService:
             audio_src,
         ]
 
-        if self.logo_available():
-            cmd += ["-loop", "1", "-i", str(LOGO_FILE)]
+        logo_path = self._logo_path(logo_file)
+        if logo_path is not None:
+            cmd += ["-loop", "1", "-i", str(logo_path)]
             filter_complex = (
                 f"[0:v][2:v]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
             )

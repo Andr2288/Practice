@@ -16,6 +16,7 @@ CHANNELS_FILE = BASE_DIR / "channels.txt"
 SEEN_VIDEOS_FILE = STATE_DIR / "seen_videos.json"
 QUEUE_FILE = STATE_DIR / "queue.json"
 CURRENT_ITEM_FILE = STATE_DIR / "current_item.json"
+HISTORY_FILE = STATE_DIR / "history.json"
 
 # За ТЗ перевірка кожні 150 хв
 POLL_INTERVAL_MINUTES = 150
