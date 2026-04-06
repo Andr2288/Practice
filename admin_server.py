@@ -7,6 +7,7 @@ from flask import Flask, jsonify, render_template, request
 from config import (
     ASSETS_DIR,
     BASE_DIR,
+    CHANNELS_FILE,
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
     QUEUE_FILE,
@@ -30,6 +31,7 @@ from services.storage import (
     pop_history_last_non_filler,
     save_queue,
 )
+from services.channel_scan_service import read_channels_list, save_channels_list
 from services.ytdlp_client import YtDlpClient
 
 
@@ -68,6 +70,7 @@ def create_app() -> Flask:
             "current": cur.to_dict() if cur else None,
             "paused": bool(ctrl.get("paused")),
             "command": ctrl.get("command") or "",
+            "channels": read_channels_list(CHANNELS_FILE),
             "settings": {
                 "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
@@ -80,6 +83,21 @@ def create_app() -> Flask:
     @app.get("/api/status")
     def api_status():
         return jsonify(_queue_payload())
+
+    @app.put("/api/channels")
+    def api_channels_put():
+        data = request.get_json(silent=True) or {}
+        raw = data.get("channels")
+        if not isinstance(raw, list):
+            return jsonify({"ok": False, "error": "Expected { channels: [...] }"}), 400
+        urls: list[str] = []
+        for x in raw:
+            if isinstance(x, str):
+                s = x.strip()
+                if s:
+                    urls.append(s)
+        save_channels_list(CHANNELS_FILE, urls)
+        return jsonify({"ok": True, **_queue_payload()})
 
     @app.post("/api/scan")
     def api_scan_channels():

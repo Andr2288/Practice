@@ -58,6 +58,20 @@
       color: var(--text);
       font: inherit;
     }
+    textarea#channelsList {
+      width: 100%;
+      min-height: 9rem;
+      padding: 0.55rem 0.65rem;
+      border-radius: 8px;
+      border: 1px solid var(--border);
+      background: #121a26;
+      color: var(--text);
+      font: inherit;
+      font-family: ui-monospace, "Cascadia Code", Consolas, monospace;
+      font-size: 0.88rem;
+      line-height: 1.4;
+      resize: vertical;
+    }
     .timeline {
       display: flex;
       flex-direction: column;
@@ -194,8 +208,20 @@
     </section>
 
     <section>
+      <h2>Канали джерел контенту</h2>
+      <p class="sub" style="margin:0 0 0.75rem;">Один URL каналу YouTube на рядок (формат як у <code>channels.txt</code>). Порожні рядки ігноруються, дублікати при збереженні прибираються.</p>
+      <div class="field" style="margin-bottom:0.65rem;">
+        <label for="channelsList">Список каналів</label>
+        <textarea id="channelsList" spellcheck="false" autocomplete="off" placeholder="https://www.youtube.com/@channel&#10;https://www.youtube.com/channel/UC..."></textarea>
+      </div>
+      <div class="row">
+        <button type="button" class="primary" id="btnSaveChannels">Зберегти список</button>
+      </div>
+    </section>
+
+    <section>
       <h2>Сканування каналів</h2>
-      <p class="sub" style="margin:0 0 0.75rem;">Список у файлі <code>channels.txt</code>. За один запуск у <strong>кінець</strong> черги додається не більше 7 нових відео (усі канали разом); наступний скан знову може додати до 7.</p>
+      <p class="sub" style="margin:0 0 0.75rem;">Після зміни списку натисніть «Зберегти список» вище. За один запуск у <strong>кінець</strong> черги додається не більше 7 нових відео (усі канали разом); наступний скан знову може додати до 7.</p>
       <div class="row">
         <button type="button" id="btnScanChannels">Сканувати зараз</button>
       </div>
@@ -326,6 +352,9 @@
       out.textContent = String(Math.round(n * 100) / 100) + "×";
     }
 
+    /** Поки true — не перезаписувати textarea каналів з автооновлення. */
+    let channelsDirty = false;
+
     /** Поки true — не перезаписувати поля налаштувань з сервера (користувач редагує або чекаємо збереження). */
     let settingsWritePending = false;
     let settingsDebounceTimer = null;
@@ -349,6 +378,12 @@
         logo_opacity: clampLogoOpacity(),
         logo_zoom: clampLogoZoom(),
       };
+    }
+
+    function applyChannelsFromServer(data) {
+      if (channelsDirty) return;
+      const list = Array.isArray(data.channels) ? data.channels : [];
+      $("channelsList").value = list.join("\n");
     }
 
     function applySettingsFieldsFromServer(data) {
@@ -573,6 +608,7 @@
       $("pausedBanner").style.display = data.paused ? "block" : "none";
       updatePauseResumeButton(data.paused);
       applySettingsFieldsFromServer(data);
+      applyChannelsFromServer(data);
       $("keyStatus").textContent = data.youtube_stream_key_configured
         ? "Ключ збережено (локально)."
         : "Ключ не задано.";
@@ -588,6 +624,7 @@
       $("pausedBanner").style.display = data.paused ? "block" : "none";
       updatePauseResumeButton(data.paused);
       applySettingsFieldsFromServer(data);
+      applyChannelsFromServer(data);
       $("keyStatus").textContent = data.youtube_stream_key_configured
         ? "Ключ збережено (локально)."
         : "Ключ не задано.";
@@ -610,6 +647,23 @@
       await runWithFeedback($("btnNext"), "Команду «наступне» надіслано.", async () => {
         await flushSettingsAutosave();
         await api("/api/control/next", { method: "POST", body: "{}" });
+        await refreshSilent();
+      });
+    });
+
+    $("channelsList").addEventListener("input", () => {
+      channelsDirty = true;
+    });
+
+    $("btnSaveChannels").addEventListener("click", async () => {
+      const btn = $("btnSaveChannels");
+      const lines = $("channelsList").value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+      await runWithFeedback(btn, "Список каналів збережено (channels.txt).", async () => {
+        await api("/api/channels", {
+          method: "PUT",
+          body: JSON.stringify({ channels: lines }),
+        });
+        channelsDirty = false;
         await refreshSilent();
       });
     });

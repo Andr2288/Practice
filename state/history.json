@@ -1,21 +1,5 @@
 [
   {
-    "video_id": "2Tfoam0Sb2k",
-    "title": "Вогняні перегони: прикордонна бригада «Гарт» нищить логістику ворога на півночі Харківщини",
-    "url": "https://www.youtube.com/watch?v=2Tfoam0Sb2k",
-    "channel_url": "https://www.youtube.com/channel/UCpGd-sEk9OFSAGS_c1Zm5lA",
-    "channel_title": "Бригада \"Гарт\"",
-    "duration": 103
-  },
-  {
-    "video_id": "66CxFm0P1zY",
-    "title": "Чергові трофеї дронарів та артилеристів бригади «Гарт» під Вовчанськом",
-    "url": "https://www.youtube.com/shorts/66CxFm0P1zY",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/shorts",
-    "channel_title": "Бригада \"Гарт\" - Shorts",
-    "duration": null
-  },
-  {
     "video_id": "UkQccObc8OM",
     "title": "У нас - перший сніг!",
     "url": "https://www.youtube.com/shorts/UkQccObc8OM",
@@ -638,5 +622,21 @@
     "channel_url": "www.youtube.com/@115окремабригадаТрО/videos",
     "channel_title": "115 окрема бригада ТрО - Videos",
     "duration": 44
+  },
+  {
+    "video_id": "-fSNhTQWHII",
+    "title": "Навчайтесь новим скілам у загоні безпілотних систем «Тайфун»",
+    "url": "https://www.youtube.com/watch?v=-fSNhTQWHII",
+    "channel_url": "https://www.youtube.com/@Taifunarmy/videos",
+    "channel_title": "Тайфун - Videos",
+    "duration": 59
+  },
+  {
+    "video_id": "lAtJrOavN4A",
+    "title": "Свої Завжди Чекають | 58 ОМПБр",
+    "url": "https://www.youtube.com/watch?v=lAtJrOavN4A",
+    "channel_url": "https://www.youtube.com/@58brigade/videos",
+    "channel_title": "58 окрема мотопіхотна бригада - Videos",
+    "duration": 99
   }
 ]
