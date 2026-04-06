@@ -1,20 +1,28 @@
 import os
+import random
 import threading
 import time
 
 from config import (
+    BATCH_STATE_FILE,
+    CHANNELS_FILE,
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
+    LAST_VIDEOS_LIMIT,
+    OUR_VIDEOS_FILE,
     PLAYBACK_ERROR_DELAY_SECONDS,
-    POLL_INTERVAL_MINUTES,
-    QUEUE_FILE,
-    SCAN_ERROR_DELAY_SECONDS,
     STATE_DIR,
+    YT_DLP_BIN,
 )
-from services.channel_scan_service import run_channel_scan
+from services.batch_service import (
+    load_batch_state,
+    load_our_videos_list,
+    save_batch_state,
+    start_new_cycle,
+)
+from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
-from services.playback_service import PlayOutcome, PlaybackService, is_filler_item
-from services.queue_service import QueueService
+from services.playback_service import PlaybackService, is_filler_item
 from services.runtime_control import (
     PlaybackCommand,
     clear_command,
@@ -24,93 +32,131 @@ from services.runtime_control import (
 from services.storage import (
     append_history,
     load_current_item,
-    load_queue,
-    pop_history_last_non_filler,
     save_current_item,
-    save_queue,
 )
-from utils.logger import log_blank, log_error, log_play, log_warn
+from services.ytdlp_client import YtDlpClient
+from utils.logger import log_blank, log_block, log_error, log_info, log_play, log_warn
 
 
-def scan_for_new_videos() -> None:
-    run_channel_scan()
-
-
-def _apply_playback_outcome(item: VideoItem, outcome: PlayOutcome) -> None:
-    if outcome == "completed":
-        if not is_filler_item(item):
-            append_history(HISTORY_FILE, item)
-        return
-
-    if outcome == "skipped":
-        return
-
-    if outcome == "previous":
-        prev = pop_history_last_non_filler(HISTORY_FILE)
-        q = load_queue(QUEUE_FILE)
-        if prev:
-            q = [prev, item] + q
-        else:
-            q = [item] + q
-        save_queue(QUEUE_FILE, q)
-
-
-def _handle_idle_transport_commands(queue: list) -> bool:
-    """Коли нічого не відтворюється: обробити skip/prev з адмінки. Повертає True, якщо крок завершено."""
-    cmd = (load_control().get("command") or "").strip().lower()
-    if cmd == PlaybackCommand.SKIP.value:
-        if queue:
-            save_queue(QUEUE_FILE, queue[1:])
-        clear_command()
-        return True
-    if cmd == PlaybackCommand.PREVIOUS.value:
-        prev = pop_history_last_non_filler(HISTORY_FILE)
-        if prev:
-            q = load_queue(QUEUE_FILE)
-            save_queue(QUEUE_FILE, [prev] + q)
-        clear_command()
-        return True
-    return False
-
-
-def playback_step() -> None:
-    queue_service = QueueService()
-    playback_service = PlaybackService()
-
-    current_item = load_current_item(CURRENT_ITEM_FILE)
-    queue = load_queue(QUEUE_FILE)
-    queue = queue_service.dedupe_queue(queue)
-
-    if current_item is None and _handle_idle_transport_commands(queue):
-        return
-
-    if current_item is not None:
-        log_warn(
-            f"Recovery playback detected: {current_item.title} ({current_item.video_id})"
-        )
-        try:
-            outcome = playback_service.play(current_item)
-        finally:
-            save_current_item(CURRENT_ITEM_FILE, None)
-        _apply_playback_outcome(current_item, outcome)
-        return
-
-    next_item, new_queue = queue_service.pop_next_item(queue)
-
-    if next_item is None:
-        log_play("Queue is empty -> using filler")
-        next_item = playback_service.create_filler_item()
-    else:
-        save_queue(QUEUE_FILE, new_queue)
-
-    save_current_item(CURRENT_ITEM_FILE, next_item)
-
+def _play_and_record(
+    playback: PlaybackService,
+    item: VideoItem,
+    record_history: bool = True,
+) -> str:
+    """Play a video item, persist current_item for crash recovery, return outcome."""
+    save_current_item(CURRENT_ITEM_FILE, item)
     try:
-        outcome = playback_service.play(next_item)
+        outcome = playback.play(item)
     finally:
         save_current_item(CURRENT_ITEM_FILE, None)
 
-    _apply_playback_outcome(next_item, outcome)
+    if outcome == "completed" and record_history and not is_filler_item(item):
+        append_history(HISTORY_FILE, item)
+
+    return outcome
+
+
+def _pick_and_play_our_video(
+    playback: PlaybackService,
+    ytdlp: YtDlpClient,
+    our_video_urls: list[str],
+) -> str:
+    """Pick a random 'our' video, play it, return outcome."""
+    if not our_video_urls:
+        item = playback.create_filler_item()
+    else:
+        url = random.choice(our_video_urls)
+        try:
+            item = ytdlp.fetch_video_by_url(url)
+        except Exception as e:
+            log_warn(f"Our video unavailable ({url}): {e}")
+            item = playback.create_filler_item()
+
+    return _play_and_record(playback, item, record_history=False)
+
+
+def _handle_paused_commands() -> None:
+    """Drain skip/previous commands that arrive while paused."""
+    cmd = (load_control().get("command") or "").strip().lower()
+    if cmd in (PlaybackCommand.SKIP.value, PlaybackCommand.PREVIOUS.value):
+        clear_command()
+
+
+def playback_cycle_step(
+    playback: PlaybackService,
+    ytdlp: YtDlpClient,
+) -> None:
+    """One step of the batch cycle: play one channel video + one 'our' video."""
+    channels = read_channels_list(CHANNELS_FILE)
+    our_video_urls = load_our_videos_list(OUR_VIDEOS_FILE)
+
+    if not channels:
+        log_warn("No channels configured — playing filler")
+        filler = playback.create_filler_item()
+        _play_and_record(playback, filler, record_history=False)
+        return
+
+    state = load_batch_state(BATCH_STATE_FILE)
+
+    if state is None or state.is_cycle_complete():
+        state = start_new_cycle(channels)
+        save_batch_state(BATCH_STATE_FILE, state)
+        log_block(f"NEW CYCLE: {len(state.shuffled_channels)} channels (shuffled)")
+
+    # Recovery: channel video played, but our video didn't finish before crash
+    if state.pending_our_video:
+        log_info("Recovery: playing pending 'our video'")
+        _pick_and_play_our_video(playback, ytdlp, our_video_urls)
+        state.pending_our_video = False
+        state.current_index += 1
+        save_batch_state(BATCH_STATE_FILE, state)
+        return
+
+    channel_url = state.current_channel()
+    if channel_url is None:
+        return
+
+    idx = state.current_index
+    total = len(state.shuffled_channels)
+    log_info(f"Channel {idx + 1}/{total}: {channel_url}")
+
+    try:
+        videos = ytdlp.fetch_latest_videos(channel_url, limit=LAST_VIDEOS_LIMIT)
+    except Exception as e:
+        err = str(e).strip()
+        if len(err) > 400:
+            err = err[:400] + "…"
+        log_warn(f"Channel skipped (fetch error): {channel_url}\n{err}")
+        state.current_index += 1
+        save_batch_state(BATCH_STATE_FILE, state)
+        return
+
+    if not videos:
+        log_warn(f"Channel skipped (0 videos): {channel_url}")
+        state.current_index += 1
+        save_batch_state(BATCH_STATE_FILE, state)
+        return
+
+    video = random.choice(videos)
+    log_play(
+        f"Selected: {video.title} ({video.video_id}) "
+        f"from {len(videos)} candidates on {video.channel_title or channel_url}"
+    )
+
+    # Mark pending so crash recovery plays our video if we restart mid-pair
+    state.pending_our_video = True
+    save_batch_state(BATCH_STATE_FILE, state)
+
+    # 1) Play channel video
+    _play_and_record(playback, video, record_history=True)
+
+    # 2) Play our video
+    _pick_and_play_our_video(playback, ytdlp, our_video_urls)
+
+    # Advance to next channel
+    state.pending_our_video = False
+    state.current_index += 1
+    save_batch_state(BATCH_STATE_FILE, state)
 
 
 def _start_admin_server() -> None:
@@ -138,29 +184,23 @@ def main() -> None:
 
     _start_admin_server()
 
-    last_scan_time = 0.0
-    scan_interval_seconds = POLL_INTERVAL_MINUTES * 60
+    playback = PlaybackService()
+    ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
+
+    # Crash recovery: replay interrupted video
+    current = load_current_item(CURRENT_ITEM_FILE)
+    if current is not None:
+        log_warn(f"Recovery: replaying {current.title} ({current.video_id})")
+        _play_and_record(playback, current)
 
     while True:
-        now = time.time()
-
-        if now - last_scan_time >= scan_interval_seconds:
-            try:
-                scan_for_new_videos()
-            except Exception as e:
-                log_blank()
-                log_error(f"SCAN FAILED: {e}")
-                log_blank()
-                time.sleep(SCAN_ERROR_DELAY_SECONDS)
-            finally:
-                last_scan_time = now
-
         if is_paused():
+            _handle_paused_commands()
             time.sleep(0.3)
             continue
 
         try:
-            playback_step()
+            playback_cycle_step(playback, ytdlp)
         except Exception as e:
             log_blank()
             log_error(f"PLAYBACK FAILED: {e}")

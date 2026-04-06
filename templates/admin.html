@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>MEDIAHUB — адмінка черги</title>
+  <title>MEDIAHUB — адмінка</title>
   <style>
     :root {
       --bg: #0f1419;
@@ -58,7 +58,7 @@
       color: var(--text);
       font: inherit;
     }
-    textarea#channelsList {
+    textarea.mono-area {
       width: 100%;
       min-height: 9rem;
       padding: 0.55rem 0.65rem;
@@ -92,12 +92,6 @@
       background: var(--current);
       box-shadow: 0 0 0 1px rgba(59, 130, 246, 0.25);
     }
-    .slot.history {
-      border-color: #334155;
-      background: #141c24;
-      opacity: 0.92;
-    }
-    .badge.history-past { background: #475569; }
     .slot .meta { font-size: 0.8rem; color: var(--muted); }
     .slot .title { font-weight: 500; word-break: break-word; }
     .badge {
@@ -122,18 +116,13 @@
       margin-bottom: 1rem;
       font-size: 0.9rem;
     }
-    /* Зворотний зв’язок по кліку */
     button.btn-busy {
       position: relative;
       pointer-events: none;
       opacity: 0.85;
     }
-    button.btn-flash-ok {
-      animation: flashOk 0.65s ease;
-    }
-    button.btn-flash-err {
-      animation: flashErr 0.65s ease;
-    }
+    button.btn-flash-ok { animation: flashOk 0.65s ease; }
+    button.btn-flash-err { animation: flashErr 0.65s ease; }
     @keyframes flashOk {
       0% { box-shadow: 0 0 0 0 rgba(34, 197, 94, 0); }
       35% { box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.65); border-color: var(--ok); }
@@ -144,7 +133,6 @@
       35% { box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.55); border-color: var(--danger); }
       100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
     }
-    /* Тости (видиме підтвердження дії) */
     .toast-stack {
       position: fixed;
       right: 1rem;
@@ -179,15 +167,28 @@
       color: var(--muted);
       margin-top: 0.35rem;
     }
+    .progress-bar-bg {
+      background: #121a26;
+      border-radius: 6px;
+      height: 6px;
+      overflow: hidden;
+      margin-top: 0.4rem;
+    }
+    .progress-bar-fill {
+      background: var(--accent);
+      height: 100%;
+      border-radius: 6px;
+      transition: width 0.3s ease;
+    }
   </style>
 </head>
 <body>
   <div class="wrap">
     <h1>Адмінка трансляції</h1>
-    <p class="sub">Черга, поточне відео, керування ефіром і налаштування.</p>
+    <p class="sub">Цикл каналів, вставки наших відео, керування ефіром і налаштування.</p>
     <p id="lastSync" class="sub" style="margin-top:-0.75rem;margin-bottom:1rem;" aria-live="polite"></p>
 
-    <div id="pausedBanner" class="paused-banner" style="display:none;">Трансляцію призупинено — нові ролики з черги не стартують.</div>
+    <div id="pausedBanner" class="paused-banner" style="display:none;">Трансляцію призупинено — нові ролики не стартують.</div>
 
     <div id="toastStack" class="toast-stack" aria-live="assertive" aria-relevant="additions"></div>
 
@@ -197,22 +198,22 @@
         <button type="button" id="btnPauseResume" data-action="pause" aria-pressed="false" aria-label="Призупинити трансляцію">Пауза</button>
         <button type="button" id="btnNext">Наступне</button>
       </div>
-      <p class="sub" style="margin:0.75rem 0 0;">Під час відтворення «Наступне» надсилає команду пропуску поточному плеєру. У паузі «Наступне» прибирає перший елемент черги.</p>
+      <p class="sub" style="margin:0.75rem 0 0;">«Наступне» пропускає поточний ролик (канальний або наш) і переходить до наступного кроку у циклі.</p>
     </section>
 
     <section>
-      <h2>Таймлайн черги</h2>
-      <p class="sub" style="margin:0 0 0.75rem;">Над «Зараз у ефірі» — останні завершені ролики (без filler).</p>
-      <div id="timeline" class="timeline"></div>
+      <h2>Стан циклу</h2>
+      <div id="batchProgress"></div>
+      <div id="timeline" class="timeline" style="margin-top:0.75rem;"></div>
       <p id="msg" class="err" style="display:none;"></p>
     </section>
 
     <section>
       <h2>Канали джерел контенту</h2>
-      <p class="sub" style="margin:0 0 0.75rem;">Один URL каналу YouTube на рядок (формат як у <code>channels.txt</code>). Порожні рядки ігноруються, дублікати при збереженні прибираються.</p>
+      <p class="sub" style="margin:0 0 0.75rem;">Один URL каналу на рядок. Перед кожним новим циклом список перемішується рандомно; з кожного каналу обирається 1 відео з останніх 7.</p>
       <div class="field" style="margin-bottom:0.65rem;">
         <label for="channelsList">Список каналів</label>
-        <textarea id="channelsList" spellcheck="false" autocomplete="off" placeholder="https://www.youtube.com/@channel&#10;https://www.youtube.com/channel/UC..."></textarea>
+        <textarea id="channelsList" class="mono-area" spellcheck="false" autocomplete="off" placeholder="https://www.youtube.com/@channel&#10;https://www.youtube.com/channel/UC..."></textarea>
       </div>
       <div class="row">
         <button type="button" class="primary" id="btnSaveChannels">Зберегти список</button>
@@ -220,24 +221,15 @@
     </section>
 
     <section>
-      <h2>Сканування каналів</h2>
-      <p class="sub" style="margin:0 0 0.75rem;">Після зміни списку натисніть «Зберегти список» вище. За один запуск у <strong>кінець</strong> черги додається не більше 7 нових відео (усі канали разом); наступний скан знову може додати до 7.</p>
+      <h2>Наші відео (вставки між каналами)</h2>
+      <p class="sub" style="margin:0 0 0.75rem;">Один URL відео на рядок. Після кожного каналу програється рандомне відео з цього списку. Якщо список порожній — відтворюється filler.</p>
+      <div class="field" style="margin-bottom:0.65rem;">
+        <label for="ourVideosList">Список наших відео</label>
+        <textarea id="ourVideosList" class="mono-area" style="min-height:6rem;" spellcheck="false" autocomplete="off" placeholder="https://www.youtube.com/watch?v=...&#10;https://www.youtube.com/watch?v=..."></textarea>
+      </div>
       <div class="row">
-        <button type="button" id="btnScanChannels">Сканувати зараз</button>
+        <button type="button" class="primary" id="btnSaveOurVideos">Зберегти список</button>
       </div>
-    </section>
-
-    <section>
-      <h2>Додати у чергу</h2>
-      <div class="row">
-        <input type="url" id="addUrl" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off" />
-        <button type="button" class="primary" id="btnAddEnd">В кінець</button>
-        <button type="button" id="btnAddFront">На початок</button>
-      </div>
-      <div class="row" style="margin-top:0.5rem;">
-        <button type="button" id="btnFiller">Додати filler</button>
-      </div>
-      <p id="addOk" class="ok-msg" style="display:none;"></p>
     </section>
 
     <section>
@@ -250,7 +242,7 @@
         <label for="fillerUrl">Посилання на filler (YouTube або залиште filler://loop)</label>
         <input type="text" id="fillerUrl" placeholder="filler://loop або https://..." autocomplete="off" />
       </div>
-      <p class="sub" id="settingsAutoHint" style="margin:0 0 0.75rem;">Налаштування нижче зберігаються автоматично після зміни (коротка затримка для полів вводу).</p>
+      <p class="sub" id="settingsAutoHint" style="margin:0 0 0.75rem;">Налаштування нижче зберігаються автоматично після зміни.</p>
       <p class="row" style="margin:0;align-items:center;gap:0.5rem;">
         <span id="keyStatus" class="sub" style="margin:0;"></span>
       </p>
@@ -260,12 +252,11 @@
           <input type="file" id="logoFile" accept="image/png" />
           <button type="button" id="btnUploadLogo">Завантажити PNG</button>
         </div>
-        <p class="sub" style="margin:0.35rem 0 0;">Файл зберігається як assets/logo.png; шлях записується в налаштування. Прозорі пікселі PNG накладаються поверх відео (альфа обробляється в ffmpeg).</p>
+        <p class="sub" style="margin:0.35rem 0 0;">Файл зберігається як assets/logo.png; прозорі пікселі PNG накладаються поверх відео.</p>
       </div>
       <div class="field">
-        <label for="logoOpacity">Прозорість логотипу (множник альфи, 0…1)</label>
+        <label for="logoOpacity">Прозорість логотипу (0…1)</label>
         <input type="number" id="logoOpacity" min="0" max="1" step="0.05" value="1" />
-        <p class="sub" style="margin:0.35rem 0 0;">1 — як у файлі; 0 — невидимо. Застосовується після перезапуску/наступного відео в ефірі. Можна також задати змінну середовища MEDIAHUB_LOGO_OPACITY, якщо в JSON немає logo_opacity.</p>
       </div>
       <div class="field">
         <label for="logoZoom">Масштаб логотипу (zoom)</label>
@@ -273,7 +264,6 @@
           <input type="range" id="logoZoom" min="0.25" max="8" step="0.05" value="1" data-control="zoom" style="flex:1; min-width:10rem;" />
           <span id="logoZoomValue" class="sub" style="margin:0; min-width:3.5rem;">1×</span>
         </div>
-        <p class="sub" style="margin:0.35rem 0 0;">Спочатку PNG вміщується в частину кадру (за замовчуванням ~25% ширини й висоти) без розтягування; 1× — цей базовий розмір, більше — крупніше. Розмір рамки: змінна MEDIAHUB_LOGO_FIT_FRACTION (0.05…1). Zoom 0.05…8; також MEDIAHUB_LOGO_ZOOM, якщо в JSON немає logo_zoom.</p>
       </div>
     </section>
   </div>
@@ -281,6 +271,7 @@
   <script>
     const $ = (id) => document.getElementById(id);
 
+    /* ---- Toast / feedback ---- */
     function toast(message, variant = "success", durationMs = 3800) {
       const stack = $("toastStack");
       const el = document.createElement("div");
@@ -292,10 +283,7 @@
         el.style.transition = "opacity 0.25s ease";
         setTimeout(() => el.remove(), 260);
       }, durationMs);
-      el.addEventListener("click", () => {
-        clearTimeout(t);
-        el.remove();
-      });
+      el.addEventListener("click", () => { clearTimeout(t); el.remove(); });
     }
 
     function flashButton(btn, ok) {
@@ -306,14 +294,8 @@
       setTimeout(() => btn.classList.remove("btn-flash-ok", "btn-flash-err"), 700);
     }
 
-    /**
-     * Кнопка: короткий стан «обробка», потім підсвічування успіху/помилки + тост.
-     */
     async function runWithFeedback(btn, successMessage, fn, errToast = true) {
-      if (btn) {
-        btn.disabled = true;
-        btn.classList.add("btn-busy");
-      }
+      if (btn) { btn.disabled = true; btn.classList.add("btn-busy"); }
       try {
         await fn();
         toast(successMessage, "success");
@@ -326,10 +308,7 @@
         flashButton(btn, false);
         return false;
       } finally {
-        if (btn) {
-          btn.disabled = false;
-          btn.classList.remove("btn-busy");
-        }
+        if (btn) { btn.disabled = false; btn.classList.remove("btn-busy"); }
       }
     }
 
@@ -343,22 +322,20 @@
       return data;
     }
 
+    /* ---- Settings autosave plumbing ---- */
+    let channelsDirty = false;
+    let ourVideosDirty = false;
+    let settingsWritePending = false;
+    let settingsDebounceTimer = null;
+    let settingsSaveInFlight = false;
+
     function syncLogoZoomLabel() {
       const el = $("logoZoom");
       const out = $("logoZoomValue");
       if (!el || !out) return;
       const v = parseFloat(el.value);
-      const n = Number.isNaN(v) ? 1 : v;
-      out.textContent = String(Math.round(n * 100) / 100) + "×";
+      out.textContent = String(Math.round((Number.isNaN(v) ? 1 : v) * 100) / 100) + "×";
     }
-
-    /** Поки true — не перезаписувати textarea каналів з автооновлення. */
-    let channelsDirty = false;
-
-    /** Поки true — не перезаписувати поля налаштувань з сервера (користувач редагує або чекаємо збереження). */
-    let settingsWritePending = false;
-    let settingsDebounceTimer = null;
-    let settingsSaveInFlight = false;
 
     function clampLogoOpacity() {
       let v = parseFloat($("logoOpacity").value);
@@ -380,23 +357,6 @@
       };
     }
 
-    function applyChannelsFromServer(data) {
-      if (channelsDirty) return;
-      const list = Array.isArray(data.channels) ? data.channels : [];
-      $("channelsList").value = list.join("\n");
-    }
-
-    function applySettingsFieldsFromServer(data) {
-      if (settingsWritePending) return;
-      $("fillerUrl").value = (data.settings && data.settings.filler_url) || "";
-      const lo = data.settings && typeof data.settings.logo_opacity === "number" ? data.settings.logo_opacity : 1;
-      $("logoOpacity").value = String(lo);
-      const lz = data.settings && typeof data.settings.logo_zoom === "number" ? data.settings.logo_zoom : 1;
-      $("logoZoom").value = String(Math.min(8, Math.max(0.25, lz)));
-      syncLogoZoomLabel();
-    }
-
-    /** Відкласти збереження всіх полів налаштувань (один POST). */
     function scheduleSettingsAutosave() {
       settingsWritePending = true;
       if (settingsDebounceTimer) clearTimeout(settingsDebounceTimer);
@@ -406,19 +366,10 @@
       }, 280);
     }
 
-    /**
-     * Негайно записати поточні значення форми в settings.json і дочекатися завершення.
-     * Якщо вже йде збереження — чекає його, потім відправляє актуальний знімок (можливі кілька кроків підряд).
-     */
     async function flushSettingsAutosave() {
-      if (settingsDebounceTimer) {
-        clearTimeout(settingsDebounceTimer);
-        settingsDebounceTimer = null;
-      }
+      if (settingsDebounceTimer) { clearTimeout(settingsDebounceTimer); settingsDebounceTimer = null; }
       for (;;) {
-        while (settingsSaveInFlight) {
-          await new Promise((r) => setTimeout(r, 40));
-        }
+        while (settingsSaveInFlight) await new Promise((r) => setTimeout(r, 40));
         settingsSaveInFlight = true;
         const body = collectSettingsBody();
         try {
@@ -430,9 +381,7 @@
           toast(msg, "error");
           showErr(msg);
           throw e;
-        } finally {
-          settingsSaveInFlight = false;
-        }
+        } finally { settingsSaveInFlight = false; }
         if (!settingsWritePending && !settingsDebounceTimer) break;
       }
     }
@@ -441,51 +390,70 @@
       const k = $("streamKey").value.trim();
       if (!k) return;
       try {
-        await api("/api/settings", {
-          method: "POST",
-          body: JSON.stringify({ youtube_stream_key: k }),
-        });
+        await api("/api/settings", { method: "POST", body: JSON.stringify({ youtube_stream_key: k }) });
         $("streamKey").value = "";
         toast("Stream key збережено.", "success", 2800);
         await refreshSilent();
       } catch (e) {
-        const msg = e && e.message ? e.message : String(e);
-        toast(msg, "error");
-        showErr(msg);
+        toast(e.message || String(e), "error");
       }
     }
 
+    /* ---- Helpers ---- */
     function formatDuration(sec) {
       if (sec == null || sec === "" || Number.isNaN(Number(sec))) return "—";
       const s = Math.max(0, Math.floor(Number(sec)));
       const h = Math.floor(s / 3600);
       const m = Math.floor((s % 3600) / 60);
       const r = s % 60;
-      if (h > 0) {
-        return h + ":" + String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
-      }
+      if (h > 0) return h + ":" + String(m).padStart(2, "0") + ":" + String(r).padStart(2, "0");
       return m + ":" + String(r).padStart(2, "0");
     }
 
+    function escapeHtml(s) {
+      return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+    }
+
+    function showErr(msg) { const p = $("msg"); p.style.display = "block"; p.textContent = msg; }
+    function clearErr() { const p = $("msg"); p.style.display = "none"; p.textContent = ""; }
+    function setLastSync() {
+      const el = $("lastSync");
+      if (el) el.textContent = "Останнє оновлення: " + new Date().toLocaleTimeString("uk-UA");
+    }
+
+    /* ---- Batch progress ---- */
+    function renderBatchProgress(data) {
+      const box = $("batchProgress");
+      const batch = data.batch;
+
+      if (!batch || !batch.shuffled_channels || !batch.shuffled_channels.length) {
+        box.innerHTML = '<p class="sub" style="margin:0;">Цикл ще не почався. Додайте канали та запустіть трансляцію.</p>';
+        return;
+      }
+
+      const total = batch.shuffled_channels.length;
+      const idx = batch.current_index;
+      const done = Math.min(idx, total);
+      const pct = Math.round((done / total) * 100);
+      const pending = batch.pending_our_video ? " (наше відео)" : "";
+
+      box.innerHTML = `
+        <div style="display:flex;align-items:center;gap:0.75rem;">
+          <strong>Канал ${Math.min(done + 1, total)} з ${total}</strong>
+          <span class="sub" style="margin:0;">${pct}% циклу${pending}</span>
+        </div>
+        <div class="progress-bar-bg">
+          <div class="progress-bar-fill" style="width:${pct}%;"></div>
+        </div>
+      `;
+    }
+
+    /* ---- Timeline ---- */
     function renderTimeline(data) {
       const box = $("timeline");
       box.innerHTML = "";
       const cur = data.current;
-      const q = data.queue || [];
-      const hist = data.history_preview || [];
-
-      hist.forEach((item) => {
-        const el = document.createElement("div");
-        el.className = "slot history";
-        el.innerHTML = `
-          <div>
-            <span class="badge history-past">Раніше в ефірі</span>
-            <div class="title">${escapeHtml(item.title || "")}</div>
-            <div class="meta">${formatDuration(item.duration)} · ${escapeHtml(item.video_id || "")} · ${escapeHtml(item.channel_title || "")}</div>
-          </div>
-        `;
-        box.appendChild(el);
-      });
+      const batch = data.batch;
 
       if (cur) {
         const el = document.createElement("div");
@@ -501,88 +469,76 @@
       } else {
         const el = document.createElement("div");
         el.className = "slot";
-        el.innerHTML = `<div><span class="badge idle">Ефір</span><div class="title">Немає активного запису в current_item (між треками або старт)</div></div>`;
+        el.innerHTML = '<div><span class="badge idle">Ефір</span><div class="title">Між треками або очікування</div></div>';
         box.appendChild(el);
       }
 
-      if (!q.length) {
+      if (!batch || !batch.shuffled_channels || !batch.shuffled_channels.length) {
         const el = document.createElement("div");
         el.className = "slot";
-        el.innerHTML = `<div class="meta">Черга порожня — наступний крок може бути filler за правилами app.py.</div>`;
+        el.innerHTML = '<div class="meta">Цикл не активний.</div>';
         box.appendChild(el);
         return;
       }
 
-      q.forEach((item, index) => {
+      const startIdx = batch.pending_our_video ? batch.current_index + 1 : batch.current_index;
+      const total = batch.shuffled_channels.length;
+
+      if (startIdx >= total) {
         const el = document.createElement("div");
         el.className = "slot";
-        el.innerHTML = `
-          <div style="flex:1;min-width:0;">
-            <div class="title">${escapeHtml(item.title || "")}</div>
-            <div class="meta">#${index} · ${formatDuration(item.duration)} · ${escapeHtml(item.video_id || "")} · ${escapeHtml(item.channel_title || "")}</div>
-          </div>
-          <div class="row" style="flex-shrink:0;">
-            <button type="button" data-up="${index}" ${index === 0 ? "disabled" : ""}>↑</button>
-            <button type="button" data-down="${index}" ${index === q.length - 1 ? "disabled" : ""}>↓</button>
-            <button type="button" class="danger" data-del="${index}">Видалити</button>
-          </div>
-        `;
+        el.innerHTML = '<div class="meta">Цикл завершується — наступний почнеться з новим перемішуванням.</div>';
         box.appendChild(el);
-      });
+        return;
+      }
 
-      box.querySelectorAll("button[data-del]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const i = parseInt(btn.getAttribute("data-del"), 10);
-          await runWithFeedback(btn, "Видалено з черги.", async () => {
-            await api("/api/queue/" + i, { method: "DELETE" });
-            await refreshSilent();
-          });
-        });
-      });
-      box.querySelectorAll("button[data-up]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const i = parseInt(btn.getAttribute("data-up"), 10);
-          await runWithFeedback(btn, "Елемент посунуто вгору.", async () => {
-            await api("/api/queue/move", { method: "POST", body: JSON.stringify({ from: i, to: i - 1 }) });
-            await refreshSilent();
-          });
-        });
-      });
-      box.querySelectorAll("button[data-down]").forEach((btn) => {
-        btn.addEventListener("click", async () => {
-          const i = parseInt(btn.getAttribute("data-down"), 10);
-          await runWithFeedback(btn, "Елемент посунуто вниз.", async () => {
-            await api("/api/queue/move", { method: "POST", body: JSON.stringify({ from: i, to: i + 1 }) });
-            await refreshSilent();
-          });
-        });
-      });
+      const showCount = Math.min(6, total - startIdx);
+
+      const header = document.createElement("div");
+      header.className = "sub";
+      header.style.cssText = "margin:0.5rem 0 0.25rem;font-size:0.8rem;";
+      header.textContent = "Наступні канали у циклі:";
+      box.appendChild(header);
+
+      for (let i = 0; i < showCount; i++) {
+        const chIdx = startIdx + i;
+        const el = document.createElement("div");
+        el.className = "slot";
+        el.innerHTML = `<div><div class="meta">#${chIdx + 1}/${total} · ${escapeHtml(batch.shuffled_channels[chIdx])}</div></div>`;
+        box.appendChild(el);
+      }
+
+      const remaining = total - startIdx - showCount;
+      if (remaining > 0) {
+        const el = document.createElement("div");
+        el.className = "sub";
+        el.style.cssText = "margin:0.25rem 0 0;font-size:0.8rem;";
+        el.textContent = "…та ще " + remaining + " каналів до кінця циклу.";
+        box.appendChild(el);
+      }
     }
 
-    function escapeHtml(s) {
-      return String(s)
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;");
+    /* ---- Apply server data to forms ---- */
+    function applyChannelsFromServer(data) {
+      if (channelsDirty) return;
+      const list = Array.isArray(data.channels) ? data.channels : [];
+      $("channelsList").value = list.join("\n");
     }
 
-    function showErr(msg) {
-      const p = $("msg");
-      p.style.display = "block";
-      p.textContent = msg;
-    }
-    function clearErr() {
-      const p = $("msg");
-      p.style.display = "none";
-      p.textContent = "";
+    function applyOurVideosFromServer(data) {
+      if (ourVideosDirty) return;
+      const list = Array.isArray(data.our_videos) ? data.our_videos : [];
+      $("ourVideosList").value = list.join("\n");
     }
 
-    function setLastSync() {
-      const el = $("lastSync");
-      if (!el) return;
-      const t = new Date();
-      el.textContent = "Останнє оновлення даних: " + t.toLocaleTimeString("uk-UA");
+    function applySettingsFieldsFromServer(data) {
+      if (settingsWritePending) return;
+      $("fillerUrl").value = (data.settings && data.settings.filler_url) || "";
+      const lo = data.settings && typeof data.settings.logo_opacity === "number" ? data.settings.logo_opacity : 1;
+      $("logoOpacity").value = String(lo);
+      const lz = data.settings && typeof data.settings.logo_zoom === "number" ? data.settings.logo_zoom : 1;
+      $("logoZoom").value = String(Math.min(8, Math.max(0.25, lz)));
+      syncLogoZoomLabel();
     }
 
     function updatePauseResumeButton(paused) {
@@ -592,23 +548,24 @@
         btn.textContent = "Продовжити";
         btn.dataset.action = "resume";
         btn.setAttribute("aria-pressed", "true");
-        btn.setAttribute("aria-label", "Продовжити трансляцію");
       } else {
         btn.textContent = "Пауза";
         btn.dataset.action = "pause";
         btn.setAttribute("aria-pressed", "false");
-        btn.setAttribute("aria-label", "Призупинити трансляцію");
       }
     }
 
+    /* ---- Refresh ---- */
     async function refresh() {
       clearErr();
       const data = await api("/api/status");
+      renderBatchProgress(data);
       renderTimeline(data);
       $("pausedBanner").style.display = data.paused ? "block" : "none";
       updatePauseResumeButton(data.paused);
       applySettingsFieldsFromServer(data);
       applyChannelsFromServer(data);
+      applyOurVideosFromServer(data);
       $("keyStatus").textContent = data.youtube_stream_key_configured
         ? "Ключ збережено (локально)."
         : "Ключ не задано.";
@@ -616,26 +573,29 @@
       return data;
     }
 
-    /** Оновити UI без тостів (після дій з власним повідомленням). */
     async function refreshSilent() {
       clearErr();
       const data = await api("/api/status");
+      renderBatchProgress(data);
       renderTimeline(data);
       $("pausedBanner").style.display = data.paused ? "block" : "none";
       updatePauseResumeButton(data.paused);
       applySettingsFieldsFromServer(data);
       applyChannelsFromServer(data);
+      applyOurVideosFromServer(data);
       $("keyStatus").textContent = data.youtube_stream_key_configured
         ? "Ключ збережено (локально)."
         : "Ключ не задано.";
       setLastSync();
       return data;
     }
+
+    /* ---- Event listeners ---- */
 
     $("btnPauseResume").addEventListener("click", async () => {
       const btn = $("btnPauseResume");
       const resume = btn.dataset.action === "resume";
-      const okMsg = resume ? "Трансляцію відновлено." : "Пауза увімкнена — черга не рухається.";
+      const okMsg = resume ? "Трансляцію відновлено." : "Пауза увімкнена.";
       await runWithFeedback(btn, okMsg, async () => {
         await flushSettingsAutosave();
         const path = resume ? "/api/control/resume" : "/api/control/pause";
@@ -643,6 +603,7 @@
         await refreshSilent();
       });
     });
+
     $("btnNext").addEventListener("click", async () => {
       await runWithFeedback($("btnNext"), "Команду «наступне» надіслано.", async () => {
         await flushSettingsAutosave();
@@ -651,87 +612,36 @@
       });
     });
 
-    $("channelsList").addEventListener("input", () => {
-      channelsDirty = true;
-    });
+    /* Channels */
+    $("channelsList").addEventListener("input", () => { channelsDirty = true; });
 
     $("btnSaveChannels").addEventListener("click", async () => {
       const btn = $("btnSaveChannels");
       const lines = $("channelsList").value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-      await runWithFeedback(btn, "Список каналів збережено (channels.txt).", async () => {
-        await api("/api/channels", {
-          method: "PUT",
-          body: JSON.stringify({ channels: lines }),
-        });
+      await runWithFeedback(btn, "Список каналів збережено.", async () => {
+        await api("/api/channels", { method: "PUT", body: JSON.stringify({ channels: lines }) });
         channelsDirty = false;
         await refreshSilent();
       });
     });
 
-    $("btnScanChannels").addEventListener("click", async () => {
-      const btn = $("btnScanChannels");
-      btn.disabled = true;
-      btn.classList.add("btn-busy");
-      try {
-        const data = await api("/api/scan", { method: "POST", body: "{}" });
-        const n = typeof data.added === "number" ? data.added : 0;
-        toast(
-          n > 0 ? "Скан завершено. Додано в чергу нових відео: " + n + "." : "Скан завершено. Нових відео для додавання немає.",
-          "success"
-        );
-        flashButton(btn, true);
-        await refreshSilent();
-      } catch (e) {
-        const msg = e && e.message ? e.message : String(e);
-        toast(msg, "error");
-        showErr(msg);
-        flashButton(btn, false);
-      } finally {
-        btn.disabled = false;
-        btn.classList.remove("btn-busy");
-      }
-    });
+    /* Our videos */
+    $("ourVideosList").addEventListener("input", () => { ourVideosDirty = true; });
 
-    async function addToQueue(position, btn) {
-      const url = $("addUrl").value.trim();
-      if (!url) {
-        toast("Вкажіть посилання у полі.", "error", 4500);
-        showErr("Вкажіть посилання.");
-        flashButton(btn, false);
-        return;
-      }
-      clearErr();
-      const place = position === "front" ? "на початок" : "у кінець";
-      await runWithFeedback(btn, "Відео додано " + place + " черги.", async () => {
-        await api("/api/queue/add", {
-          method: "POST",
-          body: JSON.stringify({ url, position }),
-        });
-        $("addOk").style.display = "block";
-        $("addOk").textContent = "Додано до черги.";
-        setTimeout(() => { $("addOk").style.display = "none"; }, 3200);
-        $("addUrl").value = "";
-        await refreshSilent();
-      });
-    }
-
-    $("btnAddEnd").addEventListener("click", () => addToQueue("end", $("btnAddEnd")));
-    $("btnAddFront").addEventListener("click", () => addToQueue("front", $("btnAddFront")));
-
-    $("btnFiller").addEventListener("click", async () => {
-      clearErr();
-      await runWithFeedback($("btnFiller"), "Filler додано в кінець черги.", async () => {
-        await api("/api/queue/add", { method: "POST", body: JSON.stringify({ type: "filler", position: "end" }) });
+    $("btnSaveOurVideos").addEventListener("click", async () => {
+      const btn = $("btnSaveOurVideos");
+      const lines = $("ourVideosList").value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
+      await runWithFeedback(btn, "Список наших відео збережено.", async () => {
+        await api("/api/our-videos", { method: "PUT", body: JSON.stringify({ urls: lines }) });
+        ourVideosDirty = false;
         await refreshSilent();
       });
     });
 
+    /* Settings */
     $("fillerUrl").addEventListener("input", scheduleSettingsAutosave);
     $("fillerUrl").addEventListener("blur", () => {
-      if (settingsDebounceTimer) {
-        clearTimeout(settingsDebounceTimer);
-        settingsDebounceTimer = null;
-      }
+      if (settingsDebounceTimer) { clearTimeout(settingsDebounceTimer); settingsDebounceTimer = null; }
       flushSettingsAutosave().catch(() => {});
     });
 
@@ -739,12 +649,7 @@
 
     $("btnUploadLogo").addEventListener("click", async () => {
       const f = $("logoFile").files[0];
-      if (!f) {
-        toast("Оберіть файл PNG.", "error", 4500);
-        showErr("Оберіть PNG.");
-        flashButton($("btnUploadLogo"), false);
-        return;
-      }
+      if (!f) { toast("Оберіть файл PNG.", "error", 4500); flashButton($("btnUploadLogo"), false); return; }
       clearErr();
       await runWithFeedback($("btnUploadLogo"), "PNG збережено (assets/logo.png).", async () => {
         const fd = new FormData();
@@ -756,33 +661,23 @@
       });
     });
 
-    $("logoZoom").addEventListener("input", () => {
-      syncLogoZoomLabel();
-      scheduleSettingsAutosave();
-    });
+    $("logoZoom").addEventListener("input", () => { syncLogoZoomLabel(); scheduleSettingsAutosave(); });
     $("logoZoom").addEventListener("change", () => {
-      if (settingsDebounceTimer) {
-        clearTimeout(settingsDebounceTimer);
-        settingsDebounceTimer = null;
-      }
+      if (settingsDebounceTimer) { clearTimeout(settingsDebounceTimer); settingsDebounceTimer = null; }
       flushSettingsAutosave().catch(() => {});
     });
     $("logoOpacity").addEventListener("input", scheduleSettingsAutosave);
     $("logoOpacity").addEventListener("blur", () => {
-      if (settingsDebounceTimer) {
-        clearTimeout(settingsDebounceTimer);
-        settingsDebounceTimer = null;
-      }
+      if (settingsDebounceTimer) { clearTimeout(settingsDebounceTimer); settingsDebounceTimer = null; }
       flushSettingsAutosave().catch(() => {});
     });
 
+    /* ---- Init ---- */
     refresh().catch((e) => {
       showErr(e.message);
       toast("Не вдалося завантажити статус: " + e.message, "error", 6000);
     });
-    setInterval(() => {
-      refreshSilent().catch(() => {});
-    }, 4000);
+    setInterval(() => { refreshSilent().catch(() => {}); }, 4000);
   </script>
 </body>
 </html>

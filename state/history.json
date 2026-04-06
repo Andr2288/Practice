@@ -1,53 +1,5 @@
 [
   {
-    "video_id": "UkQccObc8OM",
-    "title": "У нас - перший сніг!",
-    "url": "https://www.youtube.com/shorts/UkQccObc8OM",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/shorts",
-    "channel_title": "Бригада \"Гарт\" - Shorts",
-    "duration": null
-  },
-  {
-    "video_id": "8s94s6mBTvA",
-    "title": "Покликаний нищити ворога: бойова стихія прикордонника бригади «Гарт» Смайла",
-    "url": "https://www.youtube.com/shorts/8s94s6mBTvA",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/shorts",
-    "channel_title": "Бригада \"Гарт\" - Shorts",
-    "duration": null
-  },
-  {
-    "video_id": "jHVkdX3Bs7Y",
-    "title": "«Його шлях, його голос, його правда про війну. Історія бійця  “Гарту”, який щодня тримає стрій",
-    "url": "https://www.youtube.com/shorts/jHVkdX3Bs7Y",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/shorts",
-    "channel_title": "Бригада \"Гарт\" - Shorts",
-    "duration": null
-  },
-  {
-    "video_id": "VGwHbH48MfQ",
-    "title": "З Благовіщенням Пресвятої Богородиці!",
-    "url": "https://www.youtube.com/watch?v=VGwHbH48MfQ",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
-    "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 69.0
-  },
-  {
-    "video_id": "4H8CNuJQrZs",
-    "title": "Ворожий танк вполювали дронарі прикордонної бригади «Гарт»",
-    "url": "https://www.youtube.com/watch?v=4H8CNuJQrZs",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
-    "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 42.0
-  },
-  {
-    "video_id": "Rkw055p37sA",
-    "title": "Це працює: як відновити ресурс за шістьма кроками",
-    "url": "https://www.youtube.com/watch?v=Rkw055p37sA",
-    "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
-    "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 125.0
-  },
-  {
     "video_id": "WSQoogpi7jA",
     "title": "«Фурія» полює на техніку та вогневі засоби у ворожому прикордонні.",
     "url": "https://www.youtube.com/watch?v=WSQoogpi7jA",
@@ -638,5 +590,53 @@
     "channel_url": "https://www.youtube.com/@58brigade/videos",
     "channel_title": "58 окрема мотопіхотна бригада - Videos",
     "duration": 99
+  },
+  {
+    "video_id": "SQkClxBZSUw",
+    "title": "МАШИНИ ЗАМІСТЬ ЛЮДЕЙ! 🔥 КУПʼЯНСЬКИЙ НАПРЯМОК!",
+    "url": "https://www.youtube.com/watch?v=SQkClxBZSUw",
+    "channel_url": "https://www.youtube.com/@14ombr/videos",
+    "channel_title": "14 ОМБр імені князя Романа Великого - Videos",
+    "duration": 290
+  },
+  {
+    "video_id": "fvLMfCdgU_U",
+    "title": "У НЕБІ РОЗГОРНУВСЯ ПРАПОР 77 БРИГАДИ",
+    "url": "https://www.youtube.com/watch?v=fvLMfCdgU_U",
+    "channel_url": "https://www.youtube.com/@77OAEMB/videos",
+    "channel_title": "77 окрема аеромобільна бригада - Videos",
+    "duration": 84
+  },
+  {
+    "video_id": "SZg-uh0v4A8",
+    "title": "Професіоналізм починається з гарту | 429 бригада «АХІЛЛЕС» провела практичне заняття зі студентами",
+    "url": "https://www.youtube.com/watch?v=SZg-uh0v4A8",
+    "channel_url": "https://www.youtube.com/@ACHILLES_UA/videos",
+    "channel_title": "429 окрема бригада БпС «АХІЛЛЕС» - Videos",
+    "duration": 72
+  },
+  {
+    "video_id": "IaSRakNI7uA",
+    "title": "«Мер» 115 ОМБр: Як дрони-перехоплювачі змінили повітряну війну",
+    "url": "https://www.youtube.com/watch?v=IaSRakNI7uA",
+    "channel_url": "https://www.youtube.com/@115ombr/videos",
+    "channel_title": "115 окрема механізована бригада ЗСУ - Videos",
+    "duration": 308
+  },
+  {
+    "video_id": "SEDO12tGHIY",
+    "title": "❌Ліквідували конвоїра українських полонених❌",
+    "url": "https://www.youtube.com/watch?v=SEDO12tGHIY",
+    "channel_url": "https://www.youtube.com/@ACHILLES_UA/videos",
+    "channel_title": "429 окрема бригада БпС «АХІЛЛЕС» - Videos",
+    "duration": 74
+  },
+  {
+    "video_id": "fvLMfCdgU_U",
+    "title": "У НЕБІ РОЗГОРНУВСЯ ПРАПОР 77 БРИГАДИ",
+    "url": "https://www.youtube.com/watch?v=fvLMfCdgU_U",
+    "channel_url": "https://www.youtube.com/@77OAEMB/videos",
+    "channel_title": "77 окрема аеромобільна бригада - Videos",
+    "duration": 84
   }
 ]

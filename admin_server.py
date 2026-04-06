@@ -7,13 +7,16 @@ from flask import Flask, jsonify, render_template, request
 from config import (
     ASSETS_DIR,
     BASE_DIR,
+    BATCH_STATE_FILE,
     CHANNELS_FILE,
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
+    OUR_VIDEOS_FILE,
     QUEUE_FILE,
     YOUTUBE_STREAM_KEY_FILE,
     YT_DLP_BIN,
 )
+from services.batch_service import load_batch_state, load_our_videos_list, save_our_videos_list
 from services.models import VideoItem
 from services.playback_service import PlaybackService
 from services.queue_service import QueueService
@@ -56,21 +59,18 @@ def create_app() -> Flask:
         return render_template("admin.html")
 
     def _queue_payload():
-        qsvc = QueueService()
-        raw = load_queue(QUEUE_FILE)
-        queue = qsvc.dedupe_queue(raw)
-        if raw != queue:
-            save_queue(QUEUE_FILE, queue)
         cur = load_current_item(CURRENT_ITEM_FILE)
         ctrl = load_control()
         settings = load_settings()
         key_present = _stream_key_configured()
+        batch = load_batch_state(BATCH_STATE_FILE)
         return {
-            "queue": [x.to_dict() for x in queue],
             "current": cur.to_dict() if cur else None,
             "paused": bool(ctrl.get("paused")),
             "command": ctrl.get("command") or "",
             "channels": read_channels_list(CHANNELS_FILE),
+            "our_videos": load_our_videos_list(OUR_VIDEOS_FILE),
+            "batch": batch.to_dict() if batch else None,
             "settings": {
                 "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
@@ -97,6 +97,21 @@ def create_app() -> Flask:
                 if s:
                     urls.append(s)
         save_channels_list(CHANNELS_FILE, urls)
+        return jsonify({"ok": True, **_queue_payload()})
+
+    @app.put("/api/our-videos")
+    def api_our_videos_put():
+        data = request.get_json(silent=True) or {}
+        raw = data.get("urls")
+        if not isinstance(raw, list):
+            return jsonify({"ok": False, "error": "Expected { urls: [...] }"}), 400
+        urls: list[str] = []
+        for x in raw:
+            if isinstance(x, str):
+                s = x.strip()
+                if s:
+                    urls.append(s)
+        save_our_videos_list(OUR_VIDEOS_FILE, urls)
         return jsonify({"ok": True, **_queue_payload()})
 
     @app.post("/api/scan")
@@ -193,23 +208,12 @@ def create_app() -> Flask:
 
     @app.post("/api/control/next")
     def api_next():
-        if is_paused():
-            q = load_queue(QUEUE_FILE)
-            if q:
-                save_queue(QUEUE_FILE, q[1:])
-        else:
-            request_skip()
+        request_skip()
         return jsonify({"ok": True, **_queue_payload()})
 
     @app.post("/api/control/previous")
     def api_previous():
-        if is_paused():
-            prev = pop_history_last_non_filler(HISTORY_FILE)
-            if prev:
-                q = load_queue(QUEUE_FILE)
-                save_queue(QUEUE_FILE, [prev] + q)
-        else:
-            request_previous()
+        request_previous()
         return jsonify({"ok": True, **_queue_payload()})
 
     @app.get("/api/settings")
