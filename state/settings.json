@@ -2,5 +2,7 @@
   "filler_url": "",
   "logo_path": "assets\\logo.png",
   "logo_opacity": 0.75,
-  "logo_zoom": 0.5
+  "logo_zoom": 0.5,
+  "our_channel_url": "https://www.youtube.com/@JointForcesTaskForce/videos",
+  "our_videos_scan_interval_minutes": 30
 }

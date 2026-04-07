@@ -10,7 +10,8 @@ from config import (
     HISTORY_FILE,
     LAST_VIDEOS_LIMIT,
     MAX_CHANNEL_RETRIES,
-    OUR_VIDEOS_FILE,
+    OUR_VIDEOS_CACHE_FILE,
+    OUR_VIDEOS_LIMIT,
     PLAYBACK_ERROR_DELAY_SECONDS,
     SEEN_VIDEOS_FILE,
     STATE_DIR,
@@ -18,12 +19,12 @@ from config import (
 )
 from services.batch_service import (
     load_batch_state,
-    load_our_videos_list,
     save_batch_state,
     start_new_cycle,
 )
 from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
+from services.our_videos_cache import get_our_videos
 from services.playback_service import PlaybackService, is_filler_item
 from services.runtime_control import (
     PlaybackCommand,
@@ -31,6 +32,7 @@ from services.runtime_control import (
     is_paused,
     load_control,
 )
+from services.settings_service import load_settings
 from services.storage import (
     append_history,
     load_current_item,
@@ -65,19 +67,13 @@ def _play_and_record(
 
 def _pick_and_play_our_video(
     playback: PlaybackService,
-    ytdlp: YtDlpClient,
-    our_video_urls: list[str],
+    our_videos: list[VideoItem],
 ) -> str:
-    """Pick a random 'our' video, play it, return outcome."""
-    if not our_video_urls:
+    """Pick a random 'our' video from the cached channel list, play it, return outcome."""
+    if not our_videos:
         item = playback.create_filler_item()
     else:
-        url = random.choice(our_video_urls)
-        try:
-            item = ytdlp.fetch_video_by_url(url)
-        except Exception as e:
-            log_warn(f"Our video unavailable ({url}): {e}")
-            item = playback.create_filler_item()
+        item = random.choice(our_videos)
 
     return _play_and_record(playback, item, record_history=False)
 
@@ -95,7 +91,15 @@ def playback_cycle_step(
 ) -> None:
     """One step of the batch cycle: play one channel video + one 'our' video."""
     channels = read_channels_list(CHANNELS_FILE)
-    our_video_urls = load_our_videos_list(OUR_VIDEOS_FILE)
+
+    settings = load_settings()
+    our_videos = get_our_videos(
+        ytdlp=ytdlp,
+        channel_url=settings.our_channel_url,
+        limit=OUR_VIDEOS_LIMIT,
+        scan_interval_seconds=settings.our_videos_scan_interval_minutes * 60,
+        cache_file=OUR_VIDEOS_CACHE_FILE,
+    )
 
     if not channels:
         log_warn("No channels configured — playing filler")
@@ -113,7 +117,7 @@ def playback_cycle_step(
     # Recovery: channel video played, but our video didn't finish before crash
     if state.pending_our_video:
         log_info("Recovery: playing pending 'our video'")
-        _pick_and_play_our_video(playback, ytdlp, our_video_urls)
+        _pick_and_play_our_video(playback, our_videos)
         state.pending_our_video = False
         state.current_index += 1
         save_batch_state(BATCH_STATE_FILE, state)
@@ -188,7 +192,7 @@ def playback_cycle_step(
 
     # 2) Play our video
     try:
-        _pick_and_play_our_video(playback, ytdlp, our_video_urls)
+        _pick_and_play_our_video(playback, our_videos)
     except Exception as e:
         log_warn(f"Our video playback failed, continuing: {e}")
 

@@ -67,33 +67,3 @@ def start_new_cycle(channels: List[str]) -> BatchState:
     return BatchState(shuffled_channels=shuffled, current_index=0, pending_our_video=False)
 
 
-def _dedupe_urls(urls: List[str]) -> List[str]:
-    seen: set[str] = set()
-    out: List[str] = []
-    for u in urls:
-        s = u.strip()
-        if not s or s in seen:
-            continue
-        seen.add(s)
-        out.append(s)
-    return out
-
-
-def load_our_videos_list(path: Path) -> List[str]:
-    if not path.is_file():
-        return []
-    try:
-        with path.open("r", encoding="utf-8") as f:
-            lines = [line.strip() for line in f if line.strip()]
-        return _dedupe_urls(lines)
-    except OSError:
-        return []
-
-
-def save_our_videos_list(path: Path, urls: List[str]) -> None:
-    normalized = _dedupe_urls(urls)
-    path.parent.mkdir(parents=True, exist_ok=True)
-    path.write_text(
-        "\n".join(normalized) + ("\n" if normalized else ""),
-        encoding="utf-8",
-    )

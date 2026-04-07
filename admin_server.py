@@ -11,13 +11,13 @@ from config import (
     CHANNELS_FILE,
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
-    OUR_VIDEOS_FILE,
     QUEUE_FILE,
     YOUTUBE_STREAM_KEY_FILE,
     YT_DLP_BIN,
 )
-from services.batch_service import load_batch_state, load_our_videos_list, save_our_videos_list
+from services.batch_service import load_batch_state
 from services.models import VideoItem
+from services.our_videos_cache import invalidate_cache, peek_cached_videos
 from services.playback_service import PlaybackService
 from services.queue_service import QueueService
 from services.runtime_control import (
@@ -64,18 +64,25 @@ def create_app() -> Flask:
         settings = load_settings()
         key_present = _stream_key_configured()
         batch = load_batch_state(BATCH_STATE_FILE)
+        cached_vids, last_scan_ts, cached_ch = peek_cached_videos()
         return {
             "current": cur.to_dict() if cur else None,
             "paused": bool(ctrl.get("paused")),
             "command": ctrl.get("command") or "",
             "channels": read_channels_list(CHANNELS_FILE),
-            "our_videos": load_our_videos_list(OUR_VIDEOS_FILE),
+            "our_videos_cache": {
+                "videos": [v.to_dict() for v in cached_vids],
+                "last_scan_ts": last_scan_ts,
+                "channel_url": cached_ch,
+            },
             "batch": batch.to_dict() if batch else None,
             "settings": {
                 "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
+                "our_channel_url": settings.our_channel_url,
+                "our_videos_scan_interval_minutes": settings.our_videos_scan_interval_minutes,
             },
             "youtube_stream_key_configured": key_present,
         }
@@ -99,19 +106,10 @@ def create_app() -> Flask:
         save_channels_list(CHANNELS_FILE, urls)
         return jsonify({"ok": True, **_queue_payload()})
 
-    @app.put("/api/our-videos")
-    def api_our_videos_put():
-        data = request.get_json(silent=True) or {}
-        raw = data.get("urls")
-        if not isinstance(raw, list):
-            return jsonify({"ok": False, "error": "Expected { urls: [...] }"}), 400
-        urls: list[str] = []
-        for x in raw:
-            if isinstance(x, str):
-                s = x.strip()
-                if s:
-                    urls.append(s)
-        save_our_videos_list(OUR_VIDEOS_FILE, urls)
+    @app.post("/api/our-videos/rescan")
+    def api_our_videos_rescan():
+        """Force re-scan of 'our videos' channel on the next playback cycle."""
+        invalidate_cache()
         return jsonify({"ok": True, **_queue_payload()})
 
     @app.post("/api/scan")
@@ -226,6 +224,8 @@ def create_app() -> Flask:
                 "logo_path": settings.logo_path,
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
+                "our_channel_url": settings.our_channel_url,
+                "our_videos_scan_interval_minutes": settings.our_videos_scan_interval_minutes,
                 "youtube_stream_key_configured": key_present,
             }
         )

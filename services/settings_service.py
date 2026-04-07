@@ -3,7 +3,7 @@ from dataclasses import asdict, dataclass
 from pathlib import Path
 from typing import Any, Optional
 
-from config import BASE_DIR, LOGO_FILE, LOGO_OPACITY, LOGO_ZOOM, STATE_DIR
+from config import BASE_DIR, LOGO_FILE, LOGO_OPACITY, LOGO_ZOOM, OUR_VIDEOS_SCAN_INTERVAL_MINUTES, STATE_DIR
 
 SETTINGS_FILE = STATE_DIR / "settings.json"
 
@@ -20,6 +20,10 @@ class AppSettings:
     logo_opacity: float = 1.0
     """Множник після підгонки PNG у рамку кадру; 1 = базовий розмір. У JSON немає ключа → config.LOGO_ZOOM."""
     logo_zoom: float = 1.0
+    # URL YouTube-каналу, з якого беруться «наші відео» (останні N).
+    our_channel_url: str = ""
+    # Інтервал повторного сканування каналу «наших відео» (хвилини).
+    our_videos_scan_interval_minutes: int = OUR_VIDEOS_SCAN_INTERVAL_MINUTES
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -47,11 +51,25 @@ class AppSettings:
                 logo_zoom = max(0.05, min(8.0, float(raw_lz)))
             except (TypeError, ValueError):
                 logo_zoom = float(LOGO_ZOOM)
+        raw_ocurl = data.get("our_channel_url")
+        our_channel_url = str(raw_ocurl).strip() if raw_ocurl else ""
+
+        raw_interval = data.get("our_videos_scan_interval_minutes")
+        if raw_interval is None:
+            scan_interval = OUR_VIDEOS_SCAN_INTERVAL_MINUTES
+        else:
+            try:
+                scan_interval = max(1, int(raw_interval))
+            except (TypeError, ValueError):
+                scan_interval = OUR_VIDEOS_SCAN_INTERVAL_MINUTES
+
         return AppSettings(
             filler_url=filler_url,
             logo_path=str(data.get("logo_path") or "").strip(),
             logo_opacity=logo_opacity,
             logo_zoom=logo_zoom,
+            our_channel_url=our_channel_url,
+            our_videos_scan_interval_minutes=scan_interval,
         )
 
 
@@ -107,6 +125,13 @@ def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
     if "logo_zoom" in patch and patch["logo_zoom"] is not None:
         try:
             cur.logo_zoom = max(0.05, min(8.0, float(patch["logo_zoom"])))
+        except (TypeError, ValueError):
+            pass
+    if "our_channel_url" in patch and patch["our_channel_url"] is not None:
+        cur.our_channel_url = str(patch["our_channel_url"]).strip()
+    if "our_videos_scan_interval_minutes" in patch and patch["our_videos_scan_interval_minutes"] is not None:
+        try:
+            cur.our_videos_scan_interval_minutes = max(1, int(patch["our_videos_scan_interval_minutes"]))
         except (TypeError, ValueError):
             pass
     return cur

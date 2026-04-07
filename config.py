@@ -13,12 +13,12 @@ STATE_DIR = BASE_DIR / "state"
 ASSETS_DIR = BASE_DIR / "assets"
 
 CHANNELS_FILE = BASE_DIR / "channels.txt"
-OUR_VIDEOS_FILE = BASE_DIR / "our_videos.txt"
 SEEN_VIDEOS_FILE = STATE_DIR / "seen_videos.json"
 QUEUE_FILE = STATE_DIR / "queue.json"
 CURRENT_ITEM_FILE = STATE_DIR / "current_item.json"
 HISTORY_FILE = STATE_DIR / "history.json"
 BATCH_STATE_FILE = STATE_DIR / "batch_state.json"
+OUR_VIDEOS_CACHE_FILE = STATE_DIR / "our_videos_cache.json"
 
 # За ТЗ перевірка кожні 150 хв
 POLL_INTERVAL_MINUTES = 150
@@ -26,6 +26,10 @@ POLL_INTERVAL_MINUTES = 150
 LAST_VIDEOS_LIMIT = 7
 # Скільки нових відео максимум додати в чергу за один скан (усі канали разом)
 SCAN_MAX_NEW_VIDEOS_PER_RUN = 7
+
+# «Наші відео»: з каналу беремо N останніх; інтервал повторного сканування (хв).
+OUR_VIDEOS_LIMIT = 7
+OUR_VIDEOS_SCAN_INTERVAL_MINUTES = 60
 
 YT_DLP_BIN = "yt-dlp"
 FFMPEG_BIN = "ffmpeg"

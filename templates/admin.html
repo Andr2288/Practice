@@ -222,14 +222,20 @@
 
     <section>
       <h2>Наші відео (вставки між каналами)</h2>
-      <p class="sub" style="margin:0 0 0.75rem;">Один URL відео на рядок. Після кожного каналу програється рандомне відео з цього списку. Якщо список порожній — відтворюється filler.</p>
+      <p class="sub" style="margin:0 0 0.75rem;">Вказується YouTube-канал. Програма бере з нього 7 останніх відео та випадково вставляє одне після кожного каналу. Якщо канал не задано — відтворюється filler.</p>
       <div class="field" style="margin-bottom:0.65rem;">
-        <label for="ourVideosList">Список наших відео</label>
-        <textarea id="ourVideosList" class="mono-area" style="min-height:6rem;" spellcheck="false" autocomplete="off" placeholder="https://www.youtube.com/watch?v=...&#10;https://www.youtube.com/watch?v=..."></textarea>
+        <label for="ourChannelUrl">URL YouTube-каналу</label>
+        <input type="url" id="ourChannelUrl" placeholder="https://www.youtube.com/@channel/videos" autocomplete="off" />
       </div>
-      <div class="row">
-        <button type="button" class="primary" id="btnSaveOurVideos">Зберегти список</button>
+      <div class="field" style="margin-bottom:0.65rem;">
+        <label for="ourScanInterval">Інтервал сканування (хвилини)</label>
+        <input type="number" id="ourScanInterval" min="1" step="1" value="60" style="max-width:8rem;" />
       </div>
+      <div class="row" style="gap:0.5rem;">
+        <button type="button" class="primary" id="btnSaveOurChannel">Зберегти</button>
+        <button type="button" id="btnRescanOurVideos">Оновити зараз</button>
+      </div>
+      <div id="ourVideosCache" class="sub" style="margin-top:0.65rem;"></div>
     </section>
 
     <section>
@@ -324,7 +330,7 @@
 
     /* ---- Settings autosave plumbing ---- */
     let channelsDirty = false;
-    let ourVideosDirty = false;
+    let ourChannelDirty = false;
     let settingsWritePending = false;
     let settingsDebounceTimer = null;
     let settingsSaveInFlight = false;
@@ -525,10 +531,25 @@
       $("channelsList").value = list.join("\n");
     }
 
-    function applyOurVideosFromServer(data) {
-      if (ourVideosDirty) return;
-      const list = Array.isArray(data.our_videos) ? data.our_videos : [];
-      $("ourVideosList").value = list.join("\n");
+    function applyOurChannelFromServer(data) {
+      if (ourChannelDirty) return;
+      const s = data.settings || {};
+      $("ourChannelUrl").value = s.our_channel_url || "";
+      $("ourScanInterval").value = s.our_videos_scan_interval_minutes || 60;
+    }
+
+    function renderOurVideosCache(data) {
+      const box = $("ourVideosCache");
+      const cache = data.our_videos_cache || {};
+      const vids = Array.isArray(cache.videos) ? cache.videos : [];
+      const ts = cache.last_scan_ts || 0;
+      if (!vids.length) {
+        box.innerHTML = "Кеш порожній — відео ще не скановано.";
+        return;
+      }
+      const when = ts > 0 ? new Date(ts * 1000).toLocaleString("uk-UA") : "—";
+      const titles = vids.map((v) => escapeHtml(v.title || v.video_id)).join(", ");
+      box.innerHTML = `Останнє сканування: ${when} · ${vids.length} відео: ${titles}`;
     }
 
     function applySettingsFieldsFromServer(data) {
@@ -561,11 +582,12 @@
       const data = await api("/api/status");
       renderBatchProgress(data);
       renderTimeline(data);
+      renderOurVideosCache(data);
       $("pausedBanner").style.display = data.paused ? "block" : "none";
       updatePauseResumeButton(data.paused);
       applySettingsFieldsFromServer(data);
       applyChannelsFromServer(data);
-      applyOurVideosFromServer(data);
+      applyOurChannelFromServer(data);
       $("keyStatus").textContent = data.youtube_stream_key_configured
         ? "Ключ збережено (локально)."
         : "Ключ не задано.";
@@ -578,11 +600,12 @@
       const data = await api("/api/status");
       renderBatchProgress(data);
       renderTimeline(data);
+      renderOurVideosCache(data);
       $("pausedBanner").style.display = data.paused ? "block" : "none";
       updatePauseResumeButton(data.paused);
       applySettingsFieldsFromServer(data);
       applyChannelsFromServer(data);
-      applyOurVideosFromServer(data);
+      applyOurChannelFromServer(data);
       $("keyStatus").textContent = data.youtube_stream_key_configured
         ? "Ключ збережено (локально)."
         : "Ключ не задано.";
@@ -625,15 +648,28 @@
       });
     });
 
-    /* Our videos */
-    $("ourVideosList").addEventListener("input", () => { ourVideosDirty = true; });
+    /* Our channel */
+    $("ourChannelUrl").addEventListener("input", () => { ourChannelDirty = true; });
+    $("ourScanInterval").addEventListener("input", () => { ourChannelDirty = true; });
 
-    $("btnSaveOurVideos").addEventListener("click", async () => {
-      const btn = $("btnSaveOurVideos");
-      const lines = $("ourVideosList").value.split(/\r?\n/).map((s) => s.trim()).filter(Boolean);
-      await runWithFeedback(btn, "Список наших відео збережено.", async () => {
-        await api("/api/our-videos", { method: "PUT", body: JSON.stringify({ urls: lines }) });
-        ourVideosDirty = false;
+    $("btnSaveOurChannel").addEventListener("click", async () => {
+      const btn = $("btnSaveOurChannel");
+      const url = $("ourChannelUrl").value.trim();
+      const interval = parseInt($("ourScanInterval").value, 10) || 60;
+      await runWithFeedback(btn, "Канал наших відео збережено.", async () => {
+        await api("/api/settings", {
+          method: "POST",
+          body: JSON.stringify({ our_channel_url: url, our_videos_scan_interval_minutes: interval }),
+        });
+        ourChannelDirty = false;
+        await refreshSilent();
+      });
+    });
+
+    $("btnRescanOurVideos").addEventListener("click", async () => {
+      const btn = $("btnRescanOurVideos");
+      await runWithFeedback(btn, "Кеш скинуто — пересканує при наступному відтворенні.", async () => {
+        await api("/api/our-videos/rescan", { method: "POST", body: "{}" });
         await refreshSilent();
       });
     });
