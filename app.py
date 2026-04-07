@@ -11,6 +11,7 @@ from config import (
     LAST_VIDEOS_LIMIT,
     OUR_VIDEOS_FILE,
     PLAYBACK_ERROR_DELAY_SECONDS,
+    SEEN_VIDEOS_FILE,
     STATE_DIR,
     YT_DLP_BIN,
 )
@@ -32,7 +33,9 @@ from services.runtime_control import (
 from services.storage import (
     append_history,
     load_current_item,
+    load_seen_videos,
     save_current_item,
+    save_seen_videos,
 )
 from services.ytdlp_client import YtDlpClient
 from utils.logger import log_blank, log_block, log_error, log_info, log_play, log_warn
@@ -52,6 +55,9 @@ def _play_and_record(
 
     if outcome == "completed" and record_history and not is_filler_item(item):
         append_history(HISTORY_FILE, item)
+        seen = load_seen_videos(SEEN_VIDEOS_FILE)
+        seen.add(item.video_id)
+        save_seen_videos(SEEN_VIDEOS_FILE, seen)
 
     return outcome
 
@@ -137,18 +143,22 @@ def playback_cycle_step(
         save_batch_state(BATCH_STATE_FILE, state)
         return
 
-    video = random.choice(videos)
+    seen = load_seen_videos(SEEN_VIDEOS_FILE)
+    unseen = [v for v in videos if v.video_id not in seen]
+    pool = unseen if unseen else videos
+    video = random.choice(pool)
     log_play(
         f"Selected: {video.title} ({video.video_id}) "
-        f"from {len(videos)} candidates on {video.channel_title or channel_url}"
+        f"from {len(pool)} candidates ({len(videos) - len(pool)} seen) "
+        f"on {video.channel_title or channel_url}"
     )
+
+    # 1) Play channel video
+    _play_and_record(playback, video, record_history=True)
 
     # Mark pending so crash recovery plays our video if we restart mid-pair
     state.pending_our_video = True
     save_batch_state(BATCH_STATE_FILE, state)
-
-    # 1) Play channel video
-    _play_and_record(playback, video, record_history=True)
 
     # 2) Play our video
     _pick_and_play_our_video(playback, ytdlp, our_video_urls)

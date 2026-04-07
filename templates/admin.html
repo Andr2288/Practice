@@ -435,7 +435,7 @@
       const idx = batch.current_index;
       const done = Math.min(idx, total);
       const pct = Math.round((done / total) * 100);
-      const pending = batch.pending_our_video ? " (наше відео)" : "";
+      const pending = batch.pending_our_video ? " (наше відео)" : (data.current ? " (канальне відео)" : "");
 
       box.innerHTML = `
         <div style="display:flex;align-items:center;gap:0.75rem;">
