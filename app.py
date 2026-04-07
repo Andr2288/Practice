@@ -9,6 +9,7 @@ from config import (
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
     LAST_VIDEOS_LIMIT,
+    MAX_CHANNEL_RETRIES,
     OUR_VIDEOS_FILE,
     PLAYBACK_ERROR_DELAY_SECONDS,
     SEEN_VIDEOS_FILE,
@@ -154,14 +155,42 @@ def playback_cycle_step(
     )
 
     # 1) Play channel video
-    _play_and_record(playback, video, record_history=True)
+    try:
+        _play_and_record(playback, video, record_history=True)
+    except Exception as e:
+        state.channel_fail_count += 1
+        err = str(e).strip()
+        if len(err) > 400:
+            err = err[:400] + "…"
+
+        if state.channel_fail_count >= MAX_CHANNEL_RETRIES:
+            log_warn(
+                f"Channel skipped after {state.channel_fail_count} failures: "
+                f"{channel_url}\n{err}"
+            )
+            state.channel_fail_count = 0
+            state.current_index += 1
+        else:
+            log_warn(
+                f"Playback failed ({state.channel_fail_count}/{MAX_CHANNEL_RETRIES}), "
+                f"will retry channel: {channel_url}\n{err}"
+            )
+
+        save_batch_state(BATCH_STATE_FILE, state)
+        time.sleep(PLAYBACK_ERROR_DELAY_SECONDS)
+        return
+
+    state.channel_fail_count = 0
 
     # Mark pending so crash recovery plays our video if we restart mid-pair
     state.pending_our_video = True
     save_batch_state(BATCH_STATE_FILE, state)
 
     # 2) Play our video
-    _pick_and_play_our_video(playback, ytdlp, our_video_urls)
+    try:
+        _pick_and_play_our_video(playback, ytdlp, our_video_urls)
+    except Exception as e:
+        log_warn(f"Our video playback failed, continuing: {e}")
 
     # Advance to next channel
     state.pending_our_video = False

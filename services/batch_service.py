@@ -12,6 +12,7 @@ class BatchState:
     shuffled_channels: List[str] = field(default_factory=list)
     current_index: int = 0
     pending_our_video: bool = False
+    channel_fail_count: int = 0
 
     def is_cycle_complete(self) -> bool:
         return self.current_index >= len(self.shuffled_channels)
@@ -30,6 +31,7 @@ class BatchState:
             shuffled_channels=data.get("shuffled_channels", []),
             current_index=int(data.get("current_index", 0)),
             pending_our_video=bool(data.get("pending_our_video", False)),
+            channel_fail_count=int(data.get("channel_fail_count", 0)),
         )
 
 
