@@ -1,13 +1,5 @@
 [
   {
-    "video_id": "QaWP-YbqfiA",
-    "title": "Офіцери-двійнята у боях за Куп’янськ. Боротьба за рідне місто",
-    "url": "https://www.youtube.com/watch?v=QaWP-YbqfiA",
-    "channel_url": "https://www.youtube.com/@khartiiabrygada/videos",
-    "channel_title": "ХАРТІЯ - Videos",
-    "duration": 847
-  },
-  {
     "video_id": "2fpCQtmITDI",
     "title": "КОМБАТ пішов на ЗАЧИСТКУ села. рy$H9 КОШМАРИТЬ місцевих ДРОНАМИ.",
     "url": "https://www.youtube.com/watch?v=2fpCQtmITDI",
@@ -638,5 +630,13 @@
     "channel_url": "https://www.youtube.com/@117%D0%BE%D0%B1%D1%80%D0%A2%D1%80%D0%9E/videos",
     "channel_title": "117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos",
     "duration": 77
+  },
+  {
+    "video_id": "peBHjFwB_rg",
+    "title": "Інженерна рота",
+    "url": "https://www.youtube.com/watch?v=peBHjFwB_rg",
+    "channel_url": "https://www.youtube.com/@113obr_tro/videos",
+    "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
+    "duration": 165
   }
 ]

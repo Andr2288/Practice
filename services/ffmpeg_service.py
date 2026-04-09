@@ -150,11 +150,12 @@ class FFmpegService:
         if not source_is_pipe:
             raise ValueError("Only pipe input is supported in build_video_pipeline().")
 
+        # Pipe від yt-dlp: без -re — читаємо скільки є, інакше 1× realtime голодує ingest.
         cmd = [
             self.ffmpeg_bin,
             "-hide_banner",
             "-loglevel", "error",
-            "-re", "-i", "pipe:0",
+            "-i", "pipe:0",
         ]
 
         logo_path = self._logo_path(logo_file)
