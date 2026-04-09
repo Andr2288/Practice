@@ -24,12 +24,12 @@ OUR_VIDEOS_CACHE_FILE = STATE_DIR / "our_videos_cache.json"
 # За ТЗ перевірка кожні 150 хв
 POLL_INTERVAL_MINUTES = 150
 # Скільки останніх записів знімати з кожного каналу (кандидати на додавання)
-LAST_VIDEOS_LIMIT = 7
+LAST_VIDEOS_LIMIT = 5
 # Скільки нових відео максимум додати в чергу за один скан (усі канали разом)
-SCAN_MAX_NEW_VIDEOS_PER_RUN = 7
+SCAN_MAX_NEW_VIDEOS_PER_RUN = 5
 
 # «Наші відео»: з каналу беремо N останніх; інтервал повторного сканування (хв).
-OUR_VIDEOS_LIMIT = 7
+OUR_VIDEOS_LIMIT = 5
 OUR_VIDEOS_SCAN_INTERVAL_MINUTES = 60
 # Наше відео вставляється після кожних N каналів (D → A → F → Наше → B → E → C → Наше → …)
 OUR_VIDEO_EVERY_N_CHANNELS = 3
