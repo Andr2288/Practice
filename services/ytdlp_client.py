@@ -13,6 +13,8 @@ class YtDlpClient:
     def fetch_latest_videos(self, channel_url: str, limit: int = 7) -> List[VideoItem]:
         cmd = [
             self.yt_dlp_bin,
+            "--extractor-retries",
+            "0",
             "--flat-playlist",
             "--dump-single-json",
             "--playlist-end",
@@ -106,6 +108,8 @@ class YtDlpClient:
     def resolve_title(self, video_page_url: str) -> Optional[str]:
         cmd = [
             self.yt_dlp_bin,
+            "--extractor-retries",
+            "0",
             "--print",
             "%(title)s",
             video_page_url,
@@ -128,6 +132,8 @@ class YtDlpClient:
         """Метадані одного відео за посиланням (watch, youtu.be, shorts)."""
         cmd = [
             self.yt_dlp_bin,
+            "--extractor-retries",
+            "0",
             "--dump-json",
             "--no-playlist",
             page_url,
