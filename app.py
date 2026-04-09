@@ -9,7 +9,6 @@ from config import (
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
     LAST_VIDEOS_LIMIT,
-    MAX_CHANNEL_RETRIES,
     OUR_VIDEO_EVERY_N_CHANNELS,
     OUR_VIDEOS_CACHE_FILE,
     OUR_VIDEOS_LIMIT,
@@ -164,26 +163,18 @@ def playback_cycle_step(
     try:
         _play_and_record(playback, video, record_history=True)
     except Exception as e:
-        state.channel_fail_count += 1
         err = str(e).strip()
         if len(err) > 400:
             err = err[:400] + "…"
-
-        if state.channel_fail_count >= MAX_CHANNEL_RETRIES:
-            log_warn(
-                f"Channel skipped after {state.channel_fail_count} failures: "
-                f"{channel_url}\n{err}"
-            )
-            state.channel_fail_count = 0
-            state.current_index += 1
-        else:
-            log_warn(
-                f"Playback failed ({state.channel_fail_count}/{MAX_CHANNEL_RETRIES}), "
-                f"will retry channel: {channel_url}\n{err}"
-            )
-
+        seen.add(video.video_id)
+        save_seen_videos(SEEN_VIDEOS_FILE, seen)
+        log_warn(
+            f"Playback failed — video marked seen, channel skipped: "
+            f"{video.video_id} | {channel_url}\n{err}"
+        )
+        state.channel_fail_count = 0
+        state.current_index += 1
         save_batch_state(BATCH_STATE_FILE, state)
-        time.sleep(PLAYBACK_ERROR_DELAY_SECONDS)
         return
 
     state.channel_fail_count = 0

@@ -96,6 +96,12 @@ class YtDlpClient:
     def build_progressive_stream_cmd(self, video_page_url: str) -> list[str]:
         return [
             self.yt_dlp_bin,
+            "--extractor-retries",
+            "0",
+            "--retries",
+            "0",
+            "--fragment-retries",
+            "0",
             "-f",
             YT_DLP_PROGRESSIVE_FORMAT,
             "-o",
