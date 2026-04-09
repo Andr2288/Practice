@@ -9,6 +9,7 @@ from config import (
     FILLER_BACKGROUND,
     FILLER_SECONDS,
     FILLER_TEXT,
+    FILLER_FONT_SIZE,
     FILLER_TONE_FREQUENCY,
     LOGO_FILE,
     LOGO_FIT_MAX_H,
@@ -17,6 +18,7 @@ from config import (
     LOGO_OFFSET_Y,
     LOGO_OPACITY,
     LOGO_ZOOM,
+    NVENC_PRESET,
     OUTPUT_AUDIO_BITRATE,
     OUTPUT_AUDIO_CHANNELS,
     OUTPUT_AUDIO_SAMPLE_RATE,
@@ -27,6 +29,8 @@ from config import (
     OUTPUT_MAXRATE,
     OUTPUT_VIDEO_BITRATE,
     OUTPUT_WIDTH,
+    VIDEO_ENCODER,
+    X264_PRESET,
 )
 
 
@@ -84,20 +88,45 @@ class FFmpegService:
         return f"{inp}{','.join(parts)}[{out_label}]"
 
     def _encoding_args(self) -> list[str]:
-        return [
-            "-c:v", "libx264",
-            "-preset", "ultrafast",
-            "-tune", "zerolatency",
+        v_common = [
             "-pix_fmt", "yuv420p",
             "-r", str(OUTPUT_FPS),
             "-g", str(OUTPUT_GOP),
             "-b:v", OUTPUT_VIDEO_BITRATE,
             "-maxrate", OUTPUT_MAXRATE,
             "-bufsize", OUTPUT_BUFSIZE,
+        ]
+        a_common = [
             "-c:a", "aac",
             "-b:a", OUTPUT_AUDIO_BITRATE,
             "-ar", str(OUTPUT_AUDIO_SAMPLE_RATE),
             "-ac", str(OUTPUT_AUDIO_CHANNELS),
+        ]
+        enc = (VIDEO_ENCODER or "libx264").strip().lower()
+        if enc == "h264_nvenc":
+            return [
+                "-c:v",
+                "h264_nvenc",
+                "-preset",
+                NVENC_PRESET,
+                "-tune",
+                "ll",
+                "-rc",
+                "cbr",
+                "-bf",
+                "0",
+                *v_common,
+                *a_common,
+            ]
+        return [
+            "-c:v",
+            "libx264",
+            "-preset",
+            X264_PRESET,
+            "-tune",
+            "zerolatency",
+            *v_common,
+            *a_common,
         ]
 
     def _flv_output_args(self, rtmp_url: str) -> list[str]:
@@ -168,7 +197,7 @@ class FFmpegService:
         video_src = (
             f"color=c={FILLER_BACKGROUND}:s={OUTPUT_WIDTH}x{OUTPUT_HEIGHT}:r={OUTPUT_FPS}:d={duration},"
             f"drawtext=text='{FILLER_TEXT}':"
-            f"fontcolor=white:fontsize=48:x=(w-text_w)/2:y=(h-text_h)/2,"
+            f"fontcolor=white:fontsize={FILLER_FONT_SIZE}:x=(w-text_w)/2:y=(h-text_h)/2,"
             f"format=yuv420p"
         )
         audio_src = (

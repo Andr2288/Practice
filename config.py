@@ -63,14 +63,11 @@ YT_DLP_PROGRESSIVE_FORMAT = (
     "best"
 )
 
-# Вихідний стандарт ефіру
-OUTPUT_WIDTH = 1920
-OUTPUT_HEIGHT = 1080
+# Вихідний стандарт ефіру — 720p: менше навантаження на кодер при стабільній якості для live.
+OUTPUT_WIDTH = 1280
+OUTPUT_HEIGHT = 720
 OUTPUT_FPS = 25
-# Для 1080p YouTube очікує стабільний потік; занадто низький бітрейт або слабкий upload → попередження
-# «Потік надходить недостатньо швидко». Підлаштування без редагування коду:
-#   MEDIAHUB_VIDEO_BITRATE=5500k  MEDIAHUB_VIDEO_MAXRATE=5500k  MEDIAHUB_VIDEO_BUFSIZE=11000k
-# Якщо інтернет вузький — зменшіть роздільну здатність (OUTPUT_WIDTH/HEIGHT) або бітрейт.
+# YouTube: стабільний upload; при вузькому каналі — змінні MEDIAHUB_VIDEO_* або зменшити бітрейт у дефолті нижче.
 def _env_bitrate(name: str, default: str) -> str:
     v = os.environ.get(name, "").strip()
     return v if v else default
@@ -97,9 +94,9 @@ def _env_float_zoom(name: str, default: float) -> float:
         return default
 
 
-OUTPUT_VIDEO_BITRATE = _env_bitrate("MEDIAHUB_VIDEO_BITRATE", "3500k")
+OUTPUT_VIDEO_BITRATE = _env_bitrate("MEDIAHUB_VIDEO_BITRATE", "4500k")
 OUTPUT_MAXRATE = _env_bitrate("MEDIAHUB_VIDEO_MAXRATE", OUTPUT_VIDEO_BITRATE)
-OUTPUT_BUFSIZE = _env_bitrate("MEDIAHUB_VIDEO_BUFSIZE", "7000k")
+OUTPUT_BUFSIZE = _env_bitrate("MEDIAHUB_VIDEO_BUFSIZE", "9000k")
 OUTPUT_AUDIO_BITRATE = "128k"
 OUTPUT_AUDIO_SAMPLE_RATE = 48000
 OUTPUT_AUDIO_CHANNELS = 2
@@ -133,13 +130,18 @@ LOGO_ZOOM = _env_float_zoom("MEDIAHUB_LOGO_ZOOM", 1.0)
 # Якщо logo.png відсутній — система працює без нього
 ENABLE_LOGO_OVERLAY = True
 
-# Audio normalization
-AUDIO_FILTER = "loudnorm=I=-16:TP=-1.5:LRA=11,aresample=async=1:min_hard_comp=0.100:first_pts=0"
+# Відеокодек: "libx264" (CPU, універсально) або "h264_nvenc" (NVIDIA, менше навантаження на CPU).
+VIDEO_ENCODER = "libx264"
+X264_PRESET = "veryfast"
+NVENC_PRESET = "p5"
+
+# Аудіо без loudnorm (легше для CPU); лише стабілізація таймінгу з потоку.
+AUDIO_FILTER = "aresample=async=1:first_pts=0"
 
 # Filler visual/audio
 FILLER_BACKGROUND = "black"
 FILLER_TEXT = "MEDIAHUB UOS - FILLER"
-FILLER_FONT_SIZE = 48
+FILLER_FONT_SIZE = 36
 FILLER_TONE_FREQUENCY = 440
 
 
