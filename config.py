@@ -4,6 +4,7 @@ from typing import Optional
 
 BASE_DIR = Path(__file__).resolve().parent
 YOUTUBE_STREAM_KEY_FILE = BASE_DIR / "youtube_stream_key.txt"
+TELEGRAM_STREAM_KEY_FILE = BASE_DIR / "telegram_stream_key.txt"
 
 # Повний RTMP URL (пріоритет), або лише ключ — тоді використовується стандартний ingest YouTube.
 YOUTUBE_RTMP_URL = os.environ.get("YOUTUBE_RTMP_URL", "").strip()
@@ -30,6 +31,8 @@ SCAN_MAX_NEW_VIDEOS_PER_RUN = 7
 # «Наші відео»: з каналу беремо N останніх; інтервал повторного сканування (хв).
 OUR_VIDEOS_LIMIT = 7
 OUR_VIDEOS_SCAN_INTERVAL_MINUTES = 60
+# Наше відео вставляється після кожних N каналів (D → A → F → Наше → B → E → C → Наше → …)
+OUR_VIDEO_EVERY_N_CHANNELS = 3
 
 YT_DLP_BIN = "yt-dlp"
 FFMPEG_BIN = "ffmpeg"

@@ -1,4 +1,5 @@
 import subprocess
+import threading
 import time
 from typing import Literal, Optional
 
@@ -8,6 +9,7 @@ from config import (
     FILLER_TITLE,
     FILLER_URL,
     FILLER_VIDEO_ID,
+    TELEGRAM_STREAM_KEY_FILE,
     TEST_MODE,
     TEST_PLAYBACK_SECONDS,
     YT_DLP_BIN,
@@ -24,7 +26,7 @@ from services.runtime_control import (
 )
 from services.settings_service import load_settings, resolve_logo_path
 from services.ytdlp_client import YtDlpClient
-from utils.logger import log_blank, log_info, log_play
+from utils.logger import log_blank, log_info, log_play, log_warn
 
 PlayOutcome = Literal["completed", "skipped", "previous"]
 
@@ -32,7 +34,6 @@ _FILLER_CH_URL = FILLER_CHANNEL_URL.strip().lower()
 
 
 def is_filler_item(item: VideoItem) -> bool:
-    """Вбудований filler або кліп з налаштувань — не в історію для «попереднє»."""
     if item.video_id == FILLER_VIDEO_ID:
         return True
     return (item.channel_url or "").strip().lower() == _FILLER_CH_URL
@@ -83,10 +84,8 @@ class PlaybackService:
     def get_playback_duration(self, item: VideoItem) -> int:
         if TEST_MODE:
             return TEST_PLAYBACK_SECONDS
-
         if item.duration is not None and item.duration > 0:
             return int(item.duration)
-
         return 30
 
     def play(self, item: VideoItem) -> PlayOutcome:
@@ -111,6 +110,178 @@ class PlaybackService:
         if c in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
             return c
         return None
+
+    # ── Helpers ────────────────────────────────────────────────────
+
+    def _get_telegram_rtmp_url(self) -> Optional[str]:
+        settings = load_settings()
+        server = settings.telegram_server_url.strip().rstrip("/")
+        if not server:
+            return None
+        key = ""
+        if TELEGRAM_STREAM_KEY_FILE.is_file():
+            try:
+                key = TELEGRAM_STREAM_KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
+            except OSError:
+                key = ""
+        if not key:
+            return None
+        return f"{server}/{key}"
+
+    def _collect_rtmp_urls(self) -> list[str]:
+        urls: list[str] = []
+        yt = get_youtube_rtmp_url()
+        if yt:
+            urls.append(yt)
+        tg = self._get_telegram_rtmp_url()
+        if tg:
+            urls.append(tg)
+        return urls
+
+    def _require_rtmp_urls(self) -> list[str]:
+        urls = self._collect_rtmp_urls()
+        if not urls:
+            raise RuntimeError(
+                "No stream destinations configured. "
+                "Set a YouTube stream key and/or Telegram server URL + stream key."
+            )
+        return urls
+
+    def _label_for_url(self, url: str) -> str:
+        low = url.lower()
+        if "youtube" in low or "rtmp://a.rtmp" in low:
+            return "YouTube"
+        if "rtmp.t.me" in low or "telegram" in low:
+            return "Telegram"
+        return url[:50]
+
+    def _log_destinations(self, rtmp_urls: list[str]) -> None:
+        labels = [self._label_for_url(u) for u in rtmp_urls]
+        log_info(f"Destinations: {', '.join(labels)} ({len(rtmp_urls)} independent streams)")
+
+    def _terminate_process(self, proc: Optional[subprocess.Popen], name: str) -> None:
+        if proc is None or proc.poll() is not None:
+            return
+        try:
+            proc.terminate()
+            proc.wait(timeout=5)
+        except Exception:
+            try:
+                proc.kill()
+            except Exception:
+                pass
+
+    def _read_stderr_tail(self, stderr_data: bytes, max_chars: int = 1500) -> str:
+        return stderr_data.decode("utf-8", errors="ignore")[-max_chars:]
+
+    # ── Pump thread: split yt-dlp stdout to multiple ffmpeg stdin ──
+
+    def _start_pump_thread(
+        self,
+        source_stdout,
+        processors: list[subprocess.Popen],
+    ) -> threading.Thread:
+        """Read chunks from source and write to every processor's stdin.
+
+        If one processor dies (BrokenPipeError), the others keep receiving data.
+        """
+        def pump():
+            alive = list(processors)
+            try:
+                while True:
+                    chunk = source_stdout.read(65536)
+                    if not chunk:
+                        break
+                    dead = []
+                    for proc in alive:
+                        try:
+                            proc.stdin.write(chunk)
+                        except (OSError, BrokenPipeError, ValueError):
+                            dead.append(proc)
+                    for d in dead:
+                        alive.remove(d)
+                    if not alive:
+                        break
+            finally:
+                for proc in processors:
+                    try:
+                        proc.stdin.close()
+                    except (OSError, BrokenPipeError, ValueError):
+                        pass
+
+        t = threading.Thread(target=pump, daemon=True, name="stream-pump")
+        t.start()
+        return t
+
+    # ── Interruptible wait for N processes ─────────────────────────
+
+    def _interruptible_wait_multi(
+        self,
+        producer: Optional[subprocess.Popen],
+        processors: list[subprocess.Popen],
+        pump_thread: Optional[threading.Thread] = None,
+    ) -> Optional[str]:
+        """Wait for producer + all processors. Returns interrupt command or None."""
+        all_pids = []
+        if producer:
+            all_pids.append(producer.pid)
+        all_pids.extend(p.pid for p in processors)
+
+        try:
+            write_pids(*all_pids)
+
+            while True:
+                prod_done = producer is None or producer.poll() is not None
+                all_ff_done = all(p.poll() is not None for p in processors)
+
+                if prod_done and all_ff_done:
+                    break
+
+                cmd = self._poll_command()
+                if cmd in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
+                    clear_command()
+                    for proc in processors:
+                        self._terminate_process(proc, "ffmpeg")
+                    if producer:
+                        self._terminate_process(producer, "yt-dlp")
+                    return cmd
+
+                time.sleep(0.35)
+
+            if pump_thread:
+                pump_thread.join(timeout=10)
+
+            # Log per-destination errors (non-fatal — other destinations may have succeeded)
+            for i, proc in enumerate(processors):
+                if proc.returncode and proc.returncode != 0:
+                    stderr = b""
+                    try:
+                        if proc.stderr:
+                            stderr = proc.stderr.read() or b""
+                    except Exception:
+                        pass
+                    log_warn(
+                        f"ffmpeg[{i}] exited with code {proc.returncode}: "
+                        f"{self._read_stderr_tail(stderr, 600)}"
+                    )
+
+            if producer and producer.returncode and producer.returncode != 0:
+                stderr = b""
+                try:
+                    if producer.stderr:
+                        stderr = producer.stderr.read() or b""
+                except Exception:
+                    pass
+                raise RuntimeError(
+                    f"yt-dlp failed with code {producer.returncode}: "
+                    f"{self._read_stderr_tail(stderr, 600)}"
+                )
+
+            return None
+        finally:
+            clear_pids()
+
+    # ── Fake / test playback ───────────────────────────────────────
 
     def _play_fake(self, item: VideoItem) -> PlayOutcome:
         seconds = self.get_playback_duration(item)
@@ -143,95 +314,7 @@ class PlaybackService:
         log_blank()
         return "completed"
 
-    def _require_youtube_rtmp_url(self) -> str:
-        url = get_youtube_rtmp_url()
-        if not url:
-            raise RuntimeError(
-                "YouTube stream is not configured. Set YOUTUBE_RTMP_URL or YOUTUBE_STREAM_KEY "
-                "in the environment, or put the stream key in youtube_stream_key.txt (see .gitignore)."
-            )
-        return url
-
-    def _terminate_process(self, proc: Optional[subprocess.Popen], name: str) -> None:
-        if proc is None:
-            return
-
-        if proc.poll() is not None:
-            return
-
-        try:
-            proc.terminate()
-            proc.wait(timeout=5)
-        except Exception:
-            try:
-                proc.kill()
-            except Exception:
-                pass
-
-    def _read_stderr_tail(self, stderr_data: bytes, max_chars: int = 1500) -> str:
-        return stderr_data.decode("utf-8", errors="ignore")[-max_chars:]
-
-    def _interruptible_wait_two(
-        self,
-        producer: subprocess.Popen,
-        processor: subprocess.Popen,
-    ) -> tuple[bytes, bytes, int, int, Optional[str]]:
-        """Очікує завершення yt-dlp + ffmpeg, або перериває за SKIP/PREVIOUS."""
-        try:
-            write_pids(processor.pid, producer.pid)
-            while True:
-                p_done = producer.poll() is not None
-                f_done = processor.poll() is not None
-                if p_done and f_done:
-                    break
-                cmd = self._poll_command()
-                if cmd in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
-                    clear_command()
-                    self._terminate_process(processor, "ffmpeg")
-                    self._terminate_process(producer, "yt-dlp")
-                    proc_err = b""
-                    prod_err = b""
-                    try:
-                        if processor.stderr:
-                            proc_err = processor.stderr.read() or b""
-                    except Exception:
-                        pass
-                    try:
-                        if producer.stderr:
-                            prod_err = producer.stderr.read() or b""
-                    except Exception:
-                        pass
-                    return proc_err, prod_err, -1, -1, cmd
-                time.sleep(0.35)
-
-            proc_err = processor.communicate()[1] or b""
-            prod_err = producer.communicate()[1] or b""
-            return proc_err, prod_err, processor.returncode or 0, producer.returncode or 0, None
-        finally:
-            clear_pids()
-
-    def _interruptible_wait_one(self, processor: subprocess.Popen) -> tuple[bytes, int, Optional[str]]:
-        try:
-            write_pids(processor.pid, None)
-            while True:
-                if processor.poll() is not None:
-                    break
-                cmd = self._poll_command()
-                if cmd in (PlaybackCommand.SKIP, PlaybackCommand.PREVIOUS):
-                    clear_command()
-                    self._terminate_process(processor, "ffmpeg")
-                    proc_err = b""
-                    try:
-                        if processor.stderr:
-                            proc_err = processor.stderr.read() or b""
-                    except Exception:
-                        pass
-                    return proc_err, -1, cmd
-                time.sleep(0.35)
-            proc_err = processor.communicate()[1] or b""
-            return proc_err, processor.returncode or 0, None
-        finally:
-            clear_pids()
+    # ── Real video: yt-dlp → N independent ffmpeg processes ────────
 
     def _play_real_video(self, item: VideoItem) -> PlayOutcome:
         log_blank()
@@ -240,8 +323,8 @@ class PlaybackService:
             f"title={item.title} | id={item.video_id}"
         )
 
-        rtmp_url = self._require_youtube_rtmp_url()
-        log_info("Output: YouTube Live (RTMP)")
+        rtmp_urls = self._require_rtmp_urls()
+        self._log_destinations(rtmp_urls)
 
         logo = self._effective_logo_path()
         if logo and self.ffmpeg.logo_available(logo):
@@ -250,16 +333,22 @@ class PlaybackService:
             log_info("Logo overlay: DISABLED")
 
         ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
-        ffmpeg_cmd = self.ffmpeg.build_video_pipeline(
-            rtmp_url=rtmp_url,
-            source_is_pipe=True,
-            logo_file=logo,
-            logo_opacity=self._effective_logo_opacity(),
-            logo_zoom=self._effective_logo_zoom(),
-        )
+
+        ffmpeg_cmds = []
+        for url in rtmp_urls:
+            ffmpeg_cmds.append(
+                self.ffmpeg.build_video_pipeline(
+                    rtmp_url=url,
+                    source_is_pipe=True,
+                    logo_file=logo,
+                    logo_opacity=self._effective_logo_opacity(),
+                    logo_zoom=self._effective_logo_zoom(),
+                )
+            )
 
         producer = None
-        processor = None
+        processors: list[subprocess.Popen] = []
+        pump_thread = None
 
         try:
             producer = subprocess.Popen(
@@ -268,16 +357,18 @@ class PlaybackService:
                 stderr=subprocess.PIPE,
             )
 
-            processor = self.ffmpeg.spawn(
-                ffmpeg_cmd,
-                stdin_pipe=producer.stdout,
-                stdout_pipe=subprocess.DEVNULL,
-                stderr_pipe=subprocess.PIPE,
-            )
+            for cmd in ffmpeg_cmds:
+                proc = self.ffmpeg.spawn(
+                    cmd,
+                    stdin_pipe=subprocess.PIPE,
+                    stdout_pipe=subprocess.DEVNULL,
+                    stderr_pipe=subprocess.PIPE,
+                )
+                processors.append(proc)
 
-            processor_stderr, producer_stderr, prc, yrc, interrupt = self._interruptible_wait_two(
-                producer, processor
-            )
+            pump_thread = self._start_pump_thread(producer.stdout, processors)
+
+            interrupt = self._interruptible_wait_multi(producer, processors, pump_thread)
 
             if interrupt == PlaybackCommand.PREVIOUS:
                 log_play(f"PREV  | id={item.video_id}")
@@ -289,21 +380,11 @@ class PlaybackService:
                 log_blank()
                 return "skipped"
 
-            if prc != 0:
-                raise RuntimeError(
-                    f"ffmpeg pipeline failed for video_id={item.video_id}, return_code={prc}\n"
-                    f"{self._read_stderr_tail(processor_stderr)}"
-                )
-
-            if yrc != 0:
-                raise RuntimeError(
-                    f"yt-dlp stream failed for video_id={item.video_id}, return_code={yrc}\n"
-                    f"{self._read_stderr_tail(producer_stderr)}"
-                )
-
         except Exception:
-            self._terminate_process(processor, "ffmpeg")
-            self._terminate_process(producer, "yt-dlp")
+            for proc in processors:
+                self._terminate_process(proc, "ffmpeg")
+            if producer:
+                self._terminate_process(producer, "yt-dlp")
             clear_pids()
             raise
 
@@ -314,6 +395,8 @@ class PlaybackService:
         log_blank()
         return "completed"
 
+    # ── Filler: N independent ffmpeg processes (each generates its own) ──
+
     def _play_filler(self) -> PlayOutcome:
         filler_seconds = FILLER_SECONDS
 
@@ -323,8 +406,8 @@ class PlaybackService:
             f"id={FILLER_VIDEO_ID} | duration={filler_seconds}s"
         )
 
-        rtmp_url = self._require_youtube_rtmp_url()
-        log_info("Output: YouTube Live (RTMP)")
+        rtmp_urls = self._require_rtmp_urls()
+        self._log_destinations(rtmp_urls)
 
         logo = self._effective_logo_path()
         if logo and self.ffmpeg.logo_available(logo):
@@ -332,25 +415,26 @@ class PlaybackService:
         else:
             log_info("Logo overlay: DISABLED")
 
-        ffmpeg_cmd = self.ffmpeg.build_filler_pipeline(
-            rtmp_url=rtmp_url,
-            seconds=filler_seconds,
-            logo_file=logo,
-            logo_opacity=self._effective_logo_opacity(),
-            logo_zoom=self._effective_logo_zoom(),
-        )
-
-        processor = None
+        processors: list[subprocess.Popen] = []
 
         try:
-            processor = self.ffmpeg.spawn(
-                ffmpeg_cmd,
-                stdin_pipe=None,
-                stdout_pipe=subprocess.DEVNULL,
-                stderr_pipe=subprocess.PIPE,
-            )
+            for url in rtmp_urls:
+                cmd = self.ffmpeg.build_filler_pipeline(
+                    rtmp_url=url,
+                    seconds=filler_seconds,
+                    logo_file=logo,
+                    logo_opacity=self._effective_logo_opacity(),
+                    logo_zoom=self._effective_logo_zoom(),
+                )
+                proc = self.ffmpeg.spawn(
+                    cmd,
+                    stdin_pipe=None,
+                    stdout_pipe=subprocess.DEVNULL,
+                    stderr_pipe=subprocess.PIPE,
+                )
+                processors.append(proc)
 
-            processor_stderr, processor_rc, interrupt = self._interruptible_wait_one(processor)
+            interrupt = self._interruptible_wait_multi(None, processors)
 
             if interrupt == PlaybackCommand.PREVIOUS:
                 log_play(f"PREV  | id={FILLER_VIDEO_ID}")
@@ -362,14 +446,9 @@ class PlaybackService:
                 log_blank()
                 return "skipped"
 
-            if processor_rc != 0:
-                raise RuntimeError(
-                    f"ffmpeg filler pipeline failed, return_code={processor_rc}\n"
-                    f"{self._read_stderr_tail(processor_stderr)}"
-                )
-
         except Exception:
-            self._terminate_process(processor, "ffmpeg")
+            for proc in processors:
+                self._terminate_process(proc, "ffmpeg")
             clear_pids()
             raise
 

@@ -10,6 +10,7 @@ from config import (
     HISTORY_FILE,
     LAST_VIDEOS_LIMIT,
     MAX_CHANNEL_RETRIES,
+    OUR_VIDEO_EVERY_N_CHANNELS,
     OUR_VIDEOS_CACHE_FILE,
     OUR_VIDEOS_LIMIT,
     PLAYBACK_ERROR_DELAY_SECONDS,
@@ -18,6 +19,7 @@ from config import (
     YT_DLP_BIN,
 )
 from services.batch_service import (
+    BatchState,
     load_batch_state,
     save_batch_state,
     start_new_cycle,
@@ -26,16 +28,10 @@ from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
 from services.our_videos_cache import get_our_videos
 from services.playback_service import PlaybackService, is_filler_item
-from services.runtime_control import (
-    PlaybackCommand,
-    clear_command,
-    is_paused,
-    load_control,
-)
+from services.runtime_control import is_broadcasting
 from services.settings_service import load_settings
 from services.storage import (
     append_history,
-    load_current_item,
     load_seen_videos,
     save_current_item,
     save_seen_videos,
@@ -49,7 +45,6 @@ def _play_and_record(
     item: VideoItem,
     record_history: bool = True,
 ) -> str:
-    """Play a video item, persist current_item for crash recovery, return outcome."""
     save_current_item(CURRENT_ITEM_FILE, item)
     try:
         outcome = playback.play(item)
@@ -65,31 +60,37 @@ def _play_and_record(
     return outcome
 
 
-def _pick_and_play_our_video(
+def _play_our_video_sequential(
     playback: PlaybackService,
     our_videos: list[VideoItem],
+    state: BatchState,
 ) -> str:
-    """Pick a random 'our' video from the cached channel list, play it, return outcome."""
+    """Play the next 'our video' in order (cyclic). Advances state.our_video_index."""
     if not our_videos:
         item = playback.create_filler_item()
     else:
-        item = random.choice(our_videos)
+        idx = state.our_video_index % len(our_videos)
+        item = our_videos[idx]
+        state.our_video_index = idx + 1
+        log_play(
+            f"Our video [{idx + 1}/{len(our_videos)}]: {item.title} ({item.video_id})"
+        )
 
     return _play_and_record(playback, item, record_history=False)
-
-
-def _handle_paused_commands() -> None:
-    """Drain skip/previous commands that arrive while paused."""
-    cmd = (load_control().get("command") or "").strip().lower()
-    if cmd in (PlaybackCommand.SKIP.value, PlaybackCommand.PREVIOUS.value):
-        clear_command()
 
 
 def playback_cycle_step(
     playback: PlaybackService,
     ytdlp: YtDlpClient,
 ) -> None:
-    """One step of the batch cycle: play one channel video + one 'our' video."""
+    """One step of the batch cycle.
+
+    Pattern: Channel → Channel → Channel → Our video → Channel → … (every N channels).
+    Our videos are played sequentially (not randomly), cycling back to the start.
+    """
+    if not is_broadcasting():
+        return
+
     channels = read_channels_list(CHANNELS_FILE)
 
     settings = load_settings()
@@ -110,14 +111,15 @@ def playback_cycle_step(
     state = load_batch_state(BATCH_STATE_FILE)
 
     if state is None or state.is_cycle_complete():
-        state = start_new_cycle(channels)
+        prev_our_idx = state.our_video_index if state else 0
+        state = start_new_cycle(channels, prev_our_video_index=prev_our_idx)
         save_batch_state(BATCH_STATE_FILE, state)
         log_block(f"NEW CYCLE: {len(state.shuffled_channels)} channels (shuffled)")
 
-    # Recovery: channel video played, but our video didn't finish before crash
+    # Recovery: our video was pending before crash
     if state.pending_our_video:
         log_info("Recovery: playing pending 'our video'")
-        _pick_and_play_our_video(playback, our_videos)
+        _play_our_video_sequential(playback, our_videos, state)
         state.pending_our_video = False
         state.current_index += 1
         save_batch_state(BATCH_STATE_FILE, state)
@@ -185,20 +187,20 @@ def playback_cycle_step(
         return
 
     state.channel_fail_count = 0
-
-    # Mark pending so crash recovery plays our video if we restart mid-pair
-    state.pending_our_video = True
-    save_batch_state(BATCH_STATE_FILE, state)
-
-    # 2) Play our video
-    try:
-        _pick_and_play_our_video(playback, our_videos)
-    except Exception as e:
-        log_warn(f"Our video playback failed, continuing: {e}")
-
-    # Advance to next channel
-    state.pending_our_video = False
     state.current_index += 1
+
+    # 2) Every N channels — play our video (sequentially)
+    if state.current_index % OUR_VIDEO_EVERY_N_CHANNELS == 0 and our_videos:
+        state.pending_our_video = True
+        save_batch_state(BATCH_STATE_FILE, state)
+
+        try:
+            _play_our_video_sequential(playback, our_videos, state)
+        except Exception as e:
+            log_warn(f"Our video playback failed, continuing: {e}")
+
+        state.pending_our_video = False
+
     save_batch_state(BATCH_STATE_FILE, state)
 
 
@@ -230,25 +232,27 @@ def main() -> None:
     playback = PlaybackService()
     ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
 
-    # Crash recovery: replay interrupted video
-    current = load_current_item(CURRENT_ITEM_FILE)
-    if current is not None:
-        log_warn(f"Recovery: replaying {current.title} ({current.video_id})")
-        _play_and_record(playback, current)
+    log_block("MEDIAHUB READY — waiting for broadcast start via admin panel")
 
     while True:
-        if is_paused():
-            _handle_paused_commands()
-            time.sleep(0.3)
+        if not is_broadcasting():
+            time.sleep(0.5)
             continue
 
-        try:
-            playback_cycle_step(playback, ytdlp)
-        except Exception as e:
-            log_blank()
-            log_error(f"PLAYBACK FAILED: {e}")
-            log_blank()
-            time.sleep(PLAYBACK_ERROR_DELAY_SECONDS)
+        log_block("BROADCAST STARTED")
+
+        while is_broadcasting():
+            try:
+                playback_cycle_step(playback, ytdlp)
+            except Exception as e:
+                if not is_broadcasting():
+                    break
+                log_blank()
+                log_error(f"PLAYBACK FAILED: {e}")
+                log_blank()
+                time.sleep(PLAYBACK_ERROR_DELAY_SECONDS)
+
+        log_block("BROADCAST STOPPED")
 
 
 if __name__ == "__main__":

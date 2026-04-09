@@ -38,21 +38,28 @@ def _atomic_write_json(path: Path, data: dict[str, Any]) -> None:
 def load_control() -> dict[str, Any]:
     data = _read_json(CONTROL_FILE)
     if not data:
-        return {"paused": False, "command": PlaybackCommand.NONE.value}
+        return {"paused": False, "command": PlaybackCommand.NONE.value, "broadcasting": False}
     paused = bool(data.get("paused", False))
+    broadcasting = bool(data.get("broadcasting", False))
     cmd = str(data.get("command") or "").strip().lower()
     allowed = ("", PlaybackCommand.SKIP.value, PlaybackCommand.PREVIOUS.value)
     if cmd not in allowed:
         cmd = ""
-    return {"paused": paused, "command": cmd}
+    return {"paused": paused, "command": cmd, "broadcasting": broadcasting}
 
 
-def save_control(paused: Optional[bool] = None, command: Optional[str] = None) -> None:
+def save_control(
+    paused: Optional[bool] = None,
+    command: Optional[str] = None,
+    broadcasting: Optional[bool] = None,
+) -> None:
     cur = load_control()
     if paused is not None:
         cur["paused"] = paused
     if command is not None:
         cur["command"] = command
+    if broadcasting is not None:
+        cur["broadcasting"] = broadcasting
     _atomic_write_json(CONTROL_FILE, cur)
 
 
@@ -76,29 +83,41 @@ def is_paused() -> bool:
     return bool(load_control().get("paused"))
 
 
-def write_pids(ffmpeg_pid: Optional[int], ytdlp_pid: Optional[int]) -> None:
-    data = {}
-    if ffmpeg_pid is not None:
-        data["ffmpeg_pid"] = int(ffmpeg_pid)
-    if ytdlp_pid is not None:
-        data["ytdlp_pid"] = int(ytdlp_pid)
-    if not data:
-        _atomic_write_json(PIDS_FILE, {})
-        return
-    _atomic_write_json(PIDS_FILE, data)
+def is_broadcasting() -> bool:
+    return bool(load_control().get("broadcasting"))
+
+
+def start_broadcasting() -> None:
+    save_control(broadcasting=True, command=PlaybackCommand.NONE.value)
+
+
+def stop_broadcasting() -> None:
+    save_control(broadcasting=False, command=PlaybackCommand.NONE.value)
+    kill_playback_processes()
+
+
+def write_pids(*pids: int) -> None:
+    """Track active process PIDs (any number of ffmpeg + yt-dlp processes)."""
+    valid = [int(p) for p in pids if p is not None]
+    _atomic_write_json(PIDS_FILE, {"pids": valid})
 
 
 def clear_pids() -> None:
-    write_pids(None, None)
+    _atomic_write_json(PIDS_FILE, {"pids": []})
 
 
-def load_pids() -> tuple[Optional[int], Optional[int]]:
+def load_pids() -> list[int]:
     data = _read_json(PIDS_FILE)
     if not data:
-        return None, None
-    ff = data.get("ffmpeg_pid")
-    yt = data.get("ytdlp_pid")
-    return (int(ff) if ff is not None else None, int(yt) if yt is not None else None)
+        return []
+    if "pids" in data and isinstance(data["pids"], list):
+        return [int(p) for p in data["pids"] if p is not None]
+    result: list[int] = []
+    if data.get("ffmpeg_pid") is not None:
+        result.append(int(data["ffmpeg_pid"]))
+    if data.get("ytdlp_pid") is not None:
+        result.append(int(data["ytdlp_pid"]))
+    return result
 
 
 def _kill_pid(pid: int) -> None:
@@ -123,9 +142,6 @@ def _kill_pid(pid: int) -> None:
 
 
 def kill_playback_processes() -> None:
-    ff, yt = load_pids()
-    for pid in (yt, ff):
-        if pid is None:
-            continue
-        _kill_pid(int(pid))
+    for pid in load_pids():
+        _kill_pid(pid)
     clear_pids()

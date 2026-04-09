@@ -20,6 +20,8 @@ class AppSettings:
     logo_opacity: float = 1.0
     """Множник після підгонки PNG у рамку кадру; 1 = базовий розмір. У JSON немає ключа → config.LOGO_ZOOM."""
     logo_zoom: float = 1.0
+    # Telegram RTMP server URL (e.g. rtmp://dc4-1.rtmp.t.me/s/)
+    telegram_server_url: str = ""
     # URL YouTube-каналу, з якого беруться «наші відео» (останні N).
     our_channel_url: str = ""
     # Інтервал повторного сканування каналу «наших відео» (хвилини).
@@ -51,6 +53,9 @@ class AppSettings:
                 logo_zoom = max(0.05, min(8.0, float(raw_lz)))
             except (TypeError, ValueError):
                 logo_zoom = float(LOGO_ZOOM)
+        raw_tg = data.get("telegram_server_url")
+        telegram_server_url = str(raw_tg).strip() if raw_tg else ""
+
         raw_ocurl = data.get("our_channel_url")
         our_channel_url = str(raw_ocurl).strip() if raw_ocurl else ""
 
@@ -68,6 +73,7 @@ class AppSettings:
             logo_path=str(data.get("logo_path") or "").strip(),
             logo_opacity=logo_opacity,
             logo_zoom=logo_zoom,
+            telegram_server_url=telegram_server_url,
             our_channel_url=our_channel_url,
             our_videos_scan_interval_minutes=scan_interval,
         )
@@ -127,6 +133,8 @@ def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
             cur.logo_zoom = max(0.05, min(8.0, float(patch["logo_zoom"])))
         except (TypeError, ValueError):
             pass
+    if "telegram_server_url" in patch and patch["telegram_server_url"] is not None:
+        cur.telegram_server_url = str(patch["telegram_server_url"]).strip()
     if "our_channel_url" in patch and patch["our_channel_url"] is not None:
         cur.our_channel_url = str(patch["our_channel_url"]).strip()
     if "our_videos_scan_interval_minutes" in patch and patch["our_videos_scan_interval_minutes"] is not None:

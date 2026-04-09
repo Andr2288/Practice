@@ -63,7 +63,6 @@ class FFmpegService:
         zoom: float,
         out_label: str = "lg",
     ) -> str:
-        """PNG → rgba, вміщення в рамку кадру (пропорції), scale за zoom, опційно альфа."""
         o = max(0.0, min(1.0, float(opacity)))
         z = max(0.05, min(8.0, float(zoom)))
         inp = f"[{input_pad}]"
@@ -84,6 +83,33 @@ class FFmpegService:
             )
         return f"{inp}{','.join(parts)}[{out_label}]"
 
+    def _encoding_args(self) -> list[str]:
+        return [
+            "-c:v", "libx264",
+            "-preset", "ultrafast",
+            "-tune", "zerolatency",
+            "-pix_fmt", "yuv420p",
+            "-r", str(OUTPUT_FPS),
+            "-g", str(OUTPUT_GOP),
+            "-b:v", OUTPUT_VIDEO_BITRATE,
+            "-maxrate", OUTPUT_MAXRATE,
+            "-bufsize", OUTPUT_BUFSIZE,
+            "-c:a", "aac",
+            "-b:a", OUTPUT_AUDIO_BITRATE,
+            "-ar", str(OUTPUT_AUDIO_SAMPLE_RATE),
+            "-ac", str(OUTPUT_AUDIO_CHANNELS),
+        ]
+
+    def _flv_output_args(self, rtmp_url: str) -> list[str]:
+        return [
+            "-shortest",
+            "-flvflags", "no_duration_filesize",
+            "-muxdelay", "0",
+            "-muxpreload", "0",
+            "-f", "flv",
+            rtmp_url,
+        ]
+
     def build_video_pipeline(
         self,
         rtmp_url: str,
@@ -92,25 +118,15 @@ class FFmpegService:
         logo_opacity: float = LOGO_OPACITY,
         logo_zoom: float = LOGO_ZOOM,
     ) -> list[str]:
-        """
-        Вхід:
-          - stdin (pipe:0) від yt-dlp
-        Вихід:
-          - FLV на YouTube Live (RTMP)
+        if not source_is_pipe:
+            raise ValueError("Only pipe input is supported in build_video_pipeline().")
 
-        Опція -re тримає темп 1× відносно реального часу (важливо для live на YouTube).
-        """
         cmd = [
             self.ffmpeg_bin,
             "-hide_banner",
-            "-loglevel",
-            "error",
+            "-loglevel", "error",
+            "-re", "-i", "pipe:0",
         ]
-
-        if source_is_pipe:
-            cmd += ["-re", "-i", "pipe:0"]
-        else:
-            raise ValueError("Only pipe input is supported in build_video_pipeline().")
 
         logo_path = self._logo_path(logo_file)
         if logo_path is not None:
@@ -122,64 +138,20 @@ class FFmpegService:
                 f"[base][lg]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
             )
             cmd += [
-                "-filter_complex",
-                filter_complex,
-                "-map",
-                "[vout]",
-                "-map",
-                "0:a:0?",
+                "-filter_complex", filter_complex,
+                "-map", "[vout]",
+                "-map", "0:a:0?",
             ]
         else:
             cmd += [
-                "-vf",
-                self._video_base_filter(),
-                "-map",
-                "0:v:0",
-                "-map",
-                "0:a:0?",
+                "-vf", self._video_base_filter(),
+                "-map", "0:v:0",
+                "-map", "0:a:0?",
             ]
 
-        cmd += [
-            "-af",
-            self._audio_filter(),
-            "-c:v",
-            "libx264",
-            "-preset",
-            "ultrafast",
-            "-tune",
-            "zerolatency",
-            "-pix_fmt",
-            "yuv420p",
-            "-r",
-            str(OUTPUT_FPS),
-            "-g",
-            str(OUTPUT_GOP),
-            "-b:v",
-            OUTPUT_VIDEO_BITRATE,
-            "-maxrate",
-            OUTPUT_MAXRATE,
-            "-bufsize",
-            OUTPUT_BUFSIZE,
-            "-c:a",
-            "aac",
-            "-b:a",
-            OUTPUT_AUDIO_BITRATE,
-            "-ar",
-            str(OUTPUT_AUDIO_SAMPLE_RATE),
-            "-ac",
-            str(OUTPUT_AUDIO_CHANNELS),
-            "-shortest",
-            "-flvflags",
-            "no_duration_filesize",
-            # Менша штучна затримка FLV — інколи стабілізує шкалу часу в плеєрі YouTube.
-            "-muxdelay",
-            "0",
-            "-muxpreload",
-            "0",
-            "-f",
-            "flv",
-            rtmp_url,
-        ]
+        cmd += ["-af", self._audio_filter()]
+        cmd += self._encoding_args()
+        cmd += self._flv_output_args(rtmp_url)
 
         return cmd
 
@@ -206,18 +178,9 @@ class FFmpegService:
         cmd = [
             self.ffmpeg_bin,
             "-hide_banner",
-            "-loglevel",
-            "error",
-            "-re",
-            "-f",
-            "lavfi",
-            "-i",
-            video_src,
-            "-re",
-            "-f",
-            "lavfi",
-            "-i",
-            audio_src,
+            "-loglevel", "error",
+            "-re", "-f", "lavfi", "-i", video_src,
+            "-re", "-f", "lavfi", "-i", audio_src,
         ]
 
         logo_path = self._logo_path(logo_file)
@@ -229,61 +192,19 @@ class FFmpegService:
                 f"[0:v][lg]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
             )
             cmd += [
-                "-filter_complex",
-                filter_complex,
-                "-map",
-                "[vout]",
-                "-map",
-                "1:a:0",
+                "-filter_complex", filter_complex,
+                "-map", "[vout]",
+                "-map", "1:a:0",
             ]
         else:
             cmd += [
-                "-map",
-                "0:v:0",
-                "-map",
-                "1:a:0",
+                "-map", "0:v:0",
+                "-map", "1:a:0",
             ]
 
-        cmd += [
-            "-af",
-            self._audio_filter(),
-            "-c:v",
-            "libx264",
-            "-preset",
-            "ultrafast",
-            "-tune",
-            "zerolatency",
-            "-pix_fmt",
-            "yuv420p",
-            "-r",
-            str(OUTPUT_FPS),
-            "-g",
-            str(OUTPUT_GOP),
-            "-b:v",
-            OUTPUT_VIDEO_BITRATE,
-            "-maxrate",
-            OUTPUT_MAXRATE,
-            "-bufsize",
-            OUTPUT_BUFSIZE,
-            "-c:a",
-            "aac",
-            "-b:a",
-            OUTPUT_AUDIO_BITRATE,
-            "-ar",
-            str(OUTPUT_AUDIO_SAMPLE_RATE),
-            "-ac",
-            str(OUTPUT_AUDIO_CHANNELS),
-            "-shortest",
-            "-flvflags",
-            "no_duration_filesize",
-            "-muxdelay",
-            "0",
-            "-muxpreload",
-            "0",
-            "-f",
-            "flv",
-            rtmp_url,
-        ]
+        cmd += ["-af", self._audio_filter()]
+        cmd += self._encoding_args()
+        cmd += self._flv_output_args(rtmp_url)
 
         return cmd
 

@@ -1,4 +1,4 @@
-"""Легкий веб-інтерфейс керування (Flask). Запускається разом із app.py у фоновому потоці."""
+"""Веб-інтерфейс керування трансляцією (Flask). Запускається разом із app.py у фоновому потоці."""
 
 from __future__ import annotations
 
@@ -12,6 +12,7 @@ from config import (
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
     QUEUE_FILE,
+    TELEGRAM_STREAM_KEY_FILE,
     YOUTUBE_STREAM_KEY_FILE,
     YT_DLP_BIN,
 )
@@ -21,28 +22,25 @@ from services.our_videos_cache import invalidate_cache, peek_cached_videos
 from services.playback_service import PlaybackService
 from services.queue_service import QueueService
 from services.runtime_control import (
-    is_paused,
+    is_broadcasting,
     load_control,
-    request_previous,
     request_skip,
-    save_control,
+    start_broadcasting,
+    stop_broadcasting,
 )
 from services.settings_service import load_settings, merge_settings_patch, save_settings
 from services.storage import (
     load_current_item,
     load_queue,
-    pop_history_last_non_filler,
     save_queue,
 )
 from services.channel_scan_service import read_channels_list, save_channels_list
 from services.ytdlp_client import YtDlpClient
 
 
-def _stream_key_configured() -> bool:
+def _stream_key_configured(path) -> bool:
     try:
-        return YOUTUBE_STREAM_KEY_FILE.is_file() and bool(
-            YOUTUBE_STREAM_KEY_FILE.read_text(encoding="utf-8").strip()
-        )
+        return path.is_file() and bool(path.read_text(encoding="utf-8").strip())
     except OSError:
         return False
 
@@ -58,16 +56,17 @@ def create_app() -> Flask:
     def index():
         return render_template("admin.html")
 
-    def _queue_payload():
+    def _status_payload():
         cur = load_current_item(CURRENT_ITEM_FILE)
         ctrl = load_control()
         settings = load_settings()
-        key_present = _stream_key_configured()
+        yt_key = _stream_key_configured(YOUTUBE_STREAM_KEY_FILE)
+        tg_key = _stream_key_configured(TELEGRAM_STREAM_KEY_FILE)
         batch = load_batch_state(BATCH_STATE_FILE)
         cached_vids, last_scan_ts, cached_ch = peek_cached_videos()
         return {
             "current": cur.to_dict() if cur else None,
-            "paused": bool(ctrl.get("paused")),
+            "broadcasting": bool(ctrl.get("broadcasting")),
             "command": ctrl.get("command") or "",
             "channels": read_channels_list(CHANNELS_FILE),
             "our_videos_cache": {
@@ -81,15 +80,36 @@ def create_app() -> Flask:
                 "logo_path": settings.logo_path,
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
+                "telegram_server_url": settings.telegram_server_url,
                 "our_channel_url": settings.our_channel_url,
                 "our_videos_scan_interval_minutes": settings.our_videos_scan_interval_minutes,
             },
-            "youtube_stream_key_configured": key_present,
+            "youtube_stream_key_configured": yt_key,
+            "telegram_stream_key_configured": tg_key,
         }
 
     @app.get("/api/status")
     def api_status():
-        return jsonify(_queue_payload())
+        return jsonify(_status_payload())
+
+    # ── Broadcast control ──────────────────────────────────────────────
+
+    @app.post("/api/broadcast/start")
+    def api_broadcast_start():
+        start_broadcasting()
+        return jsonify({"ok": True, **_status_payload()})
+
+    @app.post("/api/broadcast/stop")
+    def api_broadcast_stop():
+        stop_broadcasting()
+        return jsonify({"ok": True, **_status_payload()})
+
+    @app.post("/api/control/next")
+    def api_next():
+        request_skip()
+        return jsonify({"ok": True, **_status_payload()})
+
+    # ── Channels ───────────────────────────────────────────────────────
 
     @app.put("/api/channels")
     def api_channels_put():
@@ -104,27 +124,16 @@ def create_app() -> Flask:
                 if s:
                     urls.append(s)
         save_channels_list(CHANNELS_FILE, urls)
-        return jsonify({"ok": True, **_queue_payload()})
+        return jsonify({"ok": True, **_status_payload()})
+
+    # ── Our videos ─────────────────────────────────────────────────────
 
     @app.post("/api/our-videos/rescan")
     def api_our_videos_rescan():
-        """Force re-scan of 'our videos' channel on the next playback cycle."""
         invalidate_cache()
-        return jsonify({"ok": True, **_queue_payload()})
+        return jsonify({"ok": True, **_status_payload()})
 
-    @app.post("/api/scan")
-    def api_scan_channels():
-        try:
-            from services.channel_scan_service import run_channel_scan
-
-            added = run_channel_scan()
-            return jsonify({"ok": True, "added": added, **_queue_payload()})
-        except RuntimeError as e:
-            return jsonify({"ok": False, "error": str(e)}), 409
-        except FileNotFoundError as e:
-            return jsonify({"ok": False, "error": str(e)}), 400
-        except Exception as e:
-            return jsonify({"ok": False, "error": str(e)}), 500
+    # ── Queue ──────────────────────────────────────────────────────────
 
     @app.put("/api/queue")
     def api_queue_replace():
@@ -141,16 +150,16 @@ def create_app() -> Flask:
             except Exception:
                 continue
         save_queue(QUEUE_FILE, QueueService().dedupe_queue(out))
-        return jsonify({"ok": True, **_queue_payload()})
+        return jsonify({"ok": True, **_status_payload()})
 
-    @app.delete("/api/queue/<int:index>")
-    def api_queue_delete(index: int):
+    @app.delete("/api/queue/<int:idx>")
+    def api_queue_delete(idx: int):
         q = load_queue(QUEUE_FILE)
-        if index < 0 or index >= len(q):
+        if idx < 0 or idx >= len(q):
             return jsonify({"ok": False, "error": "Index out of range"}), 400
-        del q[index]
+        del q[idx]
         save_queue(QUEUE_FILE, QueueService().dedupe_queue(q))
-        return jsonify({"ok": True, **_queue_payload()})
+        return jsonify({"ok": True, **_status_payload()})
 
     @app.post("/api/queue/add")
     def api_queue_add():
@@ -176,57 +185,26 @@ def create_app() -> Flask:
         else:
             q = q + [item]
         save_queue(QUEUE_FILE, QueueService().dedupe_queue(q))
-        return jsonify({"ok": True, **_queue_payload()})
+        return jsonify({"ok": True, **_status_payload()})
 
-    @app.post("/api/queue/move")
-    def api_queue_move():
-        data = request.get_json(silent=True) or {}
-        try:
-            from_idx = int(data.get("from"))
-            to_idx = int(data.get("to"))
-        except (TypeError, ValueError):
-            return jsonify({"ok": False, "error": "from and to must be integers"}), 400
-        q = load_queue(QUEUE_FILE)
-        if from_idx < 0 or from_idx >= len(q) or to_idx < 0 or to_idx >= len(q):
-            return jsonify({"ok": False, "error": "Index out of range"}), 400
-        item = q.pop(from_idx)
-        q.insert(to_idx, item)
-        save_queue(QUEUE_FILE, QueueService().dedupe_queue(q))
-        return jsonify({"ok": True, **_queue_payload()})
-
-    @app.post("/api/control/pause")
-    def api_pause():
-        save_control(paused=True)
-        return jsonify({"ok": True, **_queue_payload()})
-
-    @app.post("/api/control/resume")
-    def api_resume():
-        save_control(paused=False)
-        return jsonify({"ok": True, **_queue_payload()})
-
-    @app.post("/api/control/next")
-    def api_next():
-        request_skip()
-        return jsonify({"ok": True, **_queue_payload()})
-
-    @app.post("/api/control/previous")
-    def api_previous():
-        request_previous()
-        return jsonify({"ok": True, **_queue_payload()})
+    # ── Settings ───────────────────────────────────────────────────────
 
     @app.get("/api/settings")
     def api_settings_get():
         settings = load_settings()
-        key_present = _stream_key_configured()
+        yt_key = _stream_key_configured(YOUTUBE_STREAM_KEY_FILE)
+        tg_key = _stream_key_configured(TELEGRAM_STREAM_KEY_FILE)
         return jsonify(
             {
                 "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
+                "telegram_server_url": settings.telegram_server_url,
                 "our_channel_url": settings.our_channel_url,
                 "our_videos_scan_interval_minutes": settings.our_videos_scan_interval_minutes,
-                "youtube_stream_key_configured": key_present,
+                "youtube_stream_key_configured": yt_key,
+                "telegram_stream_key_configured": tg_key,
             }
         )
 
@@ -235,11 +213,18 @@ def create_app() -> Flask:
         data = request.get_json(silent=True) or {}
         settings = merge_settings_patch(data)
         save_settings(settings)
-        key = (data.get("youtube_stream_key") or "").strip()
-        if key:
+
+        yt_key = (data.get("youtube_stream_key") or "").strip()
+        if yt_key:
             YOUTUBE_STREAM_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
-            YOUTUBE_STREAM_KEY_FILE.write_text(key + "\n", encoding="utf-8")
-        return jsonify({"ok": True, **_queue_payload()})
+            YOUTUBE_STREAM_KEY_FILE.write_text(yt_key + "\n", encoding="utf-8")
+
+        tg_key = (data.get("telegram_stream_key") or "").strip()
+        if tg_key:
+            TELEGRAM_STREAM_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+            TELEGRAM_STREAM_KEY_FILE.write_text(tg_key + "\n", encoding="utf-8")
+
+        return jsonify({"ok": True, **_status_payload()})
 
     @app.post("/api/settings/logo")
     def api_logo_upload():
@@ -257,7 +242,7 @@ def create_app() -> Flask:
             logo_rel = str(dest)
         settings = merge_settings_patch({"logo_path": logo_rel})
         save_settings(settings)
-        return jsonify({"ok": True, **_queue_payload()})
+        return jsonify({"ok": True, **_status_payload()})
 
     return app
 
