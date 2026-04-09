@@ -22,6 +22,8 @@ class AppSettings:
     logo_zoom: float = 1.0
     # Telegram RTMP server URL (e.g. rtmp://dc4-1.rtmp.t.me/s/)
     telegram_server_url: str = ""
+    # X (Twitter) Live ingest base без ключа (e.g. rtmps://fr.pscp.tv:443/x). Порожньо → config.X_INGEST_BASE.
+    x_stream_server_url: str = ""
     # URL YouTube-каналу, з якого беруться «наші відео» (останні N).
     our_channel_url: str = ""
     # Інтервал повторного сканування каналу «наших відео» (хвилини).
@@ -56,6 +58,9 @@ class AppSettings:
         raw_tg = data.get("telegram_server_url")
         telegram_server_url = str(raw_tg).strip() if raw_tg else ""
 
+        raw_x = data.get("x_stream_server_url")
+        x_stream_server_url = str(raw_x).strip() if raw_x else ""
+
         raw_ocurl = data.get("our_channel_url")
         our_channel_url = str(raw_ocurl).strip() if raw_ocurl else ""
 
@@ -74,6 +79,7 @@ class AppSettings:
             logo_opacity=logo_opacity,
             logo_zoom=logo_zoom,
             telegram_server_url=telegram_server_url,
+            x_stream_server_url=x_stream_server_url,
             our_channel_url=our_channel_url,
             our_videos_scan_interval_minutes=scan_interval,
         )
@@ -135,6 +141,8 @@ def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
             pass
     if "telegram_server_url" in patch and patch["telegram_server_url"] is not None:
         cur.telegram_server_url = str(patch["telegram_server_url"]).strip()
+    if "x_stream_server_url" in patch and patch["x_stream_server_url"] is not None:
+        cur.x_stream_server_url = str(patch["x_stream_server_url"]).strip()
     if "our_channel_url" in patch and patch["our_channel_url"] is not None:
         cur.our_channel_url = str(patch["our_channel_url"]).strip()
     if "our_videos_scan_interval_minutes" in patch and patch["our_videos_scan_interval_minutes"] is not None:

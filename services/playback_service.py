@@ -13,6 +13,7 @@ from config import (
     TEST_MODE,
     TEST_PLAYBACK_SECONDS,
     YT_DLP_BIN,
+    get_x_rtmp_url,
     get_youtube_rtmp_url,
 )
 from services.ffmpeg_service import FFmpegService
@@ -24,7 +25,7 @@ from services.runtime_control import (
     read_command_value,
     write_pids,
 )
-from services.settings_service import load_settings, resolve_logo_path
+from services.settings_service import AppSettings, load_settings, resolve_logo_path
 from services.ytdlp_client import YtDlpClient
 from utils.logger import log_blank, log_info, log_play, log_warn
 
@@ -113,9 +114,9 @@ class PlaybackService:
 
     # ── Helpers ────────────────────────────────────────────────────
 
-    def _get_telegram_rtmp_url(self) -> Optional[str]:
-        settings = load_settings()
-        server = settings.telegram_server_url.strip().rstrip("/")
+    def _get_telegram_rtmp_url(self, settings: Optional[AppSettings] = None) -> Optional[str]:
+        s = settings if settings is not None else load_settings()
+        server = s.telegram_server_url.strip().rstrip("/")
         if not server:
             return None
         key = ""
@@ -129,13 +130,17 @@ class PlaybackService:
         return f"{server}/{key}"
 
     def _collect_rtmp_urls(self) -> list[str]:
+        settings = load_settings()
         urls: list[str] = []
         yt = get_youtube_rtmp_url()
         if yt:
             urls.append(yt)
-        tg = self._get_telegram_rtmp_url()
+        tg = self._get_telegram_rtmp_url(settings)
         if tg:
             urls.append(tg)
+        x = get_x_rtmp_url(settings.x_stream_server_url)
+        if x:
+            urls.append(x)
         return urls
 
     def _require_rtmp_urls(self) -> list[str]:
@@ -143,7 +148,8 @@ class PlaybackService:
         if not urls:
             raise RuntimeError(
                 "No stream destinations configured. "
-                "Set a YouTube stream key and/or Telegram server URL + stream key."
+                "Set a YouTube stream key, Telegram server URL + stream key, "
+                "and/or X stream key (with ingest URL if not default)."
             )
         return urls
 
@@ -153,6 +159,8 @@ class PlaybackService:
             return "YouTube"
         if "rtmp.t.me" in low or "telegram" in low:
             return "Telegram"
+        if "pscp.tv" in low or "periscope" in low:
+            return "X"
         return url[:50]
 
     def _log_destinations(self, rtmp_urls: list[str]) -> None:

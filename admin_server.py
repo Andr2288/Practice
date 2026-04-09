@@ -13,6 +13,7 @@ from config import (
     HISTORY_FILE,
     QUEUE_FILE,
     TELEGRAM_STREAM_KEY_FILE,
+    X_STREAM_KEY_FILE,
     YOUTUBE_STREAM_KEY_FILE,
     YT_DLP_BIN,
 )
@@ -62,6 +63,7 @@ def create_app() -> Flask:
         settings = load_settings()
         yt_key = _stream_key_configured(YOUTUBE_STREAM_KEY_FILE)
         tg_key = _stream_key_configured(TELEGRAM_STREAM_KEY_FILE)
+        x_key = _stream_key_configured(X_STREAM_KEY_FILE)
         batch = load_batch_state(BATCH_STATE_FILE)
         cached_vids, last_scan_ts, cached_ch = peek_cached_videos()
         return {
@@ -81,11 +83,13 @@ def create_app() -> Flask:
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
                 "telegram_server_url": settings.telegram_server_url,
+                "x_stream_server_url": settings.x_stream_server_url,
                 "our_channel_url": settings.our_channel_url,
                 "our_videos_scan_interval_minutes": settings.our_videos_scan_interval_minutes,
             },
             "youtube_stream_key_configured": yt_key,
             "telegram_stream_key_configured": tg_key,
+            "x_stream_key_configured": x_key,
         }
 
     @app.get("/api/status")
@@ -194,6 +198,7 @@ def create_app() -> Flask:
         settings = load_settings()
         yt_key = _stream_key_configured(YOUTUBE_STREAM_KEY_FILE)
         tg_key = _stream_key_configured(TELEGRAM_STREAM_KEY_FILE)
+        x_key = _stream_key_configured(X_STREAM_KEY_FILE)
         return jsonify(
             {
                 "filler_url": settings.filler_url,
@@ -201,10 +206,12 @@ def create_app() -> Flask:
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
                 "telegram_server_url": settings.telegram_server_url,
+                "x_stream_server_url": settings.x_stream_server_url,
                 "our_channel_url": settings.our_channel_url,
                 "our_videos_scan_interval_minutes": settings.our_videos_scan_interval_minutes,
                 "youtube_stream_key_configured": yt_key,
                 "telegram_stream_key_configured": tg_key,
+                "x_stream_key_configured": x_key,
             }
         )
 
@@ -223,6 +230,11 @@ def create_app() -> Flask:
         if tg_key:
             TELEGRAM_STREAM_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
             TELEGRAM_STREAM_KEY_FILE.write_text(tg_key + "\n", encoding="utf-8")
+
+        x_key = (data.get("x_stream_key") or "").strip()
+        if x_key:
+            X_STREAM_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
+            X_STREAM_KEY_FILE.write_text(x_key + "\n", encoding="utf-8")
 
         return jsonify({"ok": True, **_status_payload()})
 

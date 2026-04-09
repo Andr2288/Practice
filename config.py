@@ -5,11 +5,17 @@ from typing import Optional
 BASE_DIR = Path(__file__).resolve().parent
 YOUTUBE_STREAM_KEY_FILE = BASE_DIR / "youtube_stream_key.txt"
 TELEGRAM_STREAM_KEY_FILE = BASE_DIR / "telegram_stream_key.txt"
+X_STREAM_KEY_FILE = BASE_DIR / "x_stream_key.txt"
 
 # Повний RTMP URL (пріоритет), або лише ключ — тоді використовується стандартний ingest YouTube.
 YOUTUBE_RTMP_URL = os.environ.get("YOUTUBE_RTMP_URL", "").strip()
 YOUTUBE_STREAM_KEY = os.environ.get("YOUTUBE_STREAM_KEY", "").strip()
 YOUTUBE_INGEST_BASE = "rtmp://a.rtmp.youtube.com/live2/"
+# X (Twitter) Live — ingest Periscope (EU Paris за замовчуванням). Повний URL: X_RTMP_URL або base + ключ (файл/env).
+_X_INGEST_DEFAULT = "rtmps://fr.pscp.tv:443/x"
+X_RTMP_URL = os.environ.get("X_RTMP_URL", "").strip()
+X_STREAM_KEY = os.environ.get("X_STREAM_KEY", "").strip()
+X_INGEST_BASE = os.environ.get("X_INGEST_BASE", _X_INGEST_DEFAULT).strip().rstrip("/") or _X_INGEST_DEFAULT
 STATE_DIR = BASE_DIR / "state"
 ASSETS_DIR = BASE_DIR / "assets"
 
@@ -158,3 +164,19 @@ def get_youtube_rtmp_url() -> Optional[str]:
     if key:
         return f"{YOUTUBE_INGEST_BASE}{key}"
     return None
+
+
+def get_x_rtmp_url(server_url_from_settings: str = "") -> Optional[str]:
+    """RTMP(S) для X Live (Periscope ingest). X_RTMP_URL, або base + ключ з X_STREAM_KEY / x_stream_key.txt."""
+    if X_RTMP_URL:
+        return X_RTMP_URL
+    key = X_STREAM_KEY
+    if not key and X_STREAM_KEY_FILE.is_file():
+        try:
+            key = X_STREAM_KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
+        except OSError:
+            key = ""
+    if not key:
+        return None
+    base = (server_url_from_settings or "").strip().rstrip("/") or X_INGEST_BASE
+    return f"{base}/{key}"
