@@ -1,15 +1,17 @@
 """Cache for 'our videos' fetched from a YouTube channel.
 
-Periodically scans the configured channel and keeps the N latest videos
-in memory + on disk (for crash recovery).
+Same idea as foreign channels in playback: fetch the latest N from the channel
+when an insert is due. Results are kept in memory and on disk for admin display
+and fallback if a fetch fails.
 """
 
 import json
 import threading
 import time
 from pathlib import Path
-from typing import List, Optional
+from typing import List
 
+from config import OUR_VIDEOS_CACHE_FILE
 from services.models import VideoItem
 from services.ytdlp_client import YtDlpClient
 from utils.logger import log_info, log_warn
@@ -49,47 +51,41 @@ def _save_to_disk(cache_file: Path, videos: List[VideoItem], ts: float, channel_
     tmp.replace(cache_file)
 
 
-def get_our_videos(
+def warm_cache_from_disk(cache_file: Path = OUR_VIDEOS_CACHE_FILE) -> None:
+    """Load last saved list into memory (e.g. on startup) so admin shows something before the first fetch."""
+    global _cached_videos, _last_scan_ts, _cached_channel_url
+    with _lock:
+        if not _cached_videos:
+            _cached_videos, _last_scan_ts, _cached_channel_url = _load_from_disk(cache_file)
+
+
+def fetch_our_videos_for_playback(
     ytdlp: YtDlpClient,
     channel_url: str,
     limit: int,
-    scan_interval_seconds: float,
     cache_file: Path,
 ) -> List[VideoItem]:
-    """Return cached video list, refreshing from the channel when stale."""
+    """Fetch latest videos from the channel (always). Updates cache and disk on success."""
     global _cached_videos, _last_scan_ts, _cached_channel_url
 
     if not channel_url:
         return []
-
-    with _lock:
-        now = time.time()
-
-        if not _cached_videos:
-            _cached_videos, _last_scan_ts, _cached_channel_url = _load_from_disk(cache_file)
-
-        channel_changed = channel_url != _cached_channel_url
-        stale = (now - _last_scan_ts) >= scan_interval_seconds
-
-        if _cached_videos and not channel_changed and not stale:
-            return list(_cached_videos)
 
     try:
         videos = ytdlp.fetch_latest_videos(channel_url, limit=limit)
     except Exception as e:
         log_warn(f"Our-videos scan failed ({channel_url}): {e}")
         with _lock:
+            if not _cached_videos:
+                _cached_videos, _last_scan_ts, _cached_channel_url = _load_from_disk(cache_file)
             return list(_cached_videos)
 
     with _lock:
-        if videos:
-            _cached_videos = videos
-            _last_scan_ts = time.time()
-            _cached_channel_url = channel_url
-            _save_to_disk(cache_file, videos, _last_scan_ts, channel_url)
-            log_info(
-                f"Our-videos refreshed: {len(videos)} videos from {channel_url}"
-            )
+        _cached_videos = list(videos)
+        _last_scan_ts = time.time()
+        _cached_channel_url = channel_url
+        _save_to_disk(cache_file, _cached_videos, _last_scan_ts, channel_url)
+        log_info(f"Our-videos refreshed: {len(_cached_videos)} videos from {channel_url}")
         return list(_cached_videos)
 
 
@@ -99,10 +95,15 @@ def peek_cached_videos() -> tuple[List[VideoItem], float, str]:
         return list(_cached_videos), _last_scan_ts, _cached_channel_url
 
 
-def invalidate_cache() -> None:
-    """Force re-scan on the next call to get_our_videos."""
+def invalidate_cache(cache_file: Path = OUR_VIDEOS_CACHE_FILE) -> None:
+    """Clear memory cache and delete the on-disk snapshot (next fetch replaces it)."""
     global _cached_videos, _last_scan_ts, _cached_channel_url
     with _lock:
         _cached_videos = []
         _last_scan_ts = 0.0
         _cached_channel_url = ""
+    try:
+        if cache_file.is_file():
+            cache_file.unlink()
+    except OSError:
+        pass

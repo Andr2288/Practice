@@ -26,7 +26,7 @@ from services.batch_service import (
 )
 from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
-from services.our_videos_cache import get_our_videos
+from services.our_videos_cache import fetch_our_videos_for_playback, warm_cache_from_disk
 from services.playback_service import PlaybackService, is_filler_item
 from services.runtime_control import is_broadcasting
 from services.settings_service import load_settings
@@ -86,7 +86,8 @@ def playback_cycle_step(
     """One step of the batch cycle.
 
     Pattern: Channel → Channel → Channel → Our video → Channel → … (every N channels).
-    Our videos are played sequentially (not randomly), cycling back to the start.
+    Our videos: fetch latest N from our channel before each insert (like foreign channels);
+    playback order is sequential, cycling back to the start.
     """
     if not is_broadcasting():
         return
@@ -94,13 +95,6 @@ def playback_cycle_step(
     channels = read_channels_list(CHANNELS_FILE)
 
     settings = load_settings()
-    our_videos = get_our_videos(
-        ytdlp=ytdlp,
-        channel_url=settings.our_channel_url,
-        limit=OUR_VIDEOS_LIMIT,
-        scan_interval_seconds=settings.our_videos_scan_interval_minutes * 60,
-        cache_file=OUR_VIDEOS_CACHE_FILE,
-    )
 
     if not channels:
         log_warn("No channels configured — playing filler")
@@ -119,6 +113,12 @@ def playback_cycle_step(
     # Recovery: our video was pending before crash
     if state.pending_our_video:
         log_info("Recovery: playing pending 'our video'")
+        our_videos = fetch_our_videos_for_playback(
+            ytdlp=ytdlp,
+            channel_url=settings.our_channel_url,
+            limit=OUR_VIDEOS_LIMIT,
+            cache_file=OUR_VIDEOS_CACHE_FILE,
+        )
         _play_our_video_sequential(playback, our_videos, state)
         state.pending_our_video = False
         state.current_index += 1
@@ -189,17 +189,24 @@ def playback_cycle_step(
     state.channel_fail_count = 0
     state.current_index += 1
 
-    # 2) Every N channels — play our video (sequentially)
-    if state.current_index % OUR_VIDEO_EVERY_N_CHANNELS == 0 and our_videos:
-        state.pending_our_video = True
-        save_batch_state(BATCH_STATE_FILE, state)
+    # 2) Every N channels — play our video (sequentially); fresh fetch like foreign channels
+    if state.current_index % OUR_VIDEO_EVERY_N_CHANNELS == 0:
+        our_videos = fetch_our_videos_for_playback(
+            ytdlp=ytdlp,
+            channel_url=settings.our_channel_url,
+            limit=OUR_VIDEOS_LIMIT,
+            cache_file=OUR_VIDEOS_CACHE_FILE,
+        )
+        if our_videos:
+            state.pending_our_video = True
+            save_batch_state(BATCH_STATE_FILE, state)
 
-        try:
-            _play_our_video_sequential(playback, our_videos, state)
-        except Exception as e:
-            log_warn(f"Our video playback failed, continuing: {e}")
+            try:
+                _play_our_video_sequential(playback, our_videos, state)
+            except Exception as e:
+                log_warn(f"Our video playback failed, continuing: {e}")
 
-        state.pending_our_video = False
+            state.pending_our_video = False
 
     save_batch_state(BATCH_STATE_FILE, state)
 
@@ -226,6 +233,7 @@ def _start_admin_server() -> None:
 
 def main() -> None:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
+    warm_cache_from_disk(OUR_VIDEOS_CACHE_FILE)
 
     _start_admin_server()
 
