@@ -14,6 +14,7 @@ class BatchState:
     pending_our_video: bool = False
     channel_fail_count: int = 0
     our_video_index: int = 0
+    videos_since_stream_reboot: int = 0
 
     def is_cycle_complete(self) -> bool:
         return self.current_index >= len(self.shuffled_channels)
@@ -34,6 +35,7 @@ class BatchState:
             pending_our_video=bool(data.get("pending_our_video", False)),
             channel_fail_count=int(data.get("channel_fail_count", 0)),
             our_video_index=int(data.get("our_video_index", 0)),
+            videos_since_stream_reboot=int(data.get("videos_since_stream_reboot", 0)),
         )
 
 
@@ -62,11 +64,17 @@ def save_batch_state(path: Path, state: BatchState) -> None:
     tmp.replace(path)
 
 
-def start_new_cycle(channels: List[str], prev_our_video_index: int = 0) -> BatchState:
+def start_new_cycle(
+    channels: List[str],
+    prev_our_video_index: int = 0,
+    videos_since_stream_reboot: int = 0,
+) -> BatchState:
     """Shuffle channels and create a fresh batch state for a new cycle.
 
     our_video_index is carried over from the previous cycle so sequential
     playback of 'our videos' continues where it left off.
+    videos_since_stream_reboot is carried over so the stream reboot cadence
+    is not reset at cycle boundaries.
     """
     shuffled = list(channels)
     random.shuffle(shuffled)
@@ -75,4 +83,5 @@ def start_new_cycle(channels: List[str], prev_our_video_index: int = 0) -> Batch
         current_index=0,
         pending_our_video=False,
         our_video_index=prev_our_video_index,
+        videos_since_stream_reboot=videos_since_stream_reboot,
     )

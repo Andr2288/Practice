@@ -12,6 +12,8 @@ from config import (
     CURRENT_ITEM_FILE,
     HISTORY_FILE,
     QUEUE_FILE,
+    STREAM_REBOOT_DELAY_SECONDS,
+    STREAM_REBOOT_EVERY_N_VIDEOS,
     TELEGRAM_STREAM_KEY_FILE,
     X_STREAM_KEY_FILE,
     YOUTUBE_STREAM_KEY_FILE,
@@ -66,6 +68,7 @@ def create_app() -> Flask:
         x_key = _stream_key_configured(X_STREAM_KEY_FILE)
         batch = load_batch_state(BATCH_STATE_FILE)
         cached_vids, last_scan_ts, cached_ch = peek_cached_videos()
+        videos_since = int(batch.videos_since_stream_reboot) if batch else 0
         return {
             "current": cur.to_dict() if cur else None,
             "broadcasting": bool(ctrl.get("broadcasting")),
@@ -89,6 +92,11 @@ def create_app() -> Flask:
             "youtube_stream_key_configured": yt_key,
             "telegram_stream_key_configured": tg_key,
             "x_stream_key_configured": x_key,
+            "stream_reboot": {
+                "every_n_videos": STREAM_REBOOT_EVERY_N_VIDEOS,
+                "delay_seconds": STREAM_REBOOT_DELAY_SECONDS,
+                "videos_since_reboot": videos_since,
+            },
         }
 
     @app.get("/api/status")
