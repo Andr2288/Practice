@@ -38,6 +38,9 @@ OUR_VIDEOS_LIMIT = 5
 OUR_VIDEO_EVERY_N_CHANNELS = 3
 
 YT_DLP_BIN = "yt-dlp"
+# YouTube EJS (challenge scripts). Див. https://github.com/yt-dlp/yt-dlp/wiki/EJS
+# Потрібен JS runtime у PATH (рекомендовано Deno ≥2, або Node ≥20 з --js-runtimes node у конфігу yt-dlp).
+YT_DLP_EXTRA_ARGS: tuple[str, ...] = ("--remote-components", "ejs:github")
 FFMPEG_BIN = "ffmpeg"
 
 # True  -> тестова імітація sleep

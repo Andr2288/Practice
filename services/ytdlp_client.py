@@ -2,7 +2,7 @@ import json
 import subprocess
 from typing import List, Optional
 
-from config import YT_DLP_PROGRESSIVE_FORMAT
+from config import YT_DLP_EXTRA_ARGS, YT_DLP_PROGRESSIVE_FORMAT
 from services.models import VideoItem
 
 
@@ -10,9 +10,12 @@ class YtDlpClient:
     def __init__(self, yt_dlp_bin: str = "yt-dlp") -> None:
         self.yt_dlp_bin = yt_dlp_bin
 
+    def _argv_head(self) -> list[str]:
+        return [self.yt_dlp_bin, *YT_DLP_EXTRA_ARGS]
+
     def fetch_latest_videos(self, channel_url: str, limit: int = 7) -> List[VideoItem]:
         cmd = [
-            self.yt_dlp_bin,
+            *self._argv_head(),
             "--extractor-retries",
             "0",
             "--flat-playlist",
@@ -95,7 +98,7 @@ class YtDlpClient:
 
     def build_progressive_stream_cmd(self, video_page_url: str) -> list[str]:
         return [
-            self.yt_dlp_bin,
+            *self._argv_head(),
             "--extractor-retries",
             "0",
             "--retries",
@@ -113,7 +116,7 @@ class YtDlpClient:
 
     def resolve_title(self, video_page_url: str) -> Optional[str]:
         cmd = [
-            self.yt_dlp_bin,
+            *self._argv_head(),
             "--extractor-retries",
             "0",
             "--print",
@@ -137,7 +140,7 @@ class YtDlpClient:
     def fetch_video_by_url(self, page_url: str) -> VideoItem:
         """Метадані одного відео за посиланням (watch, youtu.be, shorts)."""
         cmd = [
-            self.yt_dlp_bin,
+            *self._argv_head(),
             "--extractor-retries",
             "0",
             "--dump-json",
