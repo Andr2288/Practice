@@ -544,20 +544,6 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
 .m-qi-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
 .m-qi-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
 
-/* Mobile quick actions */
-.m-quick{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px 14px}
-.m-qa{
-  padding:12px;border-radius:var(--rs);border:1px solid var(--br);
-  background:var(--s0);cursor:pointer;transition:all .12s;
-  display:flex;flex-direction:column;gap:3px;
-}
-.m-qa:active{transform:scale(.97)}
-.m-qa-ico{font-size:18px;margin-bottom:2px}
-.m-qa-label{font-size:12px;font-weight:600;color:var(--t0)}
-.m-qa-sub{font-size:10px;color:var(--t2)}
-.m-qa.danger{background:var(--err-l);border-color:var(--err)}
-.m-qa.danger .m-qa-label{color:var(--err)}
-
 /* Mobile chat */
 .m-chat-msg{
   padding:9px 14px;border-bottom:1px solid var(--br);
@@ -752,7 +738,7 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
         </div>
       </div>
 
-      <!-- RIGHT: PLATFORMS + QUICK -->
+      <!-- RIGHT: PLATFORMS -->
       <div class="d-right">
 
         <!-- Виходи стріму — акордеон (ключі, URL, увімкнення) -->
@@ -893,15 +879,6 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
           </div>
         </div>
 
-        <!-- QUICK ACTIONS -->
-        <div class="panel">
-          <div class="panel-hd"><span class="panel-title">Швидкі дії</span></div>
-          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px">
-            <button type="button" onclick="rescanOurVideos()" style="padding:9px 8px;border:1px solid var(--br);background:var(--s0);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:all .12s" onmouseover="this.style.background='var(--s1)'" onmouseout="this.style.background='var(--s0)'">🔄 Оновити «наші відео»</button>
-            <button type="button" onclick="if(confirm('Зупинити ефір?'))apiStop()" style="padding:9px 8px;border:1px solid var(--err);background:var(--err-l);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;color:var(--err);font-family:'Geist',sans-serif">⏹ Зупинити ефір</button>
-          </div>
-        </div>
-
       </div>
     </div>
   </div>
@@ -1026,28 +1003,6 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
       </div>
     </div>
 
-    <!-- QUICK ACTIONS -->
-    <div class="m-section">
-      <div class="m-sec-hd"><span class="m-sec-title">Швидкі дії</span></div>
-      <div class="m-quick" style="grid-template-columns:1fr 1fr">
-        <div class="m-qa" onclick="rescanOurVideos()">
-          <div class="m-qa-ico">🔄</div>
-          <div class="m-qa-label">Оновити «наші відео»</div>
-          <div class="m-qa-sub">POST /api/our-videos/rescan</div>
-        </div>
-        <div class="m-qa" onclick="openDrawer('add')">
-          <div class="m-qa-ico">➕</div>
-          <div class="m-qa-label">Додати відео</div>
-          <div class="m-qa-sub">У чергу за URL</div>
-        </div>
-        <div class="m-qa danger" onclick="if(confirm('Зупинити ефір?'))apiStop()" style="grid-column:span 2">
-          <div class="m-qa-ico">⏹</div>
-          <div class="m-qa-label">Зупинити ефір</div>
-          <div class="m-qa-sub">POST /api/broadcast/stop</div>
-        </div>
-      </div>
-    </div>
-
     <!-- QUEUE -->
     <div class="m-section">
       <div class="m-sec-hd">
@@ -1138,7 +1093,7 @@ const drawers={
         <button type="button" onclick="openDrawer('add')" style="flex:1;padding:10px;background:var(--t0);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif">+ Додати відео</button>
         <button type="button" onclick="if(confirm('Очистити чергу?')){fetch('/api/queue',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({queue:[]})}).then(r=>r.json()).then(()=>toast('Черга очищена')).catch(e=>toast(e.message))}" style="flex:1;padding:10px;background:var(--err-l);border:1px solid var(--err);border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;color:var(--err);font-family:'Geist',sans-serif">Очистити чергу</button>
       </div>
-      <p style="padding:14px;font-size:12px;color:var(--t2);line-height:1.45">Повний список черги на головній сторінці; тут лише швидкі дії.</p>
+      <p style="padding:14px;font-size:12px;color:var(--t2);line-height:1.45">Повний список черги на головній сторінці.</p>
     `
   }
 };
