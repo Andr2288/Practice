@@ -1,9 +1,12 @@
 {
   "filler_url": "",
   "logo_path": "assets\\logo.png",
-  "logo_opacity": 0.75,
+  "logo_opacity": 0.7,
   "logo_zoom": 0.5,
   "telegram_server_url": "rtmps://dc4-1.rtmp.t.me/s/",
   "x_stream_server_url": "rtmps://fr.pscp.tv:443/x",
-  "our_channel_url": "https://www.youtube.com/@JointForcesTaskForce/videos"
+  "our_channel_url": "https://www.youtube.com/@JointForcesTaskForce/videos",
+  "youtube_enabled": true,
+  "telegram_enabled": true,
+  "x_enabled": true
 }

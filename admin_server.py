@@ -1,8 +1,16 @@
-"""Веб-інтерфейс керування трансляцією (Flask). Запускається разом із app.py у фоновому потоці."""
+"""REST API керування трансляцією (Flask). Запускається разом із app.py у фоновому потоці."""
 
 from __future__ import annotations
 
-from flask import Flask, jsonify, render_template, request
+import os
+import threading
+import time
+import webbrowser
+from io import BytesIO
+from pathlib import Path
+
+from flask import Flask, jsonify, request, send_from_directory
+from PIL import Image, UnidentifiedImageError
 
 from config import (
     ASSETS_DIR,
@@ -10,6 +18,8 @@ from config import (
     BATCH_STATE_FILE,
     CHANNELS_FILE,
     CURRENT_ITEM_FILE,
+    OUR_VIDEOS_CACHE_FILE,
+    OUR_VIDEOS_LIMIT,
     QUEUE_FILE,
     TELEGRAM_STREAM_KEY_FILE,
     X_STREAM_KEY_FILE,
@@ -18,7 +28,7 @@ from config import (
 )
 from services.batch_service import load_batch_state
 from services.models import VideoItem
-from services.our_videos_cache import invalidate_cache, peek_cached_videos
+from services.our_videos_cache import peek_cached_videos, rescan_our_videos_cache
 from services.playback_service import PlaybackService
 from services.queue_service import QueueService
 from services.runtime_control import (
@@ -45,16 +55,43 @@ def _stream_key_configured(path) -> bool:
         return False
 
 
+def _admin_ui_html_path() -> Path | None:
+    """HTML лежить у `Practice/remixed-…` або поруч із цим модулем у `backend/`."""
+    for base in (BASE_DIR.parent, BASE_DIR):
+        p = base / "remixed-fc9a4896.html"
+        if p.is_file():
+            return p
+    return None
+
+
 def create_app() -> Flask:
     app = Flask(
         __name__,
-        template_folder=str(BASE_DIR / "templates"),
         static_folder=str(BASE_DIR / "static"),
     )
 
     @app.get("/")
-    def index():
-        return render_template("admin.html")
+    def index_html():
+        """Головна адмін-сторінка (той самий origin, що й `/api/*`)."""
+        p = _admin_ui_html_path()
+        if p is None:
+            return (
+                "<!DOCTYPE html><html lang='uk'><meta charset='utf-8'><title>RadioStream</title>"
+                "<body style='font-family:system-ui;padding:2rem'>"
+                "<h1>Файл інтерфейсу не знайдено</h1>"
+                "<p>Покладіть <code>remixed-fc9a4896.html</code> у корінь проєкту або в папку <code>backend</code>.</p>"
+                "</body></html>",
+                404,
+                {"Content-Type": "text/html; charset=utf-8"},
+            )
+        return send_from_directory(str(p.parent), p.name)
+
+    @app.after_request
+    def _cors(response):
+        response.headers["Access-Control-Allow-Origin"] = "*"
+        response.headers["Access-Control-Allow-Headers"] = "Content-Type"
+        response.headers["Access-Control-Allow-Methods"] = "GET,POST,PUT,DELETE,OPTIONS"
+        return response
 
     def _status_payload():
         cur = load_current_item(CURRENT_ITEM_FILE)
@@ -65,11 +102,13 @@ def create_app() -> Flask:
         x_key = _stream_key_configured(X_STREAM_KEY_FILE)
         batch = load_batch_state(BATCH_STATE_FILE)
         cached_vids, last_scan_ts, cached_ch = peek_cached_videos()
+        q = load_queue(QUEUE_FILE)
         return {
             "current": cur.to_dict() if cur else None,
             "broadcasting": bool(ctrl.get("broadcasting")),
             "command": ctrl.get("command") or "",
             "channels": read_channels_list(CHANNELS_FILE),
+            "queue": [v.to_dict() for v in q],
             "our_videos_cache": {
                 "videos": [v.to_dict() for v in cached_vids],
                 "last_scan_ts": last_scan_ts,
@@ -84,6 +123,9 @@ def create_app() -> Flask:
                 "telegram_server_url": settings.telegram_server_url,
                 "x_stream_server_url": settings.x_stream_server_url,
                 "our_channel_url": settings.our_channel_url,
+                "youtube_enabled": settings.youtube_enabled,
+                "telegram_enabled": settings.telegram_enabled,
+                "x_enabled": settings.x_enabled,
             },
             "youtube_stream_key_configured": yt_key,
             "telegram_stream_key_configured": tg_key,
@@ -132,7 +174,25 @@ def create_app() -> Flask:
 
     @app.post("/api/our-videos/rescan")
     def api_our_videos_rescan():
-        invalidate_cache()
+        settings = load_settings()
+        channel_url = (settings.our_channel_url or "").strip()
+        if not channel_url:
+            return jsonify(
+                {
+                    "ok": False,
+                    "error": "Задайте «URL нашого каналу» у розділі Налаштування",
+                }
+            ), 400
+        ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
+        try:
+            rescan_our_videos_cache(
+                ytdlp=ytdlp,
+                channel_url=channel_url,
+                limit=OUR_VIDEOS_LIMIT,
+                cache_file=OUR_VIDEOS_CACHE_FILE,
+            )
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 400
         return jsonify({"ok": True, **_status_payload()})
 
     # ── Queue ──────────────────────────────────────────────────────────
@@ -206,6 +266,9 @@ def create_app() -> Flask:
                 "telegram_server_url": settings.telegram_server_url,
                 "x_stream_server_url": settings.x_stream_server_url,
                 "our_channel_url": settings.our_channel_url,
+                "youtube_enabled": settings.youtube_enabled,
+                "telegram_enabled": settings.telegram_enabled,
+                "x_enabled": settings.x_enabled,
                 "youtube_stream_key_configured": yt_key,
                 "telegram_stream_key_configured": tg_key,
                 "x_stream_key_configured": x_key,
@@ -215,6 +278,7 @@ def create_app() -> Flask:
     @app.post("/api/settings")
     def api_settings_post():
         data = request.get_json(silent=True) or {}
+        old_settings = load_settings()
         settings = merge_settings_patch(data)
         save_settings(settings)
 
@@ -233,6 +297,17 @@ def create_app() -> Flask:
             X_STREAM_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
             X_STREAM_KEY_FILE.write_text(x_key + "\n", encoding="utf-8")
 
+        # Apply destination toggles immediately for active broadcast:
+        # current ffmpeg workers are restarted by skip command and relaunched
+        # with updated enabled flags on the next playback cycle step.
+        destination_flags_changed = (
+            old_settings.youtube_enabled != settings.youtube_enabled
+            or old_settings.telegram_enabled != settings.telegram_enabled
+            or old_settings.x_enabled != settings.x_enabled
+        )
+        if destination_flags_changed and is_broadcasting():
+            request_skip()
+
         return jsonify({"ok": True, **_status_payload()})
 
     @app.post("/api/settings/logo")
@@ -242,9 +317,23 @@ def create_app() -> Flask:
         f = request.files["file"]
         if not f.filename:
             return jsonify({"ok": False, "error": "empty filename"}), 400
+        raw = f.read()
+        if len(raw) < 8:
+            return jsonify({"ok": False, "error": "Файл порожній або пошкоджений"}), 400
+        try:
+            img = Image.open(BytesIO(raw))
+            img.load()
+            rgba = img.convert("RGBA")
+        except UnidentifiedImageError:
+            return jsonify({"ok": False, "error": "Непідтримуваний формат зображення"}), 400
+        except OSError as e:
+            return jsonify({"ok": False, "error": f"Не вдалося прочитати зображення: {e}"}), 400
         ASSETS_DIR.mkdir(parents=True, exist_ok=True)
         dest = ASSETS_DIR / "logo.png"
-        f.save(dest)
+        try:
+            rgba.save(dest, format="PNG", optimize=True)
+        except OSError as e:
+            return jsonify({"ok": False, "error": f"Не вдалося зберегти файл: {e}"}), 500
         try:
             logo_rel = str(dest.relative_to(BASE_DIR))
         except ValueError:
@@ -259,3 +348,44 @@ def create_app() -> Flask:
 def run_admin(host: str = "127.0.0.1", port: int = 8765) -> None:
     app = create_app()
     app.run(host=host, port=port, threaded=True, use_reloader=False)
+
+
+def _browser_url(host: str, port: int) -> str:
+    open_host = "127.0.0.1" if host in ("0.0.0.0", "::") else host
+    return f"http://{open_host}:{port}/"
+
+
+if __name__ == "__main__":
+    import argparse
+
+    parser = argparse.ArgumentParser(description="Адмінка RadioStream + REST API (без повного app.py).")
+    parser.add_argument(
+        "--host",
+        default=os.environ.get("MEDIAHUB_ADMIN_HOST", "127.0.0.1").strip() or "127.0.0.1",
+        help="Адреса сервера (за замовчуванням лише цей ПК).",
+    )
+    parser.add_argument(
+        "--port",
+        type=int,
+        default=int(os.environ.get("MEDIAHUB_ADMIN_PORT", "8765")),
+        help="Порт (за замовчуванням 8765).",
+    )
+    parser.add_argument(
+        "--no-browser",
+        action="store_true",
+        help="Не відкривати браузер автоматично.",
+    )
+    args = parser.parse_args()
+    url = _browser_url(args.host, args.port)
+
+    if not args.no_browser:
+
+        def _open_when_ready() -> None:
+            time.sleep(0.5)
+            webbrowser.open(url)
+
+        threading.Thread(target=_open_when_ready, daemon=True).start()
+
+    print(f"RadioStream admin: {url}")
+    print("Зупинка: Ctrl+C у цьому вікні.")
+    run_admin(host=args.host, port=args.port)

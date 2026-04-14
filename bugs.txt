@@ -1,0 +1,1015 @@
+C:\Users\chorn\Desktop\Last_Sem\PracticeV2\.venv\Scripts\python.exe C:\Users\chorn\Desktop\Last_Sem\Practice\backend\app.py
+[18:04:08] [WARN] Admin UI: http://127.0.0.1:8765/
+
+======================================================================
+[18:04:08] MEDIAHUB READY — waiting for broadcast start via admin panel
+======================================================================
+
+======================================================================
+[18:04:08] BROADCAST STARTED
+======================================================================
+ * Serving Flask app 'admin_server'
+ * Debug mode: off
+[18:04:08] [INFO] Channel 3/26: https://www.youtube.com/@ACHILLES_UA/videos
+WARNING: This is a development server. Do not use it in a production deployment. Use a production WSGI server instead.
+ * Running on http://127.0.0.1:8765
+Press CTRL+C to quit
+[18:04:09] [PLAY] Selected: ⚡️Уразили рідкісну інженерну машину розгородження ІМР-3 (dARZpdrD3JI) from 4 candidates (1 seen) on 429 окрема бригада БпС «АХІЛЛЕС» - Videos
+
+[18:04:09] [PLAY] START | channel=429 окрема бригада БпС «АХІЛЛЕС» - Videos | title=⚡️Уразили рідкісну інженерну машину розгородження ІМР-3 | id=dARZpdrD3JI
+[18:04:09] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:04:09] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:28] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:32] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:36] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:40] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:44] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:48] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:52] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:04:56] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:00] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:04] "GET /api/status HTTP/1.1" 200 -
+[18:05:05] [PLAY] END   | channel=429 окрема бригада БпС «АХІЛЛЕС» - Videos | title=⚡️Уразили рідкісну інженерну машину розгородження ІМР-3 | id=dARZpdrD3JI
+
+[18:05:07] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[18:05:07] [PLAY] Our video [3/5]: Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди (LZ1PBJi5Yc0)
+
+[18:05:07] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди | id=LZ1PBJi5Yc0
+[18:05:07] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:05:07] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:05:08] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:12] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:16] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:20] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:28] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:32] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:36] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:40] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:44] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:48] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:52] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:05:56] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:00] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:04] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:09] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:12] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:16] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:20] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:28] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:32] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:36] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:40] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:06:44] "GET /api/status HTTP/1.1" 200 -
+[18:07:06] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди | id=LZ1PBJi5Yc0
+
+[18:07:06] [INFO] Channel 4/26: https://www.youtube.com/@40OAbrigade/videos
+[18:07:07] [PLAY] Selected: НАЩАДКИ ВІТОВТА (yYhFD-Rweco) from 5 candidates (0 seen) on 40 Окрема артилерійська бригада - Videos
+
+[18:07:07] [PLAY] START | channel=40 Окрема артилерійська бригада - Videos | title=НАЩАДКИ ВІТОВТА | id=yYhFD-Rweco
+[18:07:07] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:07:07] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:10:23] "GET /api/status HTTP/1.1" 200 -
+[18:10:29] [WARN] Playback failed — video marked seen, channel skipped: yYhFD-Rweco | https://www.youtube.com/@40OAbrigade/videos
+[download] Got error: 221824 bytes read
+[download] Got error: HTTP Error 500: Internal Server Error
+[18:10:29] [INFO] Channel 5/26: www.youtube.com/@115окремабригадаТрО/videos
+[18:10:32] [PLAY] Selected: ДРОН-«ПОВОДИР»,  ПОПОВНЕННЯ ОБМІННОГО ФОНДУ (FZi_s36gqQc) from 5 candidates (0 seen) on 115 окрема бригада ТрО - Videos
+
+[18:10:32] [PLAY] START | channel=115 окрема бригада ТрО - Videos | title=ДРОН-«ПОВОДИР»,  ПОПОВНЕННЯ ОБМІННОГО ФОНДУ | id=FZi_s36gqQc
+[18:10:32] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:10:32] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:11:23] "GET /api/status HTTP/1.1" 200 -
+[18:11:30] [PLAY] END   | channel=115 окрема бригада ТрО - Videos | title=ДРОН-«ПОВОДИР»,  ПОПОВНЕННЯ ОБМІННОГО ФОНДУ | id=FZi_s36gqQc
+
+[18:11:30] [INFO] Channel 6/26: https://www.youtube.com/@22ombr/videos
+[18:11:32] [PLAY] Selected: Знищуємо окупантів з повітрі і на землі (Lbl2ggQRKEw) from 5 candidates (0 seen) on 22 окрема механізована бригада - Videos
+
+[18:11:32] [PLAY] START | channel=22 окрема механізована бригада - Videos | title=Знищуємо окупантів з повітрі і на землі | id=Lbl2ggQRKEw
+[18:11:32] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:11:32] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+[18:11:35] [WARN] ffmpeg[0] exited with code 3199971767: [in#0 @ 000002355626c340] Error opening input: Invalid data found when processing input
+Error opening input file pipe:0.
+Error opening input files: Invalid data found when processing input
+
+[18:11:35] [WARN] ffmpeg[1] exited with code 3199971767: [in#0 @ 000001c82025c340] Error opening input: Invalid data found when processing input
+Error opening input file pipe:0.
+Error opening input files: Invalid data found when processing input
+
+[18:11:35] [WARN] ffmpeg[2] exited with code 3199971767: [in#0 @ 00000239d40fc2c0] Error opening input: Invalid data found when processing input
+Error opening input file pipe:0.
+Error opening input files: Invalid data found when processing input
+
+[18:11:35] [WARN] Playback failed — video marked seen, channel skipped: Lbl2ggQRKEw | https://www.youtube.com/@22ombr/videos
+yt-dlp failed with code 1: ERROR: [youtube] Lbl2ggQRKEw: Sign in to confirm your age. This video may be inappropriate for some users. Use --cookies-from-browser or --cookies for the authentication. See  https://github.com/yt-dlp/yt-dlp/wiki/FAQ#how-do-i-pass-cookies-to-yt-dlp  for how to manually pass cookies. Also see  https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies  fo…
+[18:11:35] [INFO] Channel 7/26: https://www.youtube.com/@JointTaskForceUkraine/videos
+[18:11:37] [WARN] Channel skipped (fetch error): https://www.youtube.com/@JointTaskForceUkraine/videos
+[yt-dlp ERROR]
+Channel: https://www.youtube.com/@JointTaskForceUkraine/videos
+Return code: 1
+STDOUT:
+null
+
+STDERR:
+WARNING: [youtube:tab] Unable to download webpage: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+WARNING: [youtube:tab] YouTube said: ERROR - Requested entity was not found.
+ERROR: [youtube:tab] @JointTaskForceUkraine: Unable to download API page: HTTP Error 404: No…
+[18:11:37] [INFO] Channel 8/26: https://www.youtube.com/@14ombr/videos
+[18:11:39] [PLAY] Selected: ВІДБИЛИ ШТУРМ! 🔥 КУПʼЯНСЬКИЙ НАПРЯМОК! (mIsgQHlqj0k) from 4 candidates (1 seen) on 14 ОМБр імені князя Романа Великого - Videos
+
+[18:11:39] [PLAY] START | channel=14 ОМБр імені князя Романа Великого - Videos | title=ВІДБИЛИ ШТУРМ! 🔥 КУПʼЯНСЬКИЙ НАПРЯМОК! | id=mIsgQHlqj0k
+[18:11:39] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:11:39] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:12:23] "GET /api/status HTTP/1.1" 200 -
+[18:12:55] [PLAY] END   | channel=14 ОМБр імені князя Романа Великого - Videos | title=ВІДБИЛИ ШТУРМ! 🔥 КУПʼЯНСЬКИЙ НАПРЯМОК! | id=mIsgQHlqj0k
+
+[18:12:55] [INFO] Channel 9/26: https://www.youtube.com/@luhanskdpsu/videos
+[18:12:56] [PLAY] Selected: АЖ ЗЕМЛЯ ДРИЖИТЬ! Реальна робота розрахунку КС-19 в укритті на нулі 💥☠️ KS-19 Combat Work (XRuVF_piaGc) from 5 candidates (0 seen) on ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos
+
+[18:12:56] [PLAY] START | channel=ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos | title=АЖ ЗЕМЛЯ ДРИЖИТЬ! Реальна робота розрахунку КС-19 в укритті на нулі 💥☠️ KS-19 Combat Work | id=XRuVF_piaGc
+[18:12:56] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:12:56] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:13:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:14:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:14:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:15:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:15:23] "GET /api/status HTTP/1.1" 200 -
+[18:16:05] [PLAY] END   | channel=ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos | title=АЖ ЗЕМЛЯ ДРИЖИТЬ! Реальна робота розрахунку КС-19 в укритті на нулі 💥☠️ KS-19 Combat Work | id=XRuVF_piaGc
+
+[18:16:07] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[18:16:07] [PLAY] Our video [4/5]: ЄВГЕНІЙ МІХЄЄВ: ВІН ЗНАЄ ВСЕ ПРО РЕАЛЬНИЙ СТАН СПРАВ! (Me1mjTIBrCY)
+
+[18:16:07] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=ЄВГЕНІЙ МІХЄЄВ: ВІН ЗНАЄ ВСЕ ПРО РЕАЛЬНИЙ СТАН СПРАВ! | id=Me1mjTIBrCY
+[18:16:07] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:16:07] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:23:23] "GET /api/status HTTP/1.1" 200 -
+[18:24:20] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=ЄВГЕНІЙ МІХЄЄВ: ВІН ЗНАЄ ВСЕ ПРО РЕАЛЬНИЙ СТАН СПРАВ! | id=Me1mjTIBrCY
+
+[18:24:20] [INFO] Channel 10/26: https://www.youtube.com/@26OABr/videos
+[18:24:22] [PLAY] Selected: "Damage over 40 hectares": the work of rocket artillery (IvTq3r-Ha3M) from 4 candidates (1 seen) on 26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos
+
+[18:24:22] [PLAY] START | channel=26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos | title="Damage over 40 hectares": the work of rocket artillery | id=IvTq3r-Ha3M
+[18:24:22] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:24:22] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:25:23] "GET /api/status HTTP/1.1" 200 -
+[18:25:31] [PLAY] END   | channel=26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos | title="Damage over 40 hectares": the work of rocket artillery | id=IvTq3r-Ha3M
+
+[18:25:31] [INFO] Channel 11/26: https://www.youtube.com/@3heavy/videos
+[18:25:33] [PLAY] Selected: Освячені паски воїнам Залізної бригади (SWCG9M90FIQ) from 4 candidates (1 seen) on 3 окрема важка механізована Залізна бригада - Videos
+
+[18:25:33] [PLAY] START | channel=3 окрема важка механізована Залізна бригада - Videos | title=Освячені паски воїнам Залізної бригади | id=SWCG9M90FIQ
+[18:25:33] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:25:33] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+[18:26:10] [PLAY] END   | channel=3 окрема важка механізована Залізна бригада - Videos | title=Освячені паски воїнам Залізної бригади | id=SWCG9M90FIQ
+
+[18:26:10] [INFO] Channel 12/26: https://www.youtube.com/@10armycorp/videos
+[18:26:12] [PLAY] Selected: За крок до КУПʼЯНСЬКА-ВУЗЛОВОГО зустріли БАБУ ЯГУ (t-fTtcqoD0s) from 5 candidates (0 seen) on 10-й армійський корпус - Videos
+
+[18:26:12] [PLAY] START | channel=10-й армійський корпус - Videos | title=За крок до КУПʼЯНСЬКА-ВУЗЛОВОГО зустріли БАБУ ЯГУ | id=t-fTtcqoD0s
+[18:26:12] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:26:12] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:33:23] "GET /api/status HTTP/1.1" 200 -
+[18:34:01] [PLAY] END   | channel=10-й армійський корпус - Videos | title=За крок до КУПʼЯНСЬКА-ВУЗЛОВОГО зустріли БАБУ ЯГУ | id=t-fTtcqoD0s
+
+[18:34:03] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[18:34:03] [PLAY] Our video [5/5]: Військовий гороскоп до 1 квітня | Усі знаки зодіаку (ltWeLDo8su0)
+
+[18:34:03] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Військовий гороскоп до 1 квітня | Усі знаки зодіаку | id=ltWeLDo8su0
+[18:34:03] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:34:03] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:35:23] "GET /api/status HTTP/1.1" 200 -
+[18:36:00] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Військовий гороскоп до 1 квітня | Усі знаки зодіаку | id=ltWeLDo8su0
+
+[18:36:00] [INFO] Channel 13/26: https://www.youtube.com/@60omIbr/videos
+[18:36:01] [PLAY] Selected: Виїзди під Rammstein або welcome to мотопіхотна рота! (__NdpMaCM78) from 5 candidates (0 seen) on 60th Separate Mechanized Brigade - Videos
+
+[18:36:01] [PLAY] START | channel=60th Separate Mechanized Brigade - Videos | title=Виїзди під Rammstein або welcome to мотопіхотна рота! | id=__NdpMaCM78
+[18:36:01] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:36:01] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:37:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:37:23] "GET /api/status HTTP/1.1" 200 -
+[18:37:50] [PLAY] END   | channel=60th Separate Mechanized Brigade - Videos | title=Виїзди під Rammstein або welcome to мотопіхотна рота! | id=__NdpMaCM78
+
+[18:37:50] [INFO] Channel 14/26: https://www.youtube.com/@115ombr/videos
+[18:37:52] [PLAY] Selected: EASTER ON THE FRONTLINE: Greetings from the chaplain and soldiers of the 115th Separate Brigade (tfxUEd340yk) from 4 candidates (1 seen) on 115 окрема механізована бригада ЗСУ - Videos
+
+[18:37:52] [PLAY] START | channel=115 окрема механізована бригада ЗСУ - Videos | title=EASTER ON THE FRONTLINE: Greetings from the chaplain and soldiers of the 115th Separate Brigade | id=tfxUEd340yk
+[18:37:52] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:37:52] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:38:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:38:23] "GET /api/status HTTP/1.1" 200 -
+[18:38:52] [PLAY] END   | channel=115 окрема механізована бригада ЗСУ - Videos | title=EASTER ON THE FRONTLINE: Greetings from the chaplain and soldiers of the 115th Separate Brigade | id=tfxUEd340yk
+
+[18:38:52] [INFO] Channel 15/26: https://www.youtube.com/@57_OMPBr/videos
+[18:38:53] [PLAY] Selected: ХОТІЛА У ПІХОТУ - СТАЛА ПІЛОТОМ (r5yzlthwXGo) from 5 candidates (0 seen) on 57th Separate Motorised Infantry Brigade  - Videos
+
+[18:38:53] [PLAY] START | channel=57th Separate Motorised Infantry Brigade  - Videos | title=ХОТІЛА У ПІХОТУ - СТАЛА ПІЛОТОМ | id=r5yzlthwXGo
+[18:38:53] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:38:53] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:44:23] "GET /api/status HTTP/1.1" 200 -
+[18:44:53] [PLAY] END   | channel=57th Separate Motorised Infantry Brigade  - Videos | title=ХОТІЛА У ПІХОТУ - СТАЛА ПІЛОТОМ | id=r5yzlthwXGo
+
+[18:44:54] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[18:44:54] [PLAY] Our video [1/5]: Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» (XxNFDyqjIV0)
+
+[18:44:54] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» | id=XxNFDyqjIV0
+[18:44:54] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:44:54] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+[18:45:19] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» | id=XxNFDyqjIV0
+
+[18:45:19] [INFO] Channel 16/26: https://www.youtube.com/@33ombr/videos
+[18:45:21] [PLAY] Selected: Kharkiv region, assault, evacuation and penguin - everything about the February 33rd Motorized Ri... (W7ij-Myraas) from 3 candidates (2 seen) on 33 ОМБР - Videos
+
+[18:45:21] [PLAY] START | channel=33 ОМБР - Videos | title=Kharkiv region, assault, evacuation and penguin - everything about the February 33rd Motorized Ri... | id=W7ij-Myraas
+[18:45:21] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:45:21] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:47:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:47:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:50:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:50:23] "GET /api/status HTTP/1.1" 200 -
+[18:50:42] [WARN] ffmpeg[1] exited with code 4294957243: muxer: Error number -10053 occurred
+    Last message repeated 1 times
+[out#0/flv @ 00000190c39254c0] Error muxing a packet
+[out#0/flv @ 00000190c39254c0] Task finished with error code: -10053 (Error number -10053 occurred)
+[out#0/flv @ 00000190c39254c0] Terminating thread with return code -10053 (Error number -10053 occurred)
+[out#0/flv @ 00000190c39254c0] Error writing trailer: Error number -10053 occurred
+[tls @ 00000190c4203340] The specified session has been invalidated for some reason.
+    Last message repeated 1 times
+[out#0/flv @ 00000190c39254c0] Error closing file: I/O error
+
+[18:50:42] [PLAY] END   | channel=33 ОМБР - Videos | title=Kharkiv region, assault, evacuation and penguin - everything about the February 33rd Motorized Ri... | id=W7ij-Myraas
+
+[18:50:42] [INFO] Channel 17/26: https://www.youtube.com/@117%D0%BE%D0%B1%D1%80%D0%A2%D1%80%D0%9E/videos
+[18:50:45] [PLAY] Selected: З річницею, рідненька! 🫡 (pu8l2eoT-90) from 5 candidates (0 seen) on 117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos
+
+[18:50:45] [PLAY] START | channel=117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos | title=З річницею, рідненька! 🫡 | id=pu8l2eoT-90
+[18:50:45] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:50:45] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:52:23] "GET /api/status HTTP/1.1" 200 -
+[18:53:06] [PLAY] END   | channel=117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos | title=З річницею, рідненька! 🫡 | id=pu8l2eoT-90
+
+[18:53:06] [INFO] Channel 18/26: https://www.youtube.com/@77OAEMB/videos
+[18:53:08] [PLAY] Selected: У НЕБІ РОЗГОРНУВСЯ ПРАПОР 77 БРИГАДИ (fvLMfCdgU_U) from 5 candidates (0 seen) on 77 окрема аеромобільна бригада - Videos
+
+[18:53:08] [PLAY] START | channel=77 окрема аеромобільна бригада - Videos | title=У НЕБІ РОЗГОРНУВСЯ ПРАПОР 77 БРИГАДИ | id=fvLMfCdgU_U
+[18:53:08] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:53:08] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:53:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:53:23] "GET /api/status HTTP/1.1" 200 -
+[18:54:06] [PLAY] END   | channel=77 окрема аеромобільна бригада - Videos | title=У НЕБІ РОЗГОРНУВСЯ ПРАПОР 77 БРИГАДИ | id=fvLMfCdgU_U
+
+[18:54:07] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[18:54:07] [PLAY] Our video [2/5]: Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» (G6CC96STWEI)
+
+[18:54:07] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» | id=G6CC96STWEI
+[18:54:07] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[18:54:07] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 18:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 18:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:04:23] "GET /api/status HTTP/1.1" 200 -
+[19:04:36] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» | id=G6CC96STWEI
+
+[19:04:36] [INFO] Channel 19/26: https://www.youtube.com/@khartiiabrygada/videos
+[19:04:38] [PLAY] Selected: ПЕРШИЙ РІК КОРПУСУ «ХАРТІЯ» (ZLEC9WE_NRE) from 5 candidates (0 seen) on ХАРТІЯ - Videos
+
+[19:04:38] [PLAY] START | channel=ХАРТІЯ - Videos | title=ПЕРШИЙ РІК КОРПУСУ «ХАРТІЯ» | id=ZLEC9WE_NRE
+[19:04:38] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:04:38] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:05:23] "GET /api/status HTTP/1.1" 200 -
+[19:05:58] [PLAY] END   | channel=ХАРТІЯ - Videos | title=ПЕРШИЙ РІК КОРПУСУ «ХАРТІЯ» | id=ZLEC9WE_NRE
+
+[19:05:58] [INFO] Channel 20/26: https://www.youtube.com/@Kh127br/videos
+[19:06:02] [PLAY] Selected: ВІДПОВІДІ НА НАЙПОШИРЕНІШІ ПИТАННЯ ПРО МОБІЛІЗАЦІЮ (QD6vb25k-cU) from 5 candidates (0 seen) on 127 окрема важка механізована Харківська бригада - Videos
+
+[19:06:02] [PLAY] START | channel=127 окрема важка механізована Харківська бригада - Videos | title=ВІДПОВІДІ НА НАЙПОШИРЕНІШІ ПИТАННЯ ПРО МОБІЛІЗАЦІЮ | id=QD6vb25k-cU
+[19:06:02] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:06:02] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:10:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:10:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:11:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:11:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:12:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:12:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:14:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:14:23] "GET /api/status HTTP/1.1" 200 -
+[19:14:38] [PLAY] END   | channel=127 окрема важка механізована Харківська бригада - Videos | title=ВІДПОВІДІ НА НАЙПОШИРЕНІШІ ПИТАННЯ ПРО МОБІЛІЗАЦІЮ | id=QD6vb25k-cU
+
+[19:14:38] [INFO] Channel 21/26: https://www.youtube.com/@Hart_Brigade/videos
+[19:14:40] [PLAY] Selected: Зі світлим святом Великодня! (mkWvpxLO0Uc) from 4 candidates (1 seen) on Бригада "Гарт" - Videos
+
+[19:14:40] [PLAY] START | channel=Бригада "Гарт" - Videos | title=Зі світлим святом Великодня! | id=mkWvpxLO0Uc
+[19:14:40] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:14:40] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:15:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:15:23] "GET /api/status HTTP/1.1" 200 -
+[19:15:41] [PLAY] END   | channel=Бригада "Гарт" - Videos | title=Зі світлим святом Великодня! | id=mkWvpxLO0Uc
+
+[19:15:42] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[19:15:42] [PLAY] Our video [3/5]: Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди (LZ1PBJi5Yc0)
+
+[19:15:42] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди | id=LZ1PBJi5Yc0
+[19:15:42] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:15:42] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:16:23] "GET /api/status HTTP/1.1" 200 -
+[19:17:11] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди | id=LZ1PBJi5Yc0
+
+[19:17:11] [INFO] Channel 22/26: https://www.youtube.com/@113obr_tro/videos
+[19:17:13] [PLAY] Selected: ТрОшка (30 серія) (CgzWukuXp3c) from 4 candidates (1 seen) on Харківська окрема бригада територіальної оборони - Videos
+
+[19:17:13] [PLAY] START | channel=Харківська окрема бригада територіальної оборони - Videos | title=ТрОшка (30 серія) | id=CgzWukuXp3c
+[19:17:13] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:17:13] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:17:23] "GET /api/status HTTP/1.1" 200 -
+[19:18:13] [PLAY] END   | channel=Харківська окрема бригада територіальної оборони - Videos | title=ТрОшка (30 серія) | id=CgzWukuXp3c
+
+[19:18:13] [INFO] Channel 23/26: https://www.youtube.com/channel/UCl_4qPLlyz_BZn7wSTHz5sg/videos
+[19:18:15] [PLAY] Selected: Winter Doesn’t Stop Russians, But FPV K-2 Drones Do (OIbH55b8_UU) from 5 candidates (0 seen) on K-2 - Videos
+
+[19:18:15] [PLAY] START | channel=K-2 - Videos | title=Winter Doesn’t Stop Russians, But FPV K-2 Drones Do | id=OIbH55b8_UU
+[19:18:15] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:18:15] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:20:23] "GET /api/status HTTP/1.1" 200 -
+[19:21:17] [PLAY] END   | channel=K-2 - Videos | title=Winter Doesn’t Stop Russians, But FPV K-2 Drones Do | id=OIbH55b8_UU
+
+[19:21:17] [INFO] Channel 24/26: https://www.youtube.com/@120obrtro/videos
+[19:21:18] [PLAY] Selected: Влад "Світлий": під час обстрілу доводиться й на лопату сходити (jrxvTDLN-As) from 5 candidates (0 seen) on 120 окрема бригада територіальної оборони Україна - Videos
+
+[19:21:18] [PLAY] START | channel=120 окрема бригада територіальної оборони Україна - Videos | title=Влад "Світлий": під час обстрілу доводиться й на лопату сходити | id=jrxvTDLN-As
+[19:21:18] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:21:18] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:30:23] "GET /api/status HTTP/1.1" 200 -
+[19:30:59] [PLAY] END   | channel=120 окрема бригада територіальної оборони Україна - Videos | title=Влад "Світлий": під час обстрілу доводиться й на лопату сходити | id=jrxvTDLN-As
+
+[19:31:00] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[19:31:00] [PLAY] Our video [4/5]: ЄВГЕНІЙ МІХЄЄВ: ВІН ЗНАЄ ВСЕ ПРО РЕАЛЬНИЙ СТАН СПРАВ! (Me1mjTIBrCY)
+
+[19:31:00] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=ЄВГЕНІЙ МІХЄЄВ: ВІН ЗНАЄ ВСЕ ПРО РЕАЛЬНИЙ СТАН СПРАВ! | id=Me1mjTIBrCY
+[19:31:00] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:31:00] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:37:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:37:23] "GET /api/status HTTP/1.1" 200 -
+[19:37:27] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=ЄВГЕНІЙ МІХЄЄВ: ВІН ЗНАЄ ВСЕ ПРО РЕАЛЬНИЙ СТАН СПРАВ! | id=Me1mjTIBrCY
+
+[19:37:27] [INFO] Channel 25/26: https://www.youtube.com/@72blackbrigade/videos
+[19:37:29] [PLAY] Selected: Right on target: Fire training of the Black Zaporozhians (nKRAKW6Azow) from 5 candidates (0 seen) on 72 ОМБр ім. Чорних Запорожців - Videos
+
+[19:37:29] [PLAY] START | channel=72 ОМБр ім. Чорних Запорожців - Videos | title=Right on target: Fire training of the Black Zaporozhians | id=nKRAKW6Azow
+[19:37:29] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:37:29] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:38:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:38:23] "GET /api/status HTTP/1.1" 200 -
+[19:38:59] [PLAY] END   | channel=72 ОМБр ім. Чорних Запорожців - Videos | title=Right on target: Fire training of the Black Zaporozhians | id=nKRAKW6Azow
+
+[19:38:59] [INFO] Channel 26/26: https://www.youtube.com/@ab3army/videos
+[19:39:02] [PLAY] Selected: "Sho*t anyone who runs": GoPro footage of Third Corps recon clearing enemy position (iFh0-2rvlg0) from 5 candidates (0 seen) on Третій армійський корпус - Videos
+
+[19:39:02] [PLAY] START | channel=Третій армійський корпус - Videos | title="Sho*t anyone who runs": GoPro footage of Third Corps recon clearing enemy position | id=iFh0-2rvlg0
+[19:39:02] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:39:02] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:47:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:47:23] "GET /api/status HTTP/1.1" 200 -
+[19:47:35] [PLAY] END   | channel=Третій армійський корпус - Videos | title="Sho*t anyone who runs": GoPro footage of Third Corps recon clearing enemy position | id=iFh0-2rvlg0
+
+
+======================================================================
+[19:47:35] NEW CYCLE: 26 channels (shuffled)
+======================================================================
+[19:47:35] [INFO] Channel 1/26: https://www.youtube.com/@120obrtro/videos
+[19:47:37] [PLAY] Selected: Роман Кашпур: Протез - не вирок! Ампутація – не кінець життя! (zvERHH21xqQ) from 4 candidates (1 seen) on 120 окрема бригада територіальної оборони Україна - Videos
+
+[19:47:37] [PLAY] START | channel=120 окрема бригада територіальної оборони Україна - Videos | title=Роман Кашпур: Протез - не вирок! Ампутація – не кінець життя! | id=zvERHH21xqQ
+[19:47:37] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:47:37] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:50:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:50:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:53:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:53:24] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:56:23] "GET /api/status HTTP/1.1" 200 -
+[19:56:51] [PLAY] END   | channel=120 окрема бригада територіальної оборони Україна - Videos | title=Роман Кашпур: Протез - не вирок! Ампутація – не кінець життя! | id=zvERHH21xqQ
+
+[19:56:51] [INFO] Channel 2/26: https://www.youtube.com/@10armycorp/videos
+[19:56:53] [PLAY] Selected: ЗАСІКЛИ штурмову групу ворога. ДВОХ знешкодили ФПВ, ще ЧОТИРЬОХ поховали у підвалі багатоповерхівки. (JjCBip4BhOc) from 4 candidates (1 seen) on 10-й армійський корпус - Videos
+
+[19:56:53] [PLAY] START | channel=10-й армійський корпус - Videos | title=ЗАСІКЛИ штурмову групу ворога. ДВОХ знешкодили ФПВ, ще ЧОТИРЬОХ поховали у підвалі багатоповерхівки. | id=JjCBip4BhOc
+[19:56:53] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[19:56:53] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 19:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 19:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:04:23] "GET /api/status HTTP/1.1" 200 -
+[20:04:39] [PLAY] END   | channel=10-й армійський корпус - Videos | title=ЗАСІКЛИ штурмову групу ворога. ДВОХ знешкодили ФПВ, ще ЧОТИРЬОХ поховали у підвалі багатоповерхівки. | id=JjCBip4BhOc
+
+[20:04:39] [INFO] Channel 3/26: https://www.youtube.com/@40OAbrigade/videos
+[20:04:41] [PLAY] Selected: ВІД СОЛДАТА ДО ОФІЦЕРА - кар'єра в ЗСУ (j7nbXevfH80) from 4 candidates (1 seen) on 40 Окрема артилерійська бригада - Videos
+
+[20:04:41] [PLAY] START | channel=40 Окрема артилерійська бригада - Videos | title=ВІД СОЛДАТА ДО ОФІЦЕРА - кар'єра в ЗСУ | id=j7nbXevfH80
+[20:04:41] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[20:04:41] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 20:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:05:23] "GET /api/status HTTP/1.1" 200 -
+[20:05:44] [PLAY] END   | channel=40 Окрема артилерійська бригада - Videos | title=ВІД СОЛДАТА ДО ОФІЦЕРА - кар'єра в ЗСУ | id=j7nbXevfH80
+
+[20:05:46] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[20:05:46] [PLAY] Our video [5/5]: Військовий гороскоп до 1 квітня | Усі знаки зодіаку (ltWeLDo8su0)
+
+[20:05:46] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Військовий гороскоп до 1 квітня | Усі знаки зодіаку | id=ltWeLDo8su0
+[20:05:46] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[20:05:46] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 20:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:07:23] "GET /api/status HTTP/1.1" 200 -
+[20:07:41] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Військовий гороскоп до 1 квітня | Усі знаки зодіаку | id=ltWeLDo8su0
+
+[20:07:41] [INFO] Channel 4/26: https://www.youtube.com/@33ombr/videos
+[20:07:43] [PLAY] Selected: «Не хочу більше нічого російського», - два роки у полоні і нарешті вдома. (oRI_ZMNSwGs) from 2 candidates (3 seen) on 33 ОМБР - Videos
+
+[20:07:43] [PLAY] START | channel=33 ОМБР - Videos | title=«Не хочу більше нічого російського», - два роки у полоні і нарешті вдома. | id=oRI_ZMNSwGs
+[20:07:43] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[20:07:43] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 20:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:10:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:10:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:11:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:11:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:12:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:12:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:14:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:14:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:15:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:15:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:37:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:37:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:38:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:38:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:47:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:47:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:50:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:50:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:53:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:53:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 20:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:09:23] "GET /api/status HTTP/1.1" 200 -
+[21:09:47] [PLAY] END   | channel=33 ОМБР - Videos | title=«Не хочу більше нічого російського», - два роки у полоні і нарешті вдома. | id=oRI_ZMNSwGs
+
+[21:09:47] [INFO] Channel 5/26: https://www.youtube.com/@117%D0%BE%D0%B1%D1%80%D0%A2%D1%80%D0%9E/videos
+[21:09:49] [PLAY] Selected: Чудова робота підрозділів ППО 117 ОБр ТрО за лютий 2026 року. Захищаємо небо України разом✊ (AH5WAMK5imk) from 4 candidates (1 seen) on 117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos
+
+[21:09:49] [PLAY] START | channel=117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos | title=Чудова робота підрозділів ППО 117 ОБр ТрО за лютий 2026 року. Захищаємо небо України разом✊ | id=AH5WAMK5imk
+[21:09:49] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:09:49] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+[21:10:22] [WARN] ffmpeg[1] exited with code 4294967291: [out#0/flv @ 000002b60a756080] Error opening output rtmps://dc4-1.rtmp.t.me/s/3706058899:h1xI5KLRx2TPLUHmYsudjA: I/O error
+Error opening output file rtmps://dc4-1.rtmp.t.me/s/3706058899:h1xI5KLRx2TPLUHmYsudjA.
+Error opening output files: I/O error
+
+[21:10:22] [PLAY] END   | channel=117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos | title=Чудова робота підрозділів ППО 117 ОБр ТрО за лютий 2026 року. Захищаємо небо України разом✊ | id=AH5WAMK5imk
+
+[21:10:22] [INFO] Channel 6/26: https://www.youtube.com/@luhanskdpsu/videos
+127.0.0.1 - - [14/Apr/2026 21:10:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:10:23] "GET /api/status HTTP/1.1" 200 -
+[21:10:24] [PLAY] Selected: РОБОТ РЯТУЄ РОБОТА: евакуація «Вампіра» за допомогою НРК🦾🤖 ROBOT SAVES ROBOT: INCREDIBLE Evacuation (QoprPi1OKNE) from 4 candidates (1 seen) on ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos
+
+[21:10:24] [PLAY] START | channel=ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos | title=РОБОТ РЯТУЄ РОБОТА: евакуація «Вампіра» за допомогою НРК🦾🤖 ROBOT SAVES ROBOT: INCREDIBLE Evacuation | id=QoprPi1OKNE
+[21:10:24] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:10:24] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:11:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:11:23] "GET /api/status HTTP/1.1" 200 -
+[21:11:38] [PLAY] END   | channel=ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos | title=РОБОТ РЯТУЄ РОБОТА: евакуація «Вампіра» за допомогою НРК🦾🤖 ROBOT SAVES ROBOT: INCREDIBLE Evacuation | id=QoprPi1OKNE
+
+[21:11:39] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[21:11:39] [PLAY] Our video [1/5]: Що тримає людину, коли навколо війна: Борис Кутовий про віру, силу і внутрішній фронт (XxNFDyqjIV0)
+
+[21:11:39] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Що тримає людину, коли навколо війна: Борис Кутовий про віру, силу і внутрішній фронт | id=XxNFDyqjIV0
+[21:11:39] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:11:40] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+[21:12:03] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Що тримає людину, коли навколо війна: Борис Кутовий про віру, силу і внутрішній фронт | id=XxNFDyqjIV0
+
+[21:12:03] [INFO] Channel 7/26: https://www.youtube.com/@26OABr/videos
+[21:12:04] [PLAY] Selected: Зі школи на фронт (s911pL7U2ao) from 3 candidates (2 seen) on 26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos
+
+[21:12:04] [PLAY] START | channel=26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos | title=Зі школи на фронт | id=s911pL7U2ao
+[21:12:04] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:12:04] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:12:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:12:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:13:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:14:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:14:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:15:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:15:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:16:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:17:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:18:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:18:23] "GET /api/status HTTP/1.1" 200 -
+[21:19:18] [PLAY] END   | channel=26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos | title=Зі школи на фронт | id=s911pL7U2ao
+
+[21:19:18] [INFO] Channel 8/26: https://www.youtube.com/@77OAEMB/videos
+[21:19:20] [PLAY] Selected: ЗАЛИШИВ Італію, щоб ВОЮВАТИ ЗА УКРАЇНУ | Інтерв'ю з військовим 77 оаембр (5zxpnpUQKgg) from 4 candidates (1 seen) on 77 окрема аеромобільна бригада - Videos
+
+[21:19:20] [PLAY] START | channel=77 окрема аеромобільна бригада - Videos | title=ЗАЛИШИВ Італію, щоб ВОЮВАТИ ЗА УКРАЇНУ | Інтерв'ю з військовим 77 оаембр | id=5zxpnpUQKgg
+[21:19:20] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:19:20] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:19:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:20:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:21:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:22:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:23:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:24:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:24:23] "GET /api/status HTTP/1.1" 200 -
+[21:25:15] [PLAY] END   | channel=77 окрема аеромобільна бригада - Videos | title=ЗАЛИШИВ Італію, щоб ВОЮВАТИ ЗА УКРАЇНУ | Інтерв'ю з військовим 77 оаембр | id=5zxpnpUQKgg
+
+[21:25:15] [INFO] Channel 9/26: https://www.youtube.com/@3heavy/videos
+[21:25:17] [PLAY] Selected: Великдень. А війна палає... Музична історія Залізної бригади (AsNgLJwo_g4) from 3 candidates (2 seen) on 3 окрема важка механізована Залізна бригада - Videos
+
+[21:25:17] [PLAY] START | channel=3 окрема важка механізована Залізна бригада - Videos | title=Великдень. А війна палає... Музична історія Залізної бригади | id=AsNgLJwo_g4
+[21:25:17] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:25:17] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:25:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:26:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:26:23] "GET /api/status HTTP/1.1" 200 -
+[21:27:13] [PLAY] END   | channel=3 окрема важка механізована Залізна бригада - Videos | title=Великдень. А війна палає... Музична історія Залізної бригади | id=AsNgLJwo_g4
+
+[21:27:15] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[21:27:15] [PLAY] Our video [2/5]: Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» (G6CC96STWEI)
+
+[21:27:15] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» | id=G6CC96STWEI
+[21:27:15] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:27:15] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:27:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:28:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:29:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:30:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:31:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:32:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:33:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:34:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:35:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:36:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:37:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:37:23] "GET /api/status HTTP/1.1" 200 -
+[21:37:39] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Там, де закінчуються слова, починається віра: Борис Кутовий у проєкті «Межа сприйняття» | id=G6CC96STWEI
+
+[21:37:39] [INFO] Channel 10/26: https://www.youtube.com/@113obr_tro/videos
+[21:37:40] [PLAY] Selected: Інженерна рота 113 ОБр ТрО (ZGXn1aBKf0I) from 3 candidates (2 seen) on Харківська окрема бригада територіальної оборони - Videos
+
+[21:37:40] [PLAY] START | channel=Харківська окрема бригада територіальної оборони - Videos | title=Інженерна рота 113 ОБр ТрО | id=ZGXn1aBKf0I
+[21:37:40] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:37:40] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:38:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:38:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:39:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:39:23] "GET /api/status HTTP/1.1" 200 -
+[21:39:27] [PLAY] END   | channel=Харківська окрема бригада територіальної оборони - Videos | title=Інженерна рота 113 ОБр ТрО | id=ZGXn1aBKf0I
+
+[21:39:27] [INFO] Channel 11/26: https://www.youtube.com/@22ombr/videos
+[21:39:28] [PLAY] Selected: Воїни 22-ї ОМБр затрофеїли танк-черепаху (Tuu2IS7xld4) from 4 candidates (1 seen) on 22 окрема механізована бригада - Videos
+
+[21:39:28] [PLAY] START | channel=22 окрема механізована бригада - Videos | title=Воїни 22-ї ОМБр затрофеїли танк-черепаху | id=Tuu2IS7xld4
+[21:39:28] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:39:28] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+[21:40:12] [PLAY] END   | channel=22 окрема механізована бригада - Videos | title=Воїни 22-ї ОМБр затрофеїли танк-черепаху | id=Tuu2IS7xld4
+
+[21:40:12] [INFO] Channel 12/26: https://www.youtube.com/@Kh127br/videos
+[21:40:14] [PLAY] Selected: "Як не ми, то хто?", - Денис "Лісник" про роботу розвідника (NYYVeXiavIY) from 4 candidates (1 seen) on 127 окрема важка механізована Харківська бригада - Videos
+
+[21:40:14] [PLAY] START | channel=127 окрема важка механізована Харківська бригада - Videos | title="Як не ми, то хто?", - Денис "Лісник" про роботу розвідника | id=NYYVeXiavIY
+[21:40:14] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:40:14] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:40:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:41:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:42:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:42:23] "GET /api/status HTTP/1.1" 200 -
+[21:42:23] [PLAY] END   | channel=127 окрема важка механізована Харківська бригада - Videos | title="Як не ми, то хто?", - Денис "Лісник" про роботу розвідника | id=NYYVeXiavIY
+
+[21:42:25] [INFO] Our-videos refreshed: 5 videos from https://www.youtube.com/@JointForcesTaskForce/videos
+[21:42:25] [PLAY] Our video [3/5]: Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди (LZ1PBJi5Yc0)
+
+[21:42:25] [PLAY] START | channel=Угруповання об'єднаних сил - Videos | title=Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди | id=LZ1PBJi5Yc0
+[21:42:25] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:42:25] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:43:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:43:23] "GET /api/status HTTP/1.1" 200 -
+[21:44:01] [PLAY] END   | channel=Угруповання об'єднаних сил - Videos | title=Сержант — це менеджер бою: як в Угрупованні об’єднаних сил будують сильні команди | id=LZ1PBJi5Yc0
+
+[21:44:01] [INFO] Channel 13/26: https://www.youtube.com/@Taifunarmy/videos
+[21:44:02] [PLAY] Selected: Загін безпілотних систем «Тайфун» вражає (8ro0DSa7u-M) from 4 candidates (1 seen) on Тайфун - Videos
+
+[21:44:02] [PLAY] START | channel=Тайфун - Videos | title=Загін безпілотних систем «Тайфун» вражає | id=8ro0DSa7u-M
+[21:44:02] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:44:02] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:44:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:45:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:46:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:47:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:47:23] "GET /api/status HTTP/1.1" 200 -
+[21:48:05] [PLAY] END   | channel=Тайфун - Videos | title=Загін безпілотних систем «Тайфун» вражає | id=8ro0DSa7u-M
+
+[21:48:05] [INFO] Channel 14/26: https://www.youtube.com/@58brigade/videos
+[21:48:08] [PLAY] Selected: The story of a graduate of the National Academy of Sciences, company commander of the 58th Specia... (SRcJjWPVu1Y) from 3 candidates (2 seen) on 58 окрема мотопіхотна бригада - Videos
+
+[21:48:08] [PLAY] START | channel=58 окрема мотопіхотна бригада - Videos | title=The story of a graduate of the National Academy of Sciences, company commander of the 58th Specia... | id=SRcJjWPVu1Y
+[21:48:08] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:48:08] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:48:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:49:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:50:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:50:23] "GET /api/status HTTP/1.1" 200 -
+[21:50:37] [PLAY] END   | channel=58 окрема мотопіхотна бригада - Videos | title=The story of a graduate of the National Academy of Sciences, company commander of the 58th Specia... | id=SRcJjWPVu1Y
+
+[21:50:37] [INFO] Channel 15/26: https://www.youtube.com/@JointTaskForceUkraine/videos
+[21:50:38] [WARN] Channel skipped (fetch error): https://www.youtube.com/@JointTaskForceUkraine/videos
+[yt-dlp ERROR]
+Channel: https://www.youtube.com/@JointTaskForceUkraine/videos
+Return code: 1
+STDOUT:
+null
+
+STDERR:
+WARNING: [youtube:tab] Unable to download webpage: HTTP Error 404: Not Found (caused by <HTTPError 404: Not Found>)
+WARNING: [youtube:tab] YouTube said: ERROR - Requested entity was not found.
+ERROR: [youtube:tab] @JointTaskForceUkraine: Unable to download API page: HTTP Error 404: No…
+[21:50:38] [INFO] Channel 16/26: https://www.youtube.com/channel/UCl_4qPLlyz_BZn7wSTHz5sg/videos
+[21:50:41] [PLAY] Selected: We evacuated a prisoner to the NRC! His own people wanted to kill him (7LJx0mhgfH4) from 4 candidates (1 seen) on K-2 - Videos
+
+[21:50:41] [PLAY] START | channel=K-2 - Videos | title=We evacuated a prisoner to the NRC! His own people wanted to kill him | id=7LJx0mhgfH4
+[21:50:41] [INFO] Destinations: YouTube, Telegram, X (3 independent streams)
+[21:50:41] [INFO] Logo overlay: ENABLED (C:\Users\chorn\Desktop\Last_Sem\Practice\backend\assets\logo.png)
+127.0.0.1 - - [14/Apr/2026 21:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:51:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:52:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:53:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:53:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:54:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:55:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:56:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:57:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:58:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 21:59:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:00:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:01:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:02:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:03:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:04:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:05:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:06:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:07:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:08:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:21] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:21] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:21] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:21] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:23] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:25] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:25] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:27] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:27] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:29] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:31] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:33] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:35] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:37] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:39] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:41] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:43] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:45] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:47] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:49] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:51] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:53] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:55] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:57] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:09:59] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:10:01] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:10:03] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:10:05] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:10:07] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:10:09] "GET /api/status HTTP/1.1" 200 -
+127.0.0.1 - - [14/Apr/2026 22:10:11] "GET /api/status HTTP/1.1" 200 -

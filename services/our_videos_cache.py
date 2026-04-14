@@ -59,27 +59,10 @@ def warm_cache_from_disk(cache_file: Path = OUR_VIDEOS_CACHE_FILE) -> None:
             _cached_videos, _last_scan_ts, _cached_channel_url = _load_from_disk(cache_file)
 
 
-def fetch_our_videos_for_playback(
-    ytdlp: YtDlpClient,
-    channel_url: str,
-    limit: int,
-    cache_file: Path,
+def _apply_fetched_videos(
+    videos: List[VideoItem], channel_url: str, cache_file: Path
 ) -> List[VideoItem]:
-    """Fetch latest videos from the channel (always). Updates cache and disk on success."""
     global _cached_videos, _last_scan_ts, _cached_channel_url
-
-    if not channel_url:
-        return []
-
-    try:
-        videos = ytdlp.fetch_latest_videos(channel_url, limit=limit)
-    except Exception as e:
-        log_warn(f"Our-videos scan failed ({channel_url}): {e}")
-        with _lock:
-            if not _cached_videos:
-                _cached_videos, _last_scan_ts, _cached_channel_url = _load_from_disk(cache_file)
-            return list(_cached_videos)
-
     with _lock:
         _cached_videos = list(videos)
         _last_scan_ts = time.time()
@@ -87,6 +70,44 @@ def fetch_our_videos_for_playback(
         _save_to_disk(cache_file, _cached_videos, _last_scan_ts, channel_url)
         log_info(f"Our-videos refreshed: {len(_cached_videos)} videos from {channel_url}")
         return list(_cached_videos)
+
+
+def fetch_our_videos_for_playback(
+    ytdlp: YtDlpClient,
+    channel_url: str,
+    limit: int,
+    cache_file: Path,
+) -> List[VideoItem]:
+    """Fetch latest videos from the channel (always). Updates cache and disk on success."""
+    url = (channel_url or "").strip()
+    if not url:
+        return []
+
+    try:
+        videos = ytdlp.fetch_latest_videos(url, limit=limit)
+    except Exception as e:
+        log_warn(f"Our-videos scan failed ({url}): {e}")
+        with _lock:
+            if not _cached_videos:
+                _cached_videos, _last_scan_ts, _cached_channel_url = _load_from_disk(cache_file)
+            return list(_cached_videos)
+
+    return _apply_fetched_videos(videos, url, cache_file)
+
+
+def rescan_our_videos_cache(
+    ytdlp: YtDlpClient,
+    channel_url: str,
+    limit: int,
+    cache_file: Path = OUR_VIDEOS_CACHE_FILE,
+) -> List[VideoItem]:
+    """Clear cache and fetch latest from channel (admin «пересканувати»). Raises on yt-dlp failure."""
+    invalidate_cache(cache_file)
+    url = (channel_url or "").strip()
+    if not url:
+        return []
+    videos = ytdlp.fetch_latest_videos(url, limit=limit)
+    return _apply_fetched_videos(videos, url, cache_file)
 
 
 def peek_cached_videos() -> tuple[List[VideoItem], float, str]:

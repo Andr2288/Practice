@@ -26,12 +26,30 @@ class AppSettings:
     x_stream_server_url: str = ""
     # URL YouTube-каналу, з якого беруться «наші відео» (останні N).
     our_channel_url: str = ""
+    # Enable/disable destinations
+    youtube_enabled: bool = True
+    telegram_enabled: bool = True
+    x_enabled: bool = True
 
     def to_dict(self) -> dict:
         return asdict(self)
 
     @staticmethod
     def from_dict(data: dict) -> "AppSettings":
+        def _as_bool(value: Any, default: bool = True) -> bool:
+            if value is None:
+                return default
+            if isinstance(value, bool):
+                return value
+            if isinstance(value, (int, float)):
+                return bool(value)
+            s = str(value).strip().lower()
+            if s in {"1", "true", "yes", "on"}:
+                return True
+            if s in {"0", "false", "no", "off"}:
+                return False
+            return default
+
         raw = data.get("filler_url")
         if raw is None:
             filler_url = ""
@@ -70,6 +88,9 @@ class AppSettings:
             telegram_server_url=telegram_server_url,
             x_stream_server_url=x_stream_server_url,
             our_channel_url=our_channel_url,
+            youtube_enabled=_as_bool(data.get("youtube_enabled"), True),
+            telegram_enabled=_as_bool(data.get("telegram_enabled"), True),
+            x_enabled=_as_bool(data.get("x_enabled"), True),
         )
 
 
@@ -133,4 +154,10 @@ def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
         cur.x_stream_server_url = str(patch["x_stream_server_url"]).strip()
     if "our_channel_url" in patch and patch["our_channel_url"] is not None:
         cur.our_channel_url = str(patch["our_channel_url"]).strip()
+    if "youtube_enabled" in patch and patch["youtube_enabled"] is not None:
+        cur.youtube_enabled = bool(patch["youtube_enabled"])
+    if "telegram_enabled" in patch and patch["telegram_enabled"] is not None:
+        cur.telegram_enabled = bool(patch["telegram_enabled"])
+    if "x_enabled" in patch and patch["x_enabled"] is not None:
+        cur.x_enabled = bool(patch["x_enabled"])
     return cur

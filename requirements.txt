@@ -1,2 +1,3 @@
 yt-dlp[default]
 flask>=3.0
+pillow>=10.0

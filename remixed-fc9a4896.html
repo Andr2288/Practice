@@ -1,0 +1,1189 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="theme-color" content="#FAFAF8">
+<title>RadioStream</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400;500;600&family=Geist+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+
+:root{
+  --bg:#FAFAF8;
+  --s0:#FFFFFF;
+  --s1:#F4F3EF;
+  --s2:#ECEAE4;
+  --br:#E2E0D9;
+  --br2:#CCCAB8;
+  --t0:#131310;
+  --t1:#5A5850;
+  --t2:#9A9888;
+  --ok:#1B6840;
+  --ok-l:#E3F1EB;
+  --warn:#9A5A00;
+  --warn-l:#FDF3E0;
+  --err:#C02828;
+  --err-l:#FDEAEA;
+  --blue:#1A4FCC;
+  --blue-l:#E8EEFB;
+  --live:#D92B2B;
+  --r:12px;
+  --rs:7px;
+  --safe-b:env(safe-area-inset-bottom,0px);
+  --shadow:0 1px 3px rgba(0,0,0,.05),0 1px 2px rgba(0,0,0,.04);
+  --shadow-m:0 4px 16px rgba(0,0,0,.07),0 1px 4px rgba(0,0,0,.04);
+  /* Класичний UI: Geist якщо завантажився, інакше системний sans */
+  --font-sans:'Geist',system-ui,-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;
+  --font-mono:'Geist Mono',ui-monospace,'Cascadia Code','Consolas',Menlo,monospace;
+}
+
+html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);background:var(--bg);color:var(--t0);-webkit-font-smoothing:antialiased;line-height:1.5}
+
+/* ══ UTILS ══════════════════════════ */
+.mono{font-family:var(--font-mono)}
+.serif{font-family:var(--font-sans)}
+
+/* ══ DESKTOP SIDEBAR ═════════════════ */
+.d-sidebar{
+  width:210px;min-height:100vh;background:var(--s0);
+  border-right:1px solid var(--br);
+  position:fixed;top:0;left:0;bottom:0;
+  display:flex;flex-direction:column;z-index:100;
+}
+.d-logo{
+  padding:18px 16px 14px;border-bottom:1px solid var(--br);
+  display:flex;align-items:center;gap:9px;
+}
+.d-logo-mark{
+  width:30px;height:30px;border-radius:8px;
+  background:var(--t0);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.d-logo-name{font-size:16px;line-height:1.15;font-weight:600;letter-spacing:-.02em}
+.d-logo-sub{font-size:10px;color:var(--t2);letter-spacing:.5px;text-transform:uppercase}
+
+.d-nav-section{
+  padding:14px 10px 3px;
+  font-size:10px;font-weight:600;letter-spacing:.7px;
+  text-transform:uppercase;color:var(--t2);padding-left:14px;
+}
+.d-nav-item{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px;margin:1px 6px;border-radius:var(--rs);
+  font-size:13px;font-weight:400;color:var(--t1);
+  cursor:pointer;text-decoration:none;transition:all .12s;
+}
+.d-nav-item:hover{background:var(--s1);color:var(--t0)}
+.d-nav-item.on{background:var(--t0);color:#fff}
+.d-nav-icon{width:16px;text-align:center;font-size:14px;flex-shrink:0}
+.d-nav-badge{
+  margin-left:auto;font-size:10px;font-weight:600;
+  padding:1px 6px;border-radius:10px;
+  font-family:'Geist Mono',monospace;
+}
+.nb-r{background:var(--err-l);color:var(--err)}
+.nb-g{background:var(--ok-l);color:var(--ok)}
+
+.d-sidebar-foot{
+  margin-top:auto;padding:10px 6px;
+  border-top:1px solid var(--br);
+}
+.d-user{
+  display:flex;align-items:center;gap:8px;
+  padding:7px 10px;border-radius:var(--rs);cursor:pointer;
+  transition:background .12s;
+}
+.d-user:hover{background:var(--s1)}
+.d-av{
+  width:28px;height:28px;border-radius:50%;
+  background:var(--t0);color:#fff;
+  font-size:11px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+
+/* ══ DESKTOP SHELL (сайдбар fixed — .d-main має flex:1, інакше залишається порожнеча справа) ══ */
+.d-page{display:flex;min-height:100vh;width:100%;max-width:100%;box-sizing:border-box}
+
+/* ══ DESKTOP MAIN ════════════════════ */
+.d-main{
+  margin-left:210px;
+  flex:1 1 0%;
+  min-width:0;
+  min-height:100vh;
+  display:flex;
+  flex-direction:column;
+}
+
+.d-topbar{
+  height:52px;background:var(--s0);border-bottom:1px solid var(--br);
+  display:flex;align-items:center;padding:0 22px;gap:12px;
+  position:sticky;top:0;z-index:50;
+}
+.d-topbar-title{font-size:17px;font-weight:600;letter-spacing:-.02em}
+
+.live-tag{
+  display:flex;align-items:center;gap:5px;
+  background:var(--live);color:#fff;
+  padding:3px 9px;border-radius:20px;
+  font-size:10px;font-weight:600;letter-spacing:.4px;
+}
+.live-dot{width:5px;height:5px;background:#fff;border-radius:50%;animation:blink 1.1s infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.2}}
+
+.d-topbar-r{margin-left:auto;display:flex;gap:7px}
+.icon-btn{
+  width:32px;height:32px;border:1px solid var(--br);
+  background:var(--s0);border-radius:var(--rs);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  font-size:14px;transition:background .12s;position:relative;
+}
+.icon-btn:hover{background:var(--s1)}
+.notif-pip{
+  position:absolute;top:5px;right:5px;
+  width:6px;height:6px;background:var(--err);
+  border:2px solid var(--s0);border-radius:50%;
+}
+
+.d-content{padding:18px 22px;flex:1;width:100%;min-width:0}
+
+/* ══ NOW PLAYING ════════════════════ */
+.np-card{
+  background:var(--t0);color:#fff;
+  border-radius:var(--r);padding:22px 24px;
+  display:grid;grid-template-columns:72px minmax(0,1fr) minmax(118px,auto);
+  gap:18px 22px;align-items:start;margin-bottom:16px;
+  position:relative;overflow:hidden;
+}
+.np-card::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(130deg,rgba(27,104,64,.2) 0%,transparent 55%);
+  pointer-events:none;
+}
+.np-art{
+  width:72px;height:72px;border-radius:10px;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:26px;flex-shrink:0;
+  position:relative;z-index:1;
+}
+.np-main{min-width:0;display:flex;flex-direction:column;gap:0;position:relative;z-index:1}
+.np-label{
+  display:flex;align-items:center;gap:8px;
+  font-size:10px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:rgba(255,255,255,.42);margin:0 0 10px;
+}
+.np-label::before{
+  content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  background:var(--live);box-shadow:0 0 0 2px rgba(217,43,43,.3);
+  animation:blink 1.1s infinite;
+}
+.np-title{
+  font-family:var(--font-sans);
+  font-size:clamp(17px,1.2vw + 13px,21px);
+  font-weight:600;line-height:1.28;letter-spacing:-.02em;
+  margin:0 0 12px;
+  display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;
+  overflow:hidden;
+}
+.np-details{
+  display:flex;flex-direction:column;align-items:flex-start;gap:8px;
+}
+.np-channel{
+  font-size:13px;line-height:1.45;font-weight:400;
+  color:rgba(255,255,255,.52);margin:0;
+  word-break:break-word;
+}
+
+/* url warning */
+.np-url-timer{
+  display:block;width:100%;
+  font-size:12px;line-height:1.4;color:rgba(255,255,255,.48);
+  margin:0;word-break:break-all;
+}
+.np-url-timer.warn{color:#F5A623}
+.np-url-timer.crit{color:#FF6B6B;animation:pulse-txt .8s infinite}
+@keyframes pulse-txt{0%,100%{opacity:1}50%{opacity:.5}}
+
+.np-dur{
+  margin-top:14px;padding-top:14px;border-top:1px solid rgba(255,255,255,.1);
+  font-size:12px;line-height:1.35;color:rgba(255,255,255,.45);
+}
+
+.np-progress{height:3px;background:rgba(255,255,255,.12);border-radius:2px;margin-bottom:5px}
+.np-fill{height:100%;background:rgba(255,255,255,.6);border-radius:2px;transition:width .5s linear}
+.np-times{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(255,255,255,.35)}
+
+.np-btns{
+  display:flex;flex-direction:column;gap:9px;flex-shrink:0;
+  min-width:118px;position:relative;z-index:1;
+}
+.np-btn{
+  padding:10px 16px;border-radius:9px;
+  font-size:13px;font-weight:500;cursor:pointer;border:none;
+  font-family:'Geist',sans-serif;transition:background .15s,border-color .15s,transform .1s;
+  white-space:nowrap;line-height:1.2;
+}
+.np-btn:active{transform:scale(.98)}
+.np-btn-skip{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14)}
+.np-btn-skip:hover{background:rgba(255,255,255,.16)}
+.np-btn-stop{background:rgba(200,40,40,.18);color:#ff9090;border:1px solid rgba(200,40,40,.28)}
+.np-btn-stop:hover{background:rgba(200,40,40,.28)}
+
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:.4}}
+
+/* ══ MAIN GRID ═══════════════════════ */
+.d-grid{display:grid;grid-template-columns:1fr minmax(300px,38%);gap:14px}
+.d-left{display:flex;flex-direction:column;gap:14px}
+.d-right{display:flex;flex-direction:column;gap:14px}
+
+/* ══ PANEL ═══════════════════════════ */
+.panel{
+  background:var(--s0);border:1px solid var(--br);
+  border-radius:var(--r);overflow:hidden;box-shadow:var(--shadow);
+}
+.panel-hd{
+  padding:12px 16px;border-bottom:1px solid var(--br);
+  display:flex;align-items:center;justify-content:space-between;
+}
+.panel-title{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.panel-btn{
+  font-size:11px;color:var(--blue);padding:3px 9px;
+  border:1px solid var(--br);border-radius:var(--rs);
+  background:var(--s0);cursor:pointer;font-weight:500;
+  font-family:'Geist',sans-serif;transition:all .12s;
+}
+.panel-btn:hover{background:var(--blue-l);border-color:var(--blue)}
+
+/* ══ QUEUE TABLE ═════════════════════ */
+.qt{width:100%;border-collapse:collapse}
+.qt th{
+  font-size:10px;font-weight:600;letter-spacing:.5px;text-transform:uppercase;
+  color:var(--t2);text-align:left;padding:9px 16px;
+  background:var(--s1);border-bottom:1px solid var(--br);
+}
+.qt td{padding:10px 16px;border-bottom:1px solid var(--br)}
+.qt tr:last-child td{border-bottom:none}
+.qt tbody tr{transition:background .1s;cursor:default}
+.qt tbody tr:hover{background:var(--s1)}
+
+.q-tag{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:2px 8px;border-radius:20px;font-size:10px;font-weight:600;
+}
+.q-live{background:var(--ok-l);color:var(--ok)}
+.q-pend{background:var(--blue-l);color:var(--blue)}
+.q-fail{background:var(--err-l);color:var(--err)}
+.q-done{background:var(--s1);color:var(--t2)}
+
+.q-live-dot{
+  width:6px;height:6px;border-radius:50%;background:var(--ok);
+  animation:blink 1.1s infinite;
+}
+
+.q-title{font-size:13px;font-weight:500;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.q-channel{font-size:11px;color:var(--t2)}
+
+.ib{
+  width:26px;height:26px;border:1px solid var(--br);background:transparent;
+  border-radius:var(--rs);cursor:pointer;
+  display:inline-flex;align-items:center;justify-content:center;
+  font-size:12px;color:var(--t1);transition:all .12s;
+}
+.ib:hover{background:var(--s1)}
+.ib.del:hover{background:var(--err-l);border-color:var(--err);color:var(--err)}
+
+.qt-footer{
+  padding:8px 16px;background:var(--s1);font-size:11px;color:var(--t2);
+  display:flex;gap:12px;align-items:center;border-top:1px solid var(--br);
+}
+
+/* ══ PLATFORMS PANEL ═════════════════ */
+.plt-item{
+  display:flex;align-items:center;padding:10px 16px;gap:10px;
+  border-bottom:1px solid var(--br);transition:background .1s;
+}
+.plt-item:last-child{border-bottom:none}
+.plt-item:hover{background:var(--s1)}
+
+.plt-logo{
+  width:32px;height:32px;border-radius:8px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:15px;flex-shrink:0;
+}
+
+.plt-info{flex:1;min-width:0}
+.plt-name{font-size:13px;font-weight:500}
+.plt-viewers{
+  font-family:'Geist Mono',monospace;font-size:12px;
+  font-weight:500;color:var(--t0);
+}
+.plt-viewers.none{color:var(--t2)}
+.plt-stat{font-size:10px;color:var(--t2)}
+
+.plt-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+
+/* ══ STREAM ACCORDION ═══════════════ */
+.acc-list{border-top:1px solid var(--br)}
+.acc-item{border-bottom:1px solid var(--br)}
+.acc-item:last-child{border-bottom:none}
+.acc-head{
+  width:100%;display:flex;align-items:center;gap:10px;
+  padding:12px 14px;background:var(--s0);border:none;cursor:pointer;
+  font:inherit;text-align:left;transition:background .12s;
+}
+.acc-head:hover{background:var(--s1)}
+.acc-head .plt-logo{flex-shrink:0}
+.acc-head .plt-info{flex:1;min-width:0}
+.acc-head .sdot{flex-shrink:0}
+.acc-chev{
+  flex-shrink:0;width:22px;text-align:center;
+  font-size:10px;color:var(--t2);transition:transform .2s;
+}
+.acc-item.open .acc-chev{transform:rotate(-180deg)}
+.acc-body{
+  display:none;padding:12px 14px 16px;background:var(--s1);
+  border-top:1px solid var(--br);
+}
+.acc-item.open .acc-body{display:block}
+.acc-field{margin-bottom:12px}
+.acc-field:last-of-type{margin-bottom:14px}
+.acc-field label{
+  display:block;font-size:11px;font-weight:600;color:var(--t2);
+  text-transform:uppercase;letter-spacing:.4px;margin-bottom:5px;
+}
+.acc-field input[type="text"],
+.acc-field input[type="url"],
+.acc-field input[type="password"],
+.acc-field input[type="number"],
+.acc-field input[type="file"]{
+  width:100%;padding:8px 10px;border:1px solid var(--br);border-radius:var(--rs);
+  font-size:13px;font-family:'Geist',sans-serif;background:var(--s0);color:var(--t0);
+}
+.acc-field .toggle{margin-top:2px}
+.acc-hint{font-size:11px;color:var(--t2);line-height:1.4;margin:-4px 0 12px}
+.acc-row{display:flex;align-items:center;justify-content:space-between;gap:12px;margin-bottom:12px}
+.acc-row label{margin:0;font-size:13px;font-weight:500;color:var(--t1);text-transform:none;letter-spacing:0}
+.acc-save{
+  padding:8px 14px;background:var(--t0);color:#fff;border:none;border-radius:var(--rs);
+  font-size:12px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif;
+}
+.acc-save:hover{opacity:.92}
+.acc-save.secondary{background:var(--s0);color:var(--t0);border:1px solid var(--br)}
+.acc-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:4px}
+
+/* status dot */
+.sdot{width:8px;height:8px;border-radius:50%}
+.sdot.ok{background:var(--ok);box-shadow:0 0 0 3px var(--ok-l)}
+.sdot.off{background:var(--br2)}
+.sdot.err{background:var(--err);box-shadow:0 0 0 3px var(--err-l);animation:pulse .9s infinite}
+
+/* toggle */
+.toggle{
+  width:32px;height:18px;background:var(--br2);
+  border-radius:9px;border:none;cursor:pointer;
+  position:relative;transition:background .18s;flex-shrink:0;
+}
+.toggle.on{background:var(--ok)}
+.toggle::after{
+  content:'';position:absolute;top:2px;left:2px;
+  width:14px;height:14px;background:#fff;border-radius:50%;
+  transition:left .18s;box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle.on::after{left:16px}
+
+/* ══ CHAT PANEL ══════════════════════ */
+.chat-list{padding:4px 0;max-height:220px;overflow-y:auto}
+.chat-msg{
+  padding:8px 16px;border-bottom:1px solid var(--br);
+  display:flex;gap:8px;align-items:flex-start;
+}
+.chat-msg:last-child{border-bottom:none}
+.chat-platform{font-size:13px;flex-shrink:0;margin-top:1px}
+.chat-user{font-size:11px;font-weight:600;flex-shrink:0;color:var(--t0)}
+.chat-text{font-size:12px;color:var(--t1);line-height:1.4;flex:1}
+.chat-time{font-size:10px;color:var(--t2);font-family:'Geist Mono',monospace;flex-shrink:0;margin-top:1px}
+
+/* ══ EVENTS ══════════════════════════ */
+.ev-item{
+  padding:9px 16px;border-bottom:1px solid var(--br);
+  display:flex;align-items:flex-start;gap:8px;
+}
+.ev-item:last-child{border-bottom:none}
+.ev-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+.ev-ok{background:var(--ok-l);color:var(--ok)}
+.ev-warn{background:var(--warn-l);color:var(--warn)}
+.ev-err{background:var(--err-l);color:var(--err)}
+.ev-msg{font-size:12px;line-height:1.4;flex:1}
+.ev-time{font-family:'Geist Mono',monospace;font-size:10px;color:var(--t2);flex-shrink:0;margin-top:2px}
+
+/* ══ MOBILE ══════════════════════════ */
+.mob{display:none;flex-direction:column;min-height:100vh}
+
+.mob-top{
+  background:var(--s0);border-bottom:1px solid var(--br);
+  padding:13px 14px 11px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:200;
+}
+.mob-logo{font-size:17px;font-weight:600;letter-spacing:-.02em}
+.mob-top-r{display:flex;align-items:center;gap:8px}
+
+.mob-body{
+  flex:1;overflow-y:auto;
+  padding:12px 12px calc(68px + var(--safe-b));
+  -webkit-overflow-scrolling:touch;
+}
+
+/* Mobile Now Playing */
+.m-np{
+  background:var(--t0);color:#fff;
+  border-radius:var(--r);padding:16px;margin-bottom:12px;
+  position:relative;overflow:hidden;
+}
+.m-np::before{
+  content:'';position:absolute;top:-40px;right:-40px;
+  width:130px;height:130px;
+  background:radial-gradient(circle,rgba(27,104,64,.25),transparent 70%);
+  pointer-events:none;
+}
+.m-np-top{display:flex;gap:14px;align-items:flex-start;margin-bottom:16px;position:relative;z-index:1}
+.m-np-art{
+  width:58px;height:58px;border-radius:9px;
+  background:rgba(255,255,255,.08);
+  display:flex;align-items:center;justify-content:center;
+  font-size:24px;flex-shrink:0;
+}
+.m-np-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:0}
+.m-np-badge{
+  display:flex;align-items:center;gap:8px;
+  font-size:10px;font-weight:600;letter-spacing:.07em;text-transform:uppercase;
+  color:rgba(255,255,255,.42);margin:0 0 8px;
+}
+.m-np-badge::before{
+  content:'';width:6px;height:6px;border-radius:50%;flex-shrink:0;
+  background:var(--live);box-shadow:0 0 0 2px rgba(217,43,43,.3);
+  animation:blink 1.1s infinite;
+}
+.m-np-title{
+  font-family:var(--font-sans);
+  font-size:clamp(16px,3.8vw,19px);
+  font-weight:600;line-height:1.3;letter-spacing:-.02em;
+  display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;
+  margin:0 0 10px;
+}
+.m-np-details{display:flex;flex-direction:column;gap:7px}
+.m-np-ch{font-size:12px;line-height:1.4;color:rgba(255,255,255,.5);word-break:break-word}
+.m-url-timer{
+  font-size:11px;line-height:1.4;color:rgba(255,255,255,.45);
+  display:block;word-break:break-all;
+}
+.m-url-timer.warn{color:#F5A623}
+.m-url-timer.crit{color:#FF6B6B}
+.m-np-dur{
+  margin-top:12px;padding-top:12px;border-top:1px solid rgba(255,255,255,.1);
+  font-size:11px;line-height:1.35;color:rgba(255,255,255,.45);
+}
+
+.m-np-bar{height:3px;background:rgba(255,255,255,.12);border-radius:2px;margin-bottom:5px}
+.m-np-fill{height:100%;background:rgba(255,255,255,.55);border-radius:2px}
+.m-np-times{display:flex;justify-content:space-between;font-family:'Geist Mono',monospace;font-size:10px;color:rgba(255,255,255,.3);margin-bottom:12px}
+
+.m-np-btns{
+  display:grid;grid-template-columns:1fr 1fr;gap:10px;
+  position:relative;z-index:1;padding-top:2px;
+}
+.m-btn{
+  padding:12px 10px;border-radius:9px;font-size:13px;font-weight:500;
+  cursor:pointer;border:none;font-family:'Geist',sans-serif;
+  transition:background .15s,transform .1s;
+  display:flex;align-items:center;justify-content:center;gap:6px;min-height:46px;
+}
+.m-btn:active{transform:scale(.985)}
+.m-btn-skip{background:rgba(255,255,255,.1);color:#fff;border:1px solid rgba(255,255,255,.14)}
+.m-btn-stop{background:rgba(200,40,40,.18);color:#ff9090;border:1px solid rgba(200,40,40,.28)}
+
+/* Mobile section */
+.m-section{background:var(--s0);border:1px solid var(--br);border-radius:var(--r);margin-bottom:12px;overflow:hidden}
+.m-sec-hd{padding:11px 14px;border-bottom:1px solid var(--br);display:flex;align-items:center;justify-content:space-between}
+.m-sec-title{font-size:14px;font-weight:600;letter-spacing:-.01em}
+.m-sec-btn{font-size:11px;color:var(--blue);padding:4px 9px;border:1px solid var(--br);border-radius:var(--rs);background:var(--s0);cursor:pointer;font-weight:500}
+
+/* Mobile platform items */
+.m-plt{
+  padding:10px 14px;border-bottom:1px solid var(--br);
+  display:flex;align-items:center;gap:9px;
+}
+.m-plt:last-child{border-bottom:none}
+.m-plt-logo{width:34px;height:34px;border-radius:8px;display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+.m-plt-info{flex:1;min-width:0}
+.m-plt-name{font-size:13px;font-weight:500}
+.m-plt-viewers{font-family:'Geist Mono',monospace;font-size:12px;font-weight:500;color:var(--t0)}
+.m-plt-viewers.none{color:var(--t2)}
+.m-plt-stat{font-size:10px;color:var(--t2)}
+.m-plt-r{display:flex;align-items:center;gap:7px;flex-shrink:0}
+
+/* Mobile queue */
+.m-qi{
+  padding:11px 14px;border-bottom:1px solid var(--br);
+  display:flex;align-items:center;gap:10px;
+}
+.m-qi:last-child{border-bottom:none}
+.m-qi-num{font-family:'Geist Mono',monospace;font-size:11px;color:var(--t2);width:16px;flex-shrink:0;text-align:right}
+.m-qi-thumb{
+  width:40px;height:30px;border-radius:5px;
+  background:var(--s1);display:flex;align-items:center;justify-content:center;
+  font-size:14px;flex-shrink:0;
+}
+.m-qi-info{flex:1;min-width:0}
+.m-qi-title{font-size:13px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;margin-bottom:1px}
+.m-qi-meta{font-size:10px;color:var(--t2);display:flex;gap:5px}
+.m-qi-r{display:flex;align-items:center;gap:5px;flex-shrink:0}
+.m-qi-tag{font-size:10px;font-weight:600;padding:2px 7px;border-radius:10px}
+
+/* Mobile quick actions */
+.m-quick{display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:12px 14px}
+.m-qa{
+  padding:12px;border-radius:var(--rs);border:1px solid var(--br);
+  background:var(--s0);cursor:pointer;transition:all .12s;
+  display:flex;flex-direction:column;gap:3px;
+}
+.m-qa:active{transform:scale(.97)}
+.m-qa-ico{font-size:18px;margin-bottom:2px}
+.m-qa-label{font-size:12px;font-weight:600;color:var(--t0)}
+.m-qa-sub{font-size:10px;color:var(--t2)}
+.m-qa.danger{background:var(--err-l);border-color:var(--err)}
+.m-qa.danger .m-qa-label{color:var(--err)}
+
+/* Mobile chat */
+.m-chat-msg{
+  padding:9px 14px;border-bottom:1px solid var(--br);
+  display:flex;gap:8px;
+}
+.m-chat-msg:last-child{border-bottom:none}
+
+/* Mobile events */
+.m-ev{padding:9px 14px;border-bottom:1px solid var(--br);display:flex;gap:8px;align-items:flex-start}
+.m-ev:last-child{border-bottom:none}
+.m-ev-dot{width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:10px;flex-shrink:0;margin-top:1px}
+
+/* ══ BOTTOM NAV ══════════════════════ */
+.m-nav{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--s0);border-top:1px solid var(--br);
+  display:flex;padding-bottom:var(--safe-b);z-index:300;
+}
+.m-nav-item{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:9px 4px 8px;cursor:pointer;color:var(--t2);
+  text-decoration:none;transition:color .12s;position:relative;
+}
+.m-nav-item.on{color:var(--t0)}
+.m-nav-item.on::before{
+  content:'';position:absolute;top:0;left:50%;transform:translateX(-50%);
+  width:24px;height:2px;background:var(--t0);border-radius:0 0 2px 2px;
+}
+.m-nav-ico{font-size:19px;margin-bottom:2px}
+.m-nav-lbl{font-size:9px;font-weight:600;letter-spacing:.2px}
+.m-nav-badge{
+  position:absolute;top:6px;right:calc(50% - 16px);
+  background:var(--err);color:#fff;
+  font-size:9px;font-weight:700;padding:1px 4px;border-radius:8px;
+  font-family:'Geist Mono',monospace;
+}
+
+/* ══ DRAWER ══════════════════════════ */
+.m-overlay{
+  position:fixed;inset:0;background:rgba(0,0,0,.3);
+  z-index:400;display:none;opacity:0;transition:opacity .2s;
+}
+.m-overlay.show{display:block}
+.m-overlay.vis{opacity:1}
+
+.m-drawer{
+  position:fixed;bottom:0;left:0;right:0;
+  background:var(--s0);border-radius:16px 16px 0 0;
+  z-index:401;transform:translateY(100%);
+  transition:transform .26s cubic-bezier(.32,.72,0,1);
+  max-height:90vh;overflow-y:auto;
+  padding-bottom:calc(16px + var(--safe-b));
+}
+.m-drawer.open{transform:translateY(0)}
+.m-drawer-handle{width:32px;height:4px;background:var(--br2);border-radius:2px;margin:10px auto 14px}
+.m-drawer-title{font-size:16px;font-weight:600;letter-spacing:-.02em;padding:0 14px 12px;border-bottom:1px solid var(--br)}
+
+.d-nav-row{
+  display:flex;align-items:center;gap:10px;
+  padding:13px 14px;border-bottom:1px solid var(--br);
+  cursor:pointer;transition:background .12s;font-size:14px;font-weight:500;
+}
+.d-nav-row:last-child{border-bottom:none}
+.d-nav-row:active{background:var(--s1)}
+.d-nav-row-ico{font-size:18px;width:26px;text-align:center}
+.d-nav-row-arr{margin-left:auto;color:var(--t2);font-size:14px}
+
+/* ══ TOAST ═══════════════════════════ */
+.toast{
+  position:fixed;bottom:80px;left:50%;
+  transform:translateX(-50%) translateY(12px);
+  background:var(--t0);color:#fff;
+  padding:8px 16px;border-radius:20px;
+  font-size:12px;font-weight:500;
+  opacity:0;transition:all .22s;z-index:500;
+  pointer-events:none;white-space:nowrap;
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+
+/* ══ BREAKPOINTS ════════════════════ */
+@media(min-width:768px){
+  .d-sidebar,.d-main{display:flex!important}
+  .mob{display:none!important}
+}
+@media(max-width:767px){
+  .d-sidebar,.d-main{display:none!important}
+  .mob{display:flex!important}
+}
+@media(max-width:1100px){
+  .d-grid{grid-template-columns:1fr}
+}
+
+/* Вузький десктоп: картка «ефір» — кнопки окремим рядком, без стиснення тексту */
+@media(max-width:980px) and (min-width:768px){
+  .np-card{
+    grid-template-columns:72px minmax(0,1fr);
+    grid-template-rows:auto auto;
+    gap:16px 20px;
+  }
+  .np-art{grid-row:1}
+  .np-main{grid-column:2;grid-row:1}
+  .np-btns{
+    grid-column:1/-1;grid-row:2;
+    flex-direction:row;flex-wrap:wrap;justify-content:flex-end;
+    min-width:0;width:100%;
+  }
+  .np-btns .np-btn{flex:1 1 auto;min-width:min(140px,32%)}
+}
+
+/* scrollbar */
+::-webkit-scrollbar{width:4px;height:4px}
+::-webkit-scrollbar-track{background:transparent}
+::-webkit-scrollbar-thumb{background:var(--br2);border-radius:2px}
+</style>
+</head>
+<body>
+
+<!-- ════════════════════════════════════════
+     DESKTOP
+═════════════════════════════════════════ -->
+<div class="d-page">
+
+<aside class="d-sidebar">
+  <div class="d-logo">
+    <div class="d-logo-mark">📻</div>
+    <div>
+      <div class="d-logo-name">RadioStream</div>
+      <div class="d-logo-sub">Адмін</div>
+    </div>
+  </div>
+
+  <div class="d-nav-section">Навігація</div>
+  <a class="d-nav-item on" href="#"><span class="d-nav-icon">◈</span>Головна</a>
+</aside>
+
+<div class="d-main">
+  <header class="d-topbar">
+    <span class="d-topbar-title">Головна</span>
+    <div class="d-topbar-r">
+      <div class="live-tag" id="d-live-tag"><div class="live-dot"></div><span id="d-timer">…</span></div>
+      <button type="button" class="icon-btn" onclick="location.reload()" title="Оновити">↻</button>
+    </div>
+  </header>
+
+  <div class="d-content">
+
+    <!-- NOW PLAYING -->
+    <div class="np-card">
+      <div class="np-art">🎙</div>
+      <div class="np-main">
+        <div class="np-label">Зараз в ефірі</div>
+        <div class="np-title" id="d-np-title">—</div>
+        <div class="np-details">
+          <div class="np-channel" id="d-np-ch"></div>
+          <div class="np-url-timer" id="d-url"></div>
+        </div>
+        <div class="np-dur mono" id="d-np-dur">Тривалість: —</div>
+      </div>
+      <div class="np-btns">
+        <button type="button" class="np-btn np-btn-skip" id="d-btn-start" style="display:none;background:rgba(27,104,64,.25);color:#bfe8d4;border:1px solid rgba(27,104,64,.4)" onclick="apiStart()">▶ Почати ефір</button>
+        <button type="button" class="np-btn np-btn-skip" id="d-btn-skip" onclick="apiSkip()">⏭ Пропустити</button>
+        <button type="button" class="np-btn np-btn-stop" id="d-btn-stop" onclick="if(confirm('Зупинити ефір?'))apiStop()">⏹ Зупинити</button>
+      </div>
+    </div>
+
+    <!-- MAIN GRID -->
+    <div class="d-grid">
+      <div class="d-left">
+
+        <!-- QUEUE -->
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title">Черга відео</span>
+            <div style="display:flex;gap:6px">
+              <button type="button" class="panel-btn" onclick="openDrawer('add')">+ Додати</button>
+              <button type="button" class="panel-btn" style="color:var(--err)" onclick="if(confirm('Очистити чергу?'))fetch('/api/queue',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({queue:[]})}).then(r=>r.json()).then(()=>toast('Черга очищена')).catch(e=>toast(e.message))">Очистити чергу</button>
+            </div>
+          </div>
+          <table class="qt">
+            <thead>
+              <tr>
+                <th>#</th><th>Відео</th><th>Тривалість</th><th>Стан</th><th></th>
+              </tr>
+            </thead>
+            <tbody id="d-queue-tbody"></tbody>
+          </table>
+          <div class="qt-footer">
+            <span>Всього: <b style="color:var(--t0)" id="d-foot-total">0</b></span>
+            <span style="color:var(--t2)">Оновлення з бекенду</span>
+            <button type="button" class="panel-btn" style="margin-left:auto" onclick="openDrawer('add')">+ Додати</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- RIGHT: PLATFORMS + QUICK -->
+      <div class="d-right">
+
+        <!-- Виходи стріму — акордеон (ключі, URL, увімкнення) -->
+        <div class="panel">
+          <div class="panel-hd">
+            <span class="panel-title">Виходи стріму</span>
+          </div>
+          <div class="acc-list">
+
+            <div class="acc-item">
+              <button type="button" class="acc-head" aria-expanded="false">
+                <div class="plt-logo" style="background:#FEE2E2">▶️</div>
+                <div class="plt-info">
+                  <div class="plt-name">YouTube Live</div>
+                  <div class="plt-viewers mono" id="d-yt-view">RTMP</div>
+                  <div class="plt-stat" id="d-yt-sub">—</div>
+                </div>
+                <div class="sdot ok" id="d-yt-dot"></div>
+                <span class="acc-chev">▼</span>
+              </button>
+              <div class="acc-body">
+                <div class="acc-row">
+                  <label for="d-yt-tgl">Увімкнути вихід</label>
+                  <button type="button" class="toggle on" id="d-yt-tgl" data-setting-key="youtube_enabled" aria-label="YouTube"></button>
+                </div>
+                <div class="acc-field">
+                  <label for="acc-yt-key">Стрім-ключ</label>
+                  <input type="password" id="acc-yt-key" autocomplete="off" placeholder="Новий ключ (лише якщо змінюєте)">
+                </div>
+                <p class="acc-hint">Зберігається у <span class="mono">youtube_stream_key.txt</span>. З API ключ не повертається.</p>
+                <div class="acc-actions">
+                  <button type="button" class="acc-save" onclick="accSaveYt()">Зберегти ключ</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="acc-item">
+              <button type="button" class="acc-head" aria-expanded="false">
+                <div class="plt-logo" style="background:#F0E6FF">💬</div>
+                <div class="plt-info">
+                  <div class="plt-name">Telegram Live</div>
+                  <div class="plt-viewers mono" id="d-tg-view">RTMP</div>
+                  <div class="plt-stat" id="d-tg-sub">—</div>
+                </div>
+                <div class="sdot off" id="d-tg-dot"></div>
+                <span class="acc-chev">▼</span>
+              </button>
+              <div class="acc-body">
+                <div class="acc-row">
+                  <label for="d-tg-tgl">Увімкнути вихід</label>
+                  <button type="button" class="toggle" id="d-tg-tgl" data-setting-key="telegram_enabled" aria-label="Telegram"></button>
+                </div>
+                <div class="acc-field">
+                  <label for="acc-tg-url">RTMP-сервер Telegram</label>
+                  <input type="url" id="acc-tg-url" placeholder="rtmp://…/s/">
+                </div>
+                <div class="acc-field">
+                  <label for="acc-tg-key">Стрім-ключ</label>
+                  <input type="password" id="acc-tg-key" autocomplete="off" placeholder="Новий ключ (лише якщо змінюєте)">
+                </div>
+                <div class="acc-actions">
+                  <button type="button" class="acc-save secondary" onclick="accSaveTgUrl()">Зберегти URL</button>
+                  <button type="button" class="acc-save" onclick="accSaveTgKey()">Зберегти ключ</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="acc-item">
+              <button type="button" class="acc-head" aria-expanded="false">
+                <div class="plt-logo" style="background:#F3F4F6">𝕏</div>
+                <div class="plt-info">
+                  <div class="plt-name">X (Twitter) Live</div>
+                  <div class="plt-viewers mono" id="d-x-view">RTMP</div>
+                  <div class="plt-stat" id="d-x-sub">—</div>
+                </div>
+                <div class="sdot err" id="d-x-dot"></div>
+                <span class="acc-chev">▼</span>
+              </button>
+              <div class="acc-body">
+                <div class="acc-row">
+                  <label for="d-x-tgl">Увімкнути вихід</label>
+                  <button type="button" class="toggle" id="d-x-tgl" data-setting-key="x_enabled" aria-label="X"></button>
+                </div>
+                <div class="acc-field">
+                  <label for="acc-x-url">Ingest base (без ключа)</label>
+                  <input type="url" id="acc-x-url" placeholder="rtmps://fr.pscp.tv:443/x">
+                </div>
+                <div class="acc-field">
+                  <label for="acc-x-key">Стрім-ключ</label>
+                  <input type="password" id="acc-x-key" autocomplete="off" placeholder="Новий ключ (лише якщо змінюєте)">
+                </div>
+                <p class="acc-hint">Порожній ingest → значення з конфігурації сервера.</p>
+                <div class="acc-actions">
+                  <button type="button" class="acc-save secondary" onclick="accSaveXUrl()">Зберегти URL</button>
+                  <button type="button" class="acc-save" onclick="accSaveXKey()">Зберегти ключ</button>
+                </div>
+              </div>
+            </div>
+
+            <div class="acc-item">
+              <button type="button" class="acc-head" aria-expanded="false">
+                <div class="plt-logo" style="background:var(--s2)">◇</div>
+                <div class="plt-info">
+                  <div class="plt-name">Контент і оформлення</div>
+                  <div class="plt-viewers mono" style="font-size:11px">канал, filler, логотип</div>
+                  <div class="plt-stat" id="d-extra-sub">Налаштування з API</div>
+                </div>
+                <span class="acc-chev">▼</span>
+              </button>
+              <div class="acc-body">
+                <div class="acc-field">
+                  <label for="acc-our-channel">URL нашого YouTube-каналу</label>
+                  <input type="url" id="acc-our-channel" placeholder="для кешу «наших відео»">
+                </div>
+                <div class="acc-field">
+                  <label for="acc-filler-url">Filler (відео-заглушка)</label>
+                  <input type="url" id="acc-filler-url" placeholder="порожньо = вбудований filler">
+                </div>
+                <div class="acc-field">
+                  <label for="acc-logo-op">Прозорість логотипу (0…1)</label>
+                  <input type="number" id="acc-logo-op" min="0" max="1" step="0.05">
+                </div>
+                <div class="acc-field">
+                  <label for="acc-logo-zoom">Масштаб логотипу</label>
+                  <input type="number" id="acc-logo-zoom" min="0.05" max="8" step="0.05">
+                </div>
+                <div class="acc-field">
+                  <label for="acc-logo-file">PNG / JPEG логотипу</label>
+                  <input type="file" id="acc-logo-file" accept="image/png,image/jpeg,image/webp">
+                </div>
+                <div class="acc-actions">
+                  <button type="button" class="acc-save secondary" onclick="accUploadLogo()">Лише логотип</button>
+                  <button type="button" class="acc-save" onclick="accSaveExtra()">Зберегти поля</button>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- QUICK ACTIONS -->
+        <div class="panel">
+          <div class="panel-hd"><span class="panel-title">Швидкі дії</span></div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;padding:12px">
+            <button type="button" onclick="rescanOurVideos()" style="padding:9px 8px;border:1px solid var(--br);background:var(--s0);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif;transition:all .12s" onmouseover="this.style.background='var(--s1)'" onmouseout="this.style.background='var(--s0)'">🔄 Оновити «наші відео»</button>
+            <button type="button" onclick="if(confirm('Зупинити ефір?'))apiStop()" style="padding:9px 8px;border:1px solid var(--err);background:var(--err-l);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;color:var(--err);font-family:'Geist',sans-serif">⏹ Зупинити ефір</button>
+          </div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+</div><!-- /d-main -->
+</div><!-- /d-page -->
+
+
+<!-- ════════════════════════════════════════
+     MOBILE
+═════════════════════════════════════════ -->
+<div class="mob">
+
+  <!-- TOP BAR -->
+  <header class="mob-top">
+    <div class="mob-logo">📻 RadioStream</div>
+    <div class="mob-top-r">
+      <div class="live-tag" id="m-live-tag"><div class="live-dot"></div><span id="m-timer">…</span></div>
+    </div>
+  </header>
+
+  <!-- BODY -->
+  <div class="mob-body">
+
+    <!-- NOW PLAYING -->
+    <div class="m-np">
+      <div class="m-np-top">
+        <div class="m-np-art">🎙</div>
+        <div class="m-np-info">
+          <div class="m-np-badge">Зараз в ефірі</div>
+          <div class="m-np-title" id="m-np-title">—</div>
+          <div class="m-np-details">
+            <div class="m-np-ch" id="m-np-ch"></div>
+            <div class="m-url-timer" id="m-url"></div>
+          </div>
+          <div class="m-np-dur mono" id="m-np-dur">Тривалість: —</div>
+        </div>
+      </div>
+      <div class="m-np-btns">
+        <button type="button" class="m-btn m-btn-skip" id="m-btn-start" style="display:none;grid-column:span 2;background:rgba(27,104,64,.25);color:#bfe8d4;border:1px solid rgba(27,104,64,.4)" onclick="apiStart()">▶ Почати ефір</button>
+        <button type="button" class="m-btn m-btn-skip" id="m-btn-skip" onclick="apiSkip()">⏭ Пропустити</button>
+        <button type="button" class="m-btn m-btn-stop" id="m-btn-stop" onclick="if(confirm('Зупинити?'))apiStop()">⏹ Зупинити</button>
+      </div>
+    </div>
+
+    <div class="m-section">
+      <div class="m-sec-hd">
+        <span class="m-sec-title">Виходи стріму</span>
+      </div>
+      <div class="acc-list">
+        <div class="acc-item">
+          <button type="button" class="acc-head" aria-expanded="false">
+            <div class="m-plt-logo" style="background:#FEE2E2">▶️</div>
+            <div class="m-plt-info">
+              <div class="m-plt-name">YouTube Live</div>
+              <div class="m-plt-viewers mono" id="m-yt-view">RTMP</div>
+              <div class="m-plt-stat" id="m-yt-sub">—</div>
+            </div>
+            <div class="sdot ok" id="m-yt-dot"></div>
+            <span class="acc-chev">▼</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-row"><label for="m-yt-tgl">Увімкнути</label><button type="button" class="toggle on" id="m-yt-tgl" data-setting-key="youtube_enabled"></button></div>
+            <div class="acc-field"><label for="m-acc-yt-key">Стрім-ключ</label><input type="password" id="m-acc-yt-key" autocomplete="off" placeholder="Новий ключ"></div>
+            <button type="button" class="acc-save" onclick="accSaveYt()">Зберегти ключ</button>
+          </div>
+        </div>
+        <div class="acc-item">
+          <button type="button" class="acc-head" aria-expanded="false">
+            <div class="m-plt-logo" style="background:#F0E6FF">💬</div>
+            <div class="m-plt-info">
+              <div class="m-plt-name">Telegram Live</div>
+              <div class="m-plt-viewers mono" id="m-tg-view">RTMP</div>
+              <div class="m-plt-stat" id="m-tg-sub">—</div>
+            </div>
+            <div class="sdot off" id="m-tg-dot"></div>
+            <span class="acc-chev">▼</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-row"><label for="m-tg-tgl">Увімкнути</label><button type="button" class="toggle" id="m-tg-tgl" data-setting-key="telegram_enabled"></button></div>
+            <div class="acc-field"><label for="m-acc-tg-url">RTMP-сервер</label><input type="url" id="m-acc-tg-url" placeholder="rtmp://…"></div>
+            <div class="acc-field"><label for="m-acc-tg-key">Стрім-ключ</label><input type="password" id="m-acc-tg-key" autocomplete="off" placeholder="Новий ключ"></div>
+            <div class="acc-actions"><button type="button" class="acc-save secondary" onclick="accSaveTgUrl()">URL</button><button type="button" class="acc-save" onclick="accSaveTgKey()">Ключ</button></div>
+          </div>
+        </div>
+        <div class="acc-item">
+          <button type="button" class="acc-head" aria-expanded="false">
+            <div class="m-plt-logo" style="background:#F3F4F6">𝕏</div>
+            <div class="m-plt-info">
+              <div class="m-plt-name">X Live</div>
+              <div class="m-plt-viewers mono" id="m-x-view">RTMP</div>
+              <div class="m-plt-stat" id="m-x-sub">—</div>
+            </div>
+            <div class="sdot err" id="m-x-dot"></div>
+            <span class="acc-chev">▼</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-row"><label for="m-x-tgl">Увімкнути</label><button type="button" class="toggle" id="m-x-tgl" data-setting-key="x_enabled"></button></div>
+            <div class="acc-field"><label for="m-acc-x-url">Ingest base</label><input type="url" id="m-acc-x-url" placeholder="rtmps://…"></div>
+            <div class="acc-field"><label for="m-acc-x-key">Стрім-ключ</label><input type="password" id="m-acc-x-key" autocomplete="off" placeholder="Новий ключ"></div>
+            <div class="acc-actions"><button type="button" class="acc-save secondary" onclick="accSaveXUrl()">URL</button><button type="button" class="acc-save" onclick="accSaveXKey()">Ключ</button></div>
+          </div>
+        </div>
+        <div class="acc-item">
+          <button type="button" class="acc-head" aria-expanded="false">
+            <div class="m-plt-logo" style="background:var(--s2)">◇</div>
+            <div class="m-plt-info">
+              <div class="m-plt-name">Контент і оформлення</div>
+              <div class="m-plt-viewers mono" style="font-size:11px">канал, filler, лого</div>
+              <div class="m-plt-stat" id="m-extra-sub">API</div>
+            </div>
+            <span class="acc-chev">▼</span>
+          </button>
+          <div class="acc-body">
+            <div class="acc-field"><label for="m-acc-our-channel">Наш канал (URL)</label><input type="url" id="m-acc-our-channel"></div>
+            <div class="acc-field"><label for="m-acc-filler-url">Filler URL</label><input type="url" id="m-acc-filler-url"></div>
+            <div class="acc-field"><label for="m-acc-logo-op">Прозорість 0…1</label><input type="number" id="m-acc-logo-op" min="0" max="1" step="0.05"></div>
+            <div class="acc-field"><label for="m-acc-logo-zoom">Масштаб</label><input type="number" id="m-acc-logo-zoom" min="0.05" max="8" step="0.05"></div>
+            <div class="acc-field"><label for="m-acc-logo-file">Логотип</label><input type="file" id="m-acc-logo-file" accept="image/png,image/jpeg,image/webp"></div>
+            <div class="acc-actions"><button type="button" class="acc-save secondary" onclick="accUploadLogo()">Лого</button><button type="button" class="acc-save" onclick="accSaveExtra()">Зберегти</button></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUICK ACTIONS -->
+    <div class="m-section">
+      <div class="m-sec-hd"><span class="m-sec-title">Швидкі дії</span></div>
+      <div class="m-quick" style="grid-template-columns:1fr 1fr">
+        <div class="m-qa" onclick="rescanOurVideos()">
+          <div class="m-qa-ico">🔄</div>
+          <div class="m-qa-label">Оновити «наші відео»</div>
+          <div class="m-qa-sub">POST /api/our-videos/rescan</div>
+        </div>
+        <div class="m-qa" onclick="openDrawer('add')">
+          <div class="m-qa-ico">➕</div>
+          <div class="m-qa-label">Додати відео</div>
+          <div class="m-qa-sub">У чергу за URL</div>
+        </div>
+        <div class="m-qa danger" onclick="if(confirm('Зупинити ефір?'))apiStop()" style="grid-column:span 2">
+          <div class="m-qa-ico">⏹</div>
+          <div class="m-qa-label">Зупинити ефір</div>
+          <div class="m-qa-sub">POST /api/broadcast/stop</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- QUEUE -->
+    <div class="m-section">
+      <div class="m-sec-hd">
+        <span class="m-sec-title">Черга відео</span>
+        <button class="m-sec-btn" onclick="openDrawer('add')">+ Додати</button>
+      </div>
+
+      <div id="m-queue-list"></div>
+
+      <div style="padding:8px 14px;background:var(--s1);font-size:11px;color:var(--t2);display:flex;gap:10px;border-top:1px solid var(--br)">
+        <span>Всього: <b style="color:var(--t0)" id="m-foot-total">0</b></span>
+        <button type="button" style="margin-left:auto;font-size:11px;color:var(--blue);background:none;border:none;font-weight:600;cursor:pointer" onclick="openDrawer('add')">+ Додати</button>
+      </div>
+    </div>
+
+  </div><!-- /mob-body -->
+
+  <!-- BOTTOM NAV -->
+  <nav class="m-nav">
+    <a class="m-nav-item on" href="#" onclick="return false">
+      <div class="m-nav-ico">◈</div>
+      <div class="m-nav-lbl">Головна</div>
+    </a>
+    <a class="m-nav-item" href="#" onclick="openDrawer('stream');return false">
+      <div class="m-nav-ico">◉</div>
+      <div class="m-nav-lbl">Керування</div>
+    </a>
+  </nav>
+</div><!-- /mob -->
+
+
+<!-- DRAWER OVERLAY -->
+<div class="m-overlay" id="overlay" onclick="closeDrawer()"></div>
+<div class="m-drawer" id="drawer">
+  <div class="m-drawer-handle"></div>
+  <div class="m-drawer-title" id="d-title"></div>
+  <div id="d-content"></div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+/* ── TOAST ───────────────────────────── */
+let tt;
+function toast(msg){
+  const el=document.getElementById('toast');
+  clearTimeout(tt);
+  el.textContent=msg;
+  el.classList.add('show');
+  tt=setTimeout(()=>el.classList.remove('show'),2400);
+}
+
+/* ── DRAWER ──────────────────────────── */
+const drawers={
+  stream:{
+    title:'Керування ефіром',
+    html:`<div style="padding:14px">
+      <p style="font-size:13px;color:var(--t1);line-height:1.45;margin-bottom:14px">Детальні метрики кодера в API не виводяться. Доступні дії з бекенду:</p>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px">
+        <button type="button" onclick="apiSkip();closeDrawer()" style="padding:12px;background:var(--s1);border:1px solid var(--br);border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif">⏭ Пропустити</button>
+        <button type="button" onclick="if(confirm('Зупинити?')){apiStop();closeDrawer()}" style="padding:12px;background:var(--err-l);border:1px solid var(--err);border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;color:var(--err);font-family:'Geist',sans-serif">⏹ Зупинити</button>
+      </div>
+    </div>`
+  },
+  add:{
+    title:'Додати відео',
+    html:`<div style="padding:14px">
+      <div style="margin-bottom:12px">
+        <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--t1)">Посилання на YouTube</div>
+        <input id="add-url-inp" placeholder="https://youtube.com/watch?v=..." style="width:100%;padding:10px 12px;border:1px solid var(--br);border-radius:var(--rs);font-size:14px;font-family:'Geist',sans-serif;outline:none;background:var(--s0);color:var(--t0)" onfocus="this.style.borderColor='var(--blue)'" onblur="this.style.borderColor='var(--br)'">
+      </div>
+      <div style="margin-bottom:14px">
+        <div style="font-size:12px;font-weight:500;margin-bottom:6px;color:var(--t1)">Пріоритет</div>
+        <div style="display:flex;gap:7px" id="pri-wrap">
+          <button onclick="setPri(this)" data-v="high" style="flex:1;padding:8px;border:1px solid var(--br);background:var(--s0);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif">Високий</button>
+          <button onclick="setPri(this)" data-v="med" style="flex:1;padding:8px;border:2px solid var(--blue);background:var(--blue-l);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;color:var(--blue);font-family:'Geist',sans-serif">Звичайний</button>
+          <button onclick="setPri(this)" data-v="low" style="flex:1;padding:8px;border:1px solid var(--br);background:var(--s0);border-radius:var(--rs);font-size:12px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif">Низький</button>
+        </div>
+      </div>
+      <button type="button" onclick="MH_addToQueue()" style="width:100%;padding:12px;background:var(--t0);color:#fff;border:none;border-radius:var(--rs);font-size:14px;font-weight:600;cursor:pointer;font-family:'Geist',sans-serif">Додати до черги</button>
+    </div>`
+  },
+  queue:{
+    title:'Черга відео',
+    html:`
+      <div style="padding:12px 14px;border-bottom:1px solid var(--br);display:flex;gap:8px">
+        <button type="button" onclick="openDrawer('add')" style="flex:1;padding:10px;background:var(--t0);color:#fff;border:none;border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;font-family:'Geist',sans-serif">+ Додати відео</button>
+        <button type="button" onclick="if(confirm('Очистити чергу?')){fetch('/api/queue',{method:'PUT',headers:{'Content-Type':'application/json'},body:JSON.stringify({queue:[]})}).then(r=>r.json()).then(()=>toast('Черга очищена')).catch(e=>toast(e.message))}" style="flex:1;padding:10px;background:var(--err-l);border:1px solid var(--err);border-radius:var(--rs);font-size:13px;font-weight:500;cursor:pointer;color:var(--err);font-family:'Geist',sans-serif">Очистити чергу</button>
+      </div>
+      <p style="padding:14px;font-size:12px;color:var(--t2);line-height:1.45">Повний список черги на головній сторінці; тут лише швидкі дії.</p>
+    `
+  }
+};
+
+function openDrawer(type){
+  const d=drawers[type]||drawers.stream;
+  document.getElementById('d-title').textContent=d.title;
+  document.getElementById('d-content').innerHTML=d.html;
+  const ov=document.getElementById('overlay');
+  const dr=document.getElementById('drawer');
+  ov.style.display='block';
+  requestAnimationFrame(()=>{
+    ov.classList.add('show','vis');
+    dr.classList.add('open');
+  });
+}
+
+function closeDrawer(){
+  const ov=document.getElementById('overlay');
+  const dr=document.getElementById('drawer');
+  ov.classList.remove('vis');
+  dr.classList.remove('open');
+  setTimeout(()=>{ov.classList.remove('show');ov.style.display='none'},260);
+}
+
+function setPri(btn){
+  window._mh_pri = (btn && btn.dataset && btn.dataset.v) ? btn.dataset.v : 'med';
+  document.querySelectorAll('#pri-wrap button').forEach(b=>{
+    b.style.border='1px solid var(--br)';
+    b.style.background='var(--s0)';
+    b.style.color='';
+  });
+  btn.style.border='2px solid var(--blue)';
+  btn.style.background='var(--blue-l)';
+  btn.style.color='var(--blue)';
+}
+
+/* swipe down to close */
+let sy=0;
+document.getElementById('drawer').addEventListener('touchstart',e=>{sy=e.touches[0].clientY},{passive:true});
+document.getElementById('drawer').addEventListener('touchmove',e=>{
+  if(e.touches[0].clientY-sy>60)closeDrawer();
+},{passive:true});
+window._mh_pri = 'med';
+</script>
+<script defer src="/static/admin-ui.js"></script>
+</body>
+</html>

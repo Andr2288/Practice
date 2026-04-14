@@ -133,13 +133,13 @@ class PlaybackService:
         settings = load_settings()
         urls: list[str] = []
         yt = get_youtube_rtmp_url()
-        if yt:
+        if settings.youtube_enabled and yt:
             urls.append(yt)
         tg = self._get_telegram_rtmp_url(settings)
-        if tg:
+        if settings.telegram_enabled and tg:
             urls.append(tg)
         x = get_x_rtmp_url(settings.x_stream_server_url)
-        if x:
+        if settings.x_enabled and x:
             urls.append(x)
         return urls
 
