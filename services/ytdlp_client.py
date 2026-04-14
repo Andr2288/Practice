@@ -1,6 +1,6 @@
 import json
 import subprocess
-from typing import List, Optional
+from typing import List
 
 from config import YT_DLP_EXTRA_ARGS, YT_DLP_PROGRESSIVE_FORMAT
 from services.models import VideoItem
@@ -113,29 +113,6 @@ class YtDlpClient:
             "--quiet",
             video_page_url,
         ]
-
-    def resolve_title(self, video_page_url: str) -> Optional[str]:
-        cmd = [
-            *self._argv_head(),
-            "--extractor-retries",
-            "0",
-            "--print",
-            "%(title)s",
-            video_page_url,
-        ]
-
-        result = subprocess.run(
-            cmd,
-            capture_output=True,
-            text=True,
-            check=False,
-        )
-
-        if result.returncode != 0:
-            return None
-
-        title = result.stdout.strip()
-        return title or None
 
     def fetch_video_by_url(self, page_url: str) -> VideoItem:
         """Метадані одного відео за посиланням (watch, youtu.be, shorts)."""

@@ -29,8 +29,6 @@ OUR_VIDEOS_CACHE_FILE = STATE_DIR / "our_videos_cache.json"
 
 # Скільки останніх записів знімати з кожного каналу (кандидати на додавання)
 LAST_VIDEOS_LIMIT = 5
-# Скільки нових відео максимум додати в чергу за один скан (усі канали разом)
-SCAN_MAX_NEW_VIDEOS_PER_RUN = 5
 
 # «Наші відео»: з каналу беремо N останніх (оновлення перед кожною вставкою, як у сторонніх каналів).
 OUR_VIDEOS_LIMIT = 5
@@ -53,7 +51,7 @@ PLAYBACK_ERROR_DELAY_SECONDS = 3
 # Після N успішно відтворених відео (не filler) повністю перезапускати трансляцію:
 # broadcasting off → kill процесів → пауза → broadcasting on (нове RTMP-з’єднання).
 # 0 = вимкнено.
-STREAM_REBOOT_EVERY_N_VIDEOS = 3
+STREAM_REBOOT_EVERY_N_VIDEOS = 0
 STREAM_REBOOT_DELAY_SECONDS = 2
 
 # Filler
