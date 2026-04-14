@@ -625,7 +625,7 @@
         return;
       }
       const total = batch.shuffled_channels.length;
-      const startIdx = batch.pending_our_video ? batch.current_index + 1 : batch.current_index;
+      const startIdx = batch.current_index;
       if (startIdx >= total) {
         box.innerHTML = '<div class="sub">Цикл завершується — наступний почнеться з новим перемішуванням.</div>';
         return;

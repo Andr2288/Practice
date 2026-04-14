@@ -11,7 +11,6 @@ from typing import List, Optional
 class BatchState:
     shuffled_channels: List[str] = field(default_factory=list)
     current_index: int = 0
-    pending_our_video: bool = False
     channel_fail_count: int = 0
     our_video_index: int = 0
     videos_since_stream_reboot: int = 0
@@ -32,7 +31,6 @@ class BatchState:
         return BatchState(
             shuffled_channels=data.get("shuffled_channels", []),
             current_index=int(data.get("current_index", 0)),
-            pending_our_video=bool(data.get("pending_our_video", False)),
             channel_fail_count=int(data.get("channel_fail_count", 0)),
             our_video_index=int(data.get("our_video_index", 0)),
             videos_since_stream_reboot=int(data.get("videos_since_stream_reboot", 0)),
@@ -81,7 +79,6 @@ def start_new_cycle(
     return BatchState(
         shuffled_channels=shuffled,
         current_index=0,
-        pending_our_video=False,
         our_video_index=prev_our_video_index,
         videos_since_stream_reboot=videos_since_stream_reboot,
     )

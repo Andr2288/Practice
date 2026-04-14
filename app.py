@@ -137,24 +137,6 @@ def playback_cycle_step(
         save_batch_state(BATCH_STATE_FILE, state)
         log_block(f"NEW CYCLE: {len(state.shuffled_channels)} channels (shuffled)")
 
-    # Recovery: our video was pending before crash
-    if state.pending_our_video:
-        log_info("Recovery: playing pending 'our video'")
-        our_videos = fetch_our_videos_for_playback(
-            ytdlp=ytdlp,
-            channel_url=settings.our_channel_url,
-            limit=OUR_VIDEOS_LIMIT,
-            cache_file=OUR_VIDEOS_CACHE_FILE,
-        )
-        outcome = _play_our_video_sequential(playback, our_videos, state)
-        state.pending_our_video = False
-        state.current_index += 1
-        if outcome == "completed":
-            _register_completed_video_and_maybe_reboot_stream(state)
-        else:
-            save_batch_state(BATCH_STATE_FILE, state)
-        return
-
     channel_url = state.current_channel()
     if channel_url is None:
         return
@@ -223,16 +205,12 @@ def playback_cycle_step(
             cache_file=OUR_VIDEOS_CACHE_FILE,
         )
         if our_videos:
-            state.pending_our_video = True
-            save_batch_state(BATCH_STATE_FILE, state)
-
             our_outcome = "skipped"
             try:
                 our_outcome = _play_our_video_sequential(playback, our_videos, state)
             except Exception as e:
                 log_warn(f"Our video playback failed, continuing: {e}")
 
-            state.pending_our_video = False
             if our_outcome == "completed":
                 _register_completed_video_and_maybe_reboot_stream(state)
 
