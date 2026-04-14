@@ -48,12 +48,6 @@ TEST_PLAYBACK_SECONDS = 10
 
 PLAYBACK_ERROR_DELAY_SECONDS = 3
 
-# Після N успішно відтворених відео (не filler) повністю перезапускати трансляцію:
-# broadcasting off → kill процесів → пауза → broadcasting on (нове RTMP-з’єднання).
-# 0 = вимкнено.
-STREAM_REBOOT_EVERY_N_VIDEOS = 0
-STREAM_REBOOT_DELAY_SECONDS = 2
-
 # Filler
 FILLER_TITLE = "FILLER_LOOP"
 FILLER_VIDEO_ID = "__FILLER__"

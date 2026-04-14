@@ -296,7 +296,6 @@
       <div id="nowPlaying" style="display:none;"></div>
 
       <div id="batchProgress" style="margin-top:0.85rem;text-align:left;"></div>
-      <div id="streamReboot" style="margin-top:0.65rem;"></div>
     </section>
 
     <!-- ═══ STREAM DESTINATIONS ═══ -->
@@ -528,29 +527,6 @@
         <div class="progress-bar-bg"><div class="progress-bar-fill" style="width:${pct}%"></div></div>`;
     }
 
-    function renderStreamReboot(data) {
-      const box = $("streamReboot");
-      const sr = data.stream_reboot || {};
-      const n = Number(sr.every_n_videos);
-      if (!Number.isFinite(n) || n <= 0) {
-        box.innerHTML = '<div class="sub" style="text-align:center;">Автоперезапуск RTMP вимкнено (STREAM_REBOOT_EVERY_N_VIDEOS = 0).</div>';
-        return;
-      }
-      const raw = Math.max(0, Number(sr.videos_since_reboot) || 0);
-      const pct = Math.min(100, Math.round((raw / n) * 100));
-      const delay = Number(sr.delay_seconds);
-      const delayHint = Number.isFinite(delay) && delay > 0
-        ? ` · пауза перед стартом: ${delay} с`
-        : "";
-      box.innerHTML = `
-        <div class="now-playing" style="margin-top:0;border-color:var(--border);background:#121a26;">
-          <div class="label">Лічильник перезапуску RTMP</div>
-          <div class="title" style="font-size:1rem;">${raw} / ${n} відео після останнього ребуту</div>
-          <div class="meta">Повний стоп і старт трансляції після кожних ${n} відео${delayHint}</div>
-          <div class="progress-bar-bg" style="margin-top:0.5rem;"><div class="progress-bar-fill" style="width:${pct}%"></div></div>
-        </div>`;
-    }
-
     function renderDestinations(data) {
       const s = data.settings || {};
       const ytOk = data.youtube_stream_key_configured;
@@ -648,7 +624,6 @@
         const data = await api("/api/status");
         renderBroadcast(data);
         renderBatchProgress(data);
-        renderStreamReboot(data);
         renderDestinations(data);
         renderChannels(data);
         renderOurChannel(data);

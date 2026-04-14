@@ -15,8 +15,6 @@ from config import (
     PLAYBACK_ERROR_DELAY_SECONDS,
     SEEN_VIDEOS_FILE,
     STATE_DIR,
-    STREAM_REBOOT_DELAY_SECONDS,
-    STREAM_REBOOT_EVERY_N_VIDEOS,
     YT_DLP_BIN,
 )
 from services.batch_service import (
@@ -31,8 +29,6 @@ from services.our_videos_cache import fetch_our_videos_for_playback, warm_cache_
 from services.playback_service import PlaybackService, is_filler_item
 from services.runtime_control import (
     is_broadcasting,
-    start_broadcasting,
-    stop_broadcasting,
 )
 from services.settings_service import load_settings
 from services.storage import (
@@ -63,23 +59,6 @@ def _play_and_record(
         save_seen_videos(SEEN_VIDEOS_FILE, seen)
 
     return outcome
-
-
-def _register_completed_video_and_maybe_reboot_stream(state: BatchState) -> None:
-    """Після завершеного відео збільшити лічильник; за потреби перезапустити RTMP-трансляцію."""
-    n = STREAM_REBOOT_EVERY_N_VIDEOS
-    if n <= 0:
-        return
-    state.videos_since_stream_reboot += 1
-    save_batch_state(BATCH_STATE_FILE, state)
-    if state.videos_since_stream_reboot < n:
-        return
-    log_block(f"STREAM REBOOT після {n} відео (повне перезапускання RTMP)")
-    stop_broadcasting()
-    time.sleep(STREAM_REBOOT_DELAY_SECONDS)
-    start_broadcasting()
-    state.videos_since_stream_reboot = 0
-    save_batch_state(BATCH_STATE_FILE, state)
 
 
 def _play_our_video_sequential(
@@ -128,11 +107,9 @@ def playback_cycle_step(
 
     if state is None or state.is_cycle_complete():
         prev_our_idx = state.our_video_index if state else 0
-        prev_reboot_count = state.videos_since_stream_reboot if state else 0
         state = start_new_cycle(
             channels,
             prev_our_video_index=prev_our_idx,
-            videos_since_stream_reboot=prev_reboot_count,
         )
         save_batch_state(BATCH_STATE_FILE, state)
         log_block(f"NEW CYCLE: {len(state.shuffled_channels)} channels (shuffled)")
@@ -193,9 +170,6 @@ def playback_cycle_step(
     state.channel_fail_count = 0
     state.current_index += 1
 
-    if outcome == "completed" and not is_filler_item(video):
-        _register_completed_video_and_maybe_reboot_stream(state)
-
     # 2) Every N channels — play our video (sequentially); fresh fetch like foreign channels
     if state.current_index % OUR_VIDEO_EVERY_N_CHANNELS == 0:
         our_videos = fetch_our_videos_for_playback(
@@ -210,9 +184,6 @@ def playback_cycle_step(
                 our_outcome = _play_our_video_sequential(playback, our_videos, state)
             except Exception as e:
                 log_warn(f"Our video playback failed, continuing: {e}")
-
-            if our_outcome == "completed":
-                _register_completed_video_and_maybe_reboot_stream(state)
 
     save_batch_state(BATCH_STATE_FILE, state)
 
