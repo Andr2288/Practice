@@ -65,6 +65,16 @@ def save_queue(path: Path, queue: List[VideoItem]) -> None:
         json.dump([item.to_dict() for item in queue], f, ensure_ascii=False, indent=2)
 
 
+def pop_queue_head(path: Path) -> Optional[VideoItem]:
+    """Перший елемент з черги або None, якщо порожньо."""
+    q = load_queue(path)
+    if not q:
+        return None
+    head = q.pop(0)
+    save_queue(path, q)
+    return head
+
+
 def load_current_item(path: Path) -> Optional[VideoItem]:
     data = _read_json(path)
 

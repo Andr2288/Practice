@@ -1,6 +1,9 @@
 (function () {
   "use strict";
 
+  /** Максимум рядків у таблиці черги (поточне в ефірі + наступні разом). */
+  const MAX_VISIBLE_QUEUE_ROWS = 4;
+
   let last = null;
   let pollTimer = null;
   /** Різниця серверного часу й браузера (сек), щоб відлік ефіру збігався з бекендом */
@@ -176,26 +179,139 @@
     return { tag: "q-pend", label: "Очікує", dot: false };
   }
 
+  /** Чи відео з черги збігається з поточним (рідко — бо движок бере з черги pop). */
+  function currentIsInQueue(q, cur) {
+    if (!cur || !cur.video_id || !q || !q.length) return false;
+    return q.some(function (it) {
+      return it && it.video_id === cur.video_id;
+    });
+  }
+
+  function queueBulletTd(live) {
+    var cls = "qt-bullet" + (live ? " qt-bullet--live" : "");
+    return (
+      '<td class="qt-bullet-cell">' +
+      '<span class="' +
+      cls +
+      '" aria-hidden="true"></span></td>'
+    );
+  }
+
+  function renderDesktopNowPlayingRow(cur) {
+    const dot = '<span class="q-live-dot"></span>';
+    return (
+      '<tr class="qt-row-current qt-row-now-playing">' +
+      queueBulletTd(true) +
+      "<td><div class=\"q-title\">" +
+      esc(cur.title) +
+      '</div><div class="q-channel">' +
+      esc(cur.channel_title || cur.channel_url || "") +
+      "</div>" +
+      '<div class="q-now-hint">Зараз відтворюється (у списку черги — наступні)</div></td>' +
+      '<td><span class="mono" style="font-size:12px;color:var(--t1)">' +
+      fmtDur(cur.duration) +
+      "</span></td>" +
+      '<td><span class="q-tag q-live">' +
+      dot +
+      "В ефірі</span></td>" +
+      '<td><button type="button" class="np-btn np-btn-skip" style="font-size:11px;padding:5px 10px" data-mh="skip">⏭</button></td>' +
+      "</tr>"
+    );
+  }
+
+  function renderMobileNowPlayingRow(cur) {
+    return (
+      '<div class="m-qi m-qi-current m-qi-now-playing">' +
+      '<span class="m-qi-bullet m-qi-bullet--live" aria-hidden="true"></span>' +
+      '<div class="m-qi-thumb" style="background:#E3F1EB">🔴</div>' +
+      '<div class="m-qi-info"><div class="m-qi-title">' +
+      esc(cur.title) +
+      '</div><div class="m-qi-meta"><span class="m-qi-synth">Зараз у ефірі</span>·<span class="mono">' +
+      fmtDur(cur.duration) +
+      '</span></div><div class="m-qi-now-hint">Далі — ролики з черги</div></div>' +
+      '<div class="m-qi-r"><span class="m-qi-tag q-live">' +
+      "В ефірі</span>" +
+      '<button type="button" class="ib" data-mh="skip">⏭</button>' +
+      "</div></div>"
+    );
+  }
+
+  /** До [max] роликів для головної: перші N, або вікно навколо «в ефірі», якщо воно нижче N-го місця. */
+  function queueSliceForHome(q, cur, max) {
+    if (!q.length || q.length <= max) return { rows: q, startIdx: 0 };
+    let playPos = -1;
+    if (cur && cur.video_id) {
+      playPos = q.findIndex(function (item) {
+        return item && item.video_id === cur.video_id;
+      });
+    }
+    if (playPos < 0 || playPos < max) {
+      return { rows: q.slice(0, max), startIdx: 0 };
+    }
+    const start = Math.max(0, playPos - max + 1);
+    return { rows: q.slice(start, start + max), startIdx: start };
+  }
+
   function renderQueue(st) {
     const q = st.queue || [];
     const cur = st.current;
+    /** Ефір з циклу каналів — у files черги 0 позицій, але є поточне відео в статусі */
+    const syntheticFromCycle =
+      !q.length && cur && cur.video_id;
+
+    /** Поточне вже знято з queue.json (pop) — окремий виділений рядок зверху під час ефіру */
+    const showNowPlayingRow =
+      !!(cur && cur.video_id) &&
+      !!st.broadcasting &&
+      !syntheticFromCycle &&
+      !currentIsInQueue(q, cur);
+
+    let qShow;
+    let baseIdx = 0;
+    if (syntheticFromCycle) {
+      qShow = [cur];
+      baseIdx = 0;
+    } else {
+      const maxFromQueue = showNowPlayingRow
+        ? Math.max(0, MAX_VISIBLE_QUEUE_ROWS - 1)
+        : MAX_VISIBLE_QUEUE_ROWS;
+      const slice = queueSliceForHome(q, cur, maxFromQueue);
+      qShow = slice.rows;
+      baseIdx = slice.startIdx;
+    }
+
     const tb = $("d-queue-tbody");
     if (tb) {
-      tb.innerHTML = q
-        .map((item, idx) => {
+      if (!q.length && !syntheticFromCycle && !showNowPlayingRow) {
+        tb.innerHTML =
+          '<tr><td colspan="5" class="qt-empty">' +
+          "Черга порожня. Додайте відео кнопкою «Додати» — або ефір іде лише з циклу каналів " +
+          "(тоді тут з’явиться поточний ролик, коли він відомий бекенду)." +
+          "</td></tr>";
+      } else {
+        const headNow = showNowPlayingRow ? renderDesktopNowPlayingRow(cur) : "";
+        const bodyRows = qShow
+          .map(function (item, i) {
+          const idx = baseIdx + i;
           const stt = queueRowState(item, cur);
           const dot = stt.dot
             ? '<span class="q-live-dot"></span>'
             : "";
+          const trCls = stt.dot ? " class=\"qt-row-current\"" : "";
+          const synthLine = syntheticFromCycle
+            ? '<div class="q-synth-hint">Автоцикл каналів (у ручній черзі 0 позицій)</div>'
+            : "";
+          const bulletLive = !!(stt.dot || syntheticFromCycle);
           return (
-            "<tr>" +
-            '<td style="color:var(--t2);font-family:Geist Mono,monospace;font-size:11px">' +
-            (idx + 1) +
-            "</td>" +
+            "<tr" +
+            trCls +
+            ">" +
+            queueBulletTd(bulletLive) +
             "<td><div class=\"q-title\">" +
             esc(item.title) +
             '</div><div class="q-channel">' +
             esc(item.channel_title || item.channel_url || "") +
+            synthLine +
             "</div></td>" +
             '<td><span class="mono" style="font-size:12px;color:var(--t1)">' +
             fmtDur(item.duration) +
@@ -216,29 +332,47 @@
             "</tr>"
           );
         })
-        .join("");
+          .join("");
+        tb.innerHTML = headNow + bodyRows;
+      }
     }
 
     const mob = $("m-queue-list");
     if (mob) {
-      mob.innerHTML = q
-        .map((item, idx) => {
+      if (!q.length && !syntheticFromCycle && !showNowPlayingRow) {
+        mob.innerHTML =
+          '<div class="m-queue-empty">' +
+          "Черга порожня. Додайте відео («Додати») або дивіться ефір з циклу каналів — " +
+          "поточний ролик з’явиться тут, коли бекенд його передасть." +
+          "</div>";
+      } else {
+        const headMob = showNowPlayingRow ? renderMobileNowPlayingRow(cur) : "";
+        const bodyMob = qShow
+          .map(function (item, i) {
+          const idx = baseIdx + i;
           const stt = queueRowState(item, cur);
           const dot = stt.dot ? "🔴" : "📰";
           const bg = stt.dot ? "#E3F1EB" : "var(--blue-l)";
+          const rowCls = stt.dot ? " m-qi-current" : "";
+          const bullLive = !!(stt.dot || syntheticFromCycle);
+          const metaLeft = syntheticFromCycle
+            ? '<span class="m-qi-synth">Автоцикл · черга 0</span>'
+            : "<span>" + esc(item.channel_title || "") + "</span>";
           return (
-            '<div class="m-qi">' +
-            '<span class="m-qi-num">' +
-            (idx + 1) +
-            '</span><div class="m-qi-thumb" style="background:' +
+            '<div class="m-qi' +
+            rowCls +
+            '">' +
+            '<span class="m-qi-bullet' +
+            (bullLive ? " m-qi-bullet--live" : "") +
+            '" aria-hidden="true"></span><div class="m-qi-thumb" style="background:' +
             bg +
             '">' +
             dot +
             '</div><div class="m-qi-info"><div class="m-qi-title">' +
             esc(item.title) +
-            '</div><div class="m-qi-meta"><span>' +
-            esc(item.channel_title || "") +
-            '</span>·<span class="mono">' +
+            '</div><div class="m-qi-meta">' +
+            metaLeft +
+            '·<span class="mono">' +
             fmtDur(item.duration) +
             "</span></div></div>" +
             '<div class="m-qi-r"><span class="m-qi-tag ' +
@@ -254,12 +388,12 @@
             "</div></div>"
           );
         })
-        .join("");
+          .join("");
+        mob.innerHTML = headMob + bodyMob;
+      }
     }
 
     const n = q.length;
-    setText("d-foot-total", String(n));
-    setText("m-foot-total", String(n));
     const bq = $("d-nav-queue-badge");
     if (bq) bq.textContent = n > 99 ? "99+" : String(n);
     const mb = $("m-nav-queue-badge");

@@ -1,51 +1,12 @@
 [
   {
-    "video_id": "Tv9TId1PwUw",
-    "title": "Гармаші великим калібром знищують противника на одному з найгарячіших відтинків фронту",
-    "url": "https://www.youtube.com/watch?v=Tv9TId1PwUw",
-    "channel_url": "https://www.youtube.com/@22ombr/videos",
-    "channel_title": "22 окрема механізована бригада - Videos",
-    "duration": 35
-  },
-  {
-    "video_id": "xVpfzMPBwWU",
-    "title": "Командир 120 бригади ТрО полковник Дмитро Бізонич відвідав батальйони на Лиманському напрямку",
-    "url": "https://www.youtube.com/watch?v=xVpfzMPBwWU",
-    "channel_url": "https://www.youtube.com/@120obrtro/videos",
-    "channel_title": "120 окрема бригада територіальної оборони Україна - Videos",
-    "duration": 435
-  },
-  {
-    "video_id": "scAEES0T07M",
-    "title": "Під вогнем: як бійці 127 ОВМБр вивозять людей із Куп’янська",
-    "url": "https://www.youtube.com/watch?v=scAEES0T07M",
-    "channel_url": "https://www.youtube.com/@Kh127br/videos",
-    "channel_title": "127 окрема важка механізована Харківська бригада - Videos",
-    "duration": 921
-  },
-  {
-    "video_id": "tawAcBS3SWA",
-    "title": "4388 днів війни. 1462 днів повномасштабного вторгнення",
-    "url": "https://www.youtube.com/watch?v=tawAcBS3SWA",
-    "channel_url": "https://www.youtube.com/@117%D0%BE%D0%B1%D1%80%D0%A2%D1%80%D0%9E/videos",
-    "channel_title": "117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos",
-    "duration": 550
-  },
-  {
-    "video_id": "scAEES0T07M",
-    "title": "Під вогнем: як бійці 127 ОВМБр вивозять людей із Куп’янська",
-    "url": "https://www.youtube.com/watch?v=scAEES0T07M",
-    "channel_url": "https://www.youtube.com/@Kh127br/videos",
-    "channel_title": "127 окрема важка механізована Харківська бригада - Videos",
-    "duration": 921
-  },
-  {
     "video_id": "XRuVF_piaGc",
     "title": "АЖ ЗЕМЛЯ ДРИЖИТЬ! Реальна робота розрахунку КС-19 в укритті на нулі 💥☠️ KS-19 Combat Work",
     "url": "https://www.youtube.com/watch?v=XRuVF_piaGc",
     "channel_url": "https://www.youtube.com/@luhanskdpsu/videos",
     "channel_title": "ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos",
-    "duration": 218
+    "duration": 218,
+    "source": null
   },
   {
     "video_id": "gDMzuAm47G4",
@@ -53,7 +14,8 @@
     "url": "https://www.youtube.com/watch?v=gDMzuAm47G4",
     "channel_url": "https://www.youtube.com/@40OAbrigade/videos",
     "channel_title": "40 Окрема артилерійська бригада - Videos",
-    "duration": 121
+    "duration": 121,
+    "source": null
   },
   {
     "video_id": "ImZewhjCC3A",
@@ -61,7 +23,8 @@
     "url": "https://www.youtube.com/watch?v=ImZewhjCC3A",
     "channel_url": "https://www.youtube.com/@77OAEMB/videos",
     "channel_title": "77 окрема аеромобільна бригада - Videos",
-    "duration": 192
+    "duration": 192,
+    "source": null
   },
   {
     "video_id": "tGlj_RQqxQQ",
@@ -69,7 +32,8 @@
     "url": "https://www.youtube.com/watch?v=tGlj_RQqxQQ",
     "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
     "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 202
+    "duration": 202,
+    "source": null
   },
   {
     "video_id": "ULcDbh81R3s",
@@ -77,7 +41,8 @@
     "url": "https://www.youtube.com/watch?v=ULcDbh81R3s",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 88
+    "duration": 88,
+    "source": null
   },
   {
     "video_id": "6MI84GQALOo",
@@ -85,7 +50,8 @@
     "url": "https://www.youtube.com/watch?v=6MI84GQALOo",
     "channel_url": "https://www.youtube.com/@60omIbr/videos",
     "channel_title": "60th Separate Mechanized Brigade - Videos",
-    "duration": 58
+    "duration": 58,
+    "source": null
   },
   {
     "video_id": "VKZsybzWZpI",
@@ -93,7 +59,8 @@
     "url": "https://www.youtube.com/watch?v=VKZsybzWZpI",
     "channel_url": "https://www.youtube.com/@3heavy/videos",
     "channel_title": "3 окрема важка механізована Залізна бригада - Videos",
-    "duration": 69
+    "duration": 69,
+    "source": null
   },
   {
     "video_id": "s911pL7U2ao",
@@ -101,7 +68,8 @@
     "url": "https://www.youtube.com/watch?v=s911pL7U2ao",
     "channel_url": "https://www.youtube.com/@26OABr/videos",
     "channel_title": "26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos",
-    "duration": 732
+    "duration": 732,
+    "source": null
   },
   {
     "video_id": "NPYbiZuVxc4",
@@ -109,7 +77,8 @@
     "url": "https://www.youtube.com/watch?v=NPYbiZuVxc4",
     "channel_url": "https://www.youtube.com/@72blackbrigade/videos",
     "channel_title": "72 ОМБр ім. Чорних Запорожців - Videos",
-    "duration": 584
+    "duration": 584,
+    "source": null
   },
   {
     "video_id": "JjCBip4BhOc",
@@ -117,7 +86,8 @@
     "url": "https://www.youtube.com/watch?v=JjCBip4BhOc",
     "channel_url": "https://www.youtube.com/@10armycorp/videos",
     "channel_title": "10-й армійський корпус - Videos",
-    "duration": 802
+    "duration": 802,
+    "source": null
   },
   {
     "video_id": "hX2PboeTMVw",
@@ -125,7 +95,8 @@
     "url": "https://www.youtube.com/watch?v=hX2PboeTMVw",
     "channel_url": "https://www.youtube.com/@22ombr/videos",
     "channel_title": "22 окрема механізована бригада - Videos",
-    "duration": 65
+    "duration": 65,
+    "source": null
   },
   {
     "video_id": "OIbH55b8_UU",
@@ -133,7 +104,8 @@
     "url": "https://www.youtube.com/watch?v=OIbH55b8_UU",
     "channel_url": "https://www.youtube.com/channel/UCl_4qPLlyz_BZn7wSTHz5sg/videos",
     "channel_title": "K-2 - Videos",
-    "duration": 265
+    "duration": 265,
+    "source": null
   },
   {
     "video_id": "AH5WAMK5imk",
@@ -141,7 +113,8 @@
     "url": "https://www.youtube.com/watch?v=AH5WAMK5imk",
     "channel_url": "https://www.youtube.com/@117%D0%BE%D0%B1%D1%80%D0%A2%D1%80%D0%9E/videos",
     "channel_title": "117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos",
-    "duration": 51
+    "duration": 51,
+    "source": null
   },
   {
     "video_id": "bMqTN6Qm0V8",
@@ -149,7 +122,8 @@
     "url": "https://www.youtube.com/watch?v=bMqTN6Qm0V8",
     "channel_url": "https://www.youtube.com/@33ombr/videos",
     "channel_title": "33 ОМБР - Videos",
-    "duration": 1158
+    "duration": 1158,
+    "source": null
   },
   {
     "video_id": "dARZpdrD3JI",
@@ -157,7 +131,8 @@
     "url": "https://www.youtube.com/watch?v=dARZpdrD3JI",
     "channel_url": "https://www.youtube.com/@ACHILLES_UA/videos",
     "channel_title": "429 окрема бригада БпС «АХІЛЛЕС» - Videos",
-    "duration": 56
+    "duration": 56,
+    "source": null
   },
   {
     "video_id": "e8-Kybx9cR0",
@@ -165,7 +140,8 @@
     "url": "https://www.youtube.com/watch?v=e8-Kybx9cR0",
     "channel_url": "https://www.youtube.com/@Taifunarmy/videos",
     "channel_title": "Тайфун - Videos",
-    "duration": 49
+    "duration": 49,
+    "source": null
   },
   {
     "video_id": "wRIPZFd0H_A",
@@ -173,7 +149,8 @@
     "url": "https://www.youtube.com/watch?v=wRIPZFd0H_A",
     "channel_url": "https://www.youtube.com/@58brigade/videos",
     "channel_title": "58 окрема мотопіхотна бригада - Videos",
-    "duration": 399
+    "duration": 399,
+    "source": null
   },
   {
     "video_id": "1SooaNt_F3s",
@@ -181,7 +158,8 @@
     "url": "https://www.youtube.com/watch?v=1SooaNt_F3s",
     "channel_url": "www.youtube.com/@115окремабригадаТрО/videos",
     "channel_title": "115 окрема бригада ТрО - Videos",
-    "duration": 44
+    "duration": 44,
+    "source": null
   },
   {
     "video_id": "xVpfzMPBwWU",
@@ -189,7 +167,8 @@
     "url": "https://www.youtube.com/watch?v=xVpfzMPBwWU",
     "channel_url": "https://www.youtube.com/@120obrtro/videos",
     "channel_title": "120 окрема бригада територіальної оборони Україна - Videos",
-    "duration": 435
+    "duration": 435,
+    "source": null
   },
   {
     "video_id": "u6ci1sL4x-U",
@@ -197,7 +176,8 @@
     "url": "https://www.youtube.com/watch?v=u6ci1sL4x-U",
     "channel_url": "https://www.youtube.com/@57_OMPBr/videos",
     "channel_title": "57th Separate Motorised Infantry Brigade  - Videos",
-    "duration": 1066
+    "duration": 1066,
+    "source": null
   },
   {
     "video_id": "g9-b62FK4x4",
@@ -205,7 +185,8 @@
     "url": "https://www.youtube.com/watch?v=g9-b62FK4x4",
     "channel_url": "https://www.youtube.com/@khartiiabrygada/videos",
     "channel_title": "ХАРТІЯ - Videos",
-    "duration": 91
+    "duration": 91,
+    "source": null
   },
   {
     "video_id": "SQkClxBZSUw",
@@ -213,7 +194,8 @@
     "url": "https://www.youtube.com/watch?v=SQkClxBZSUw",
     "channel_url": "https://www.youtube.com/@14ombr/videos",
     "channel_title": "14 ОМБр імені князя Романа Великого - Videos",
-    "duration": 290
+    "duration": 290,
+    "source": null
   },
   {
     "video_id": "-sc3R5VGxKI",
@@ -221,7 +203,8 @@
     "url": "https://www.youtube.com/watch?v=-sc3R5VGxKI",
     "channel_url": "https://www.youtube.com/@ab3army/videos",
     "channel_title": "Третій армійський корпус - Videos",
-    "duration": 1106
+    "duration": 1106,
+    "source": null
   },
   {
     "video_id": "IaSRakNI7uA",
@@ -229,7 +212,8 @@
     "url": "https://www.youtube.com/watch?v=IaSRakNI7uA",
     "channel_url": "https://www.youtube.com/@115ombr/videos",
     "channel_title": "115 окрема механізована бригада ЗСУ - Videos",
-    "duration": 308
+    "duration": 308,
+    "source": null
   },
   {
     "video_id": "Tl-t8BpSj6Y",
@@ -237,7 +221,8 @@
     "url": "https://www.youtube.com/watch?v=Tl-t8BpSj6Y",
     "channel_url": "https://www.youtube.com/@26OABr/videos",
     "channel_title": "26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos",
-    "duration": 149
+    "duration": 149,
+    "source": null
   },
   {
     "video_id": "7_cjGh2Vqyc",
@@ -245,7 +230,8 @@
     "url": "https://www.youtube.com/watch?v=7_cjGh2Vqyc",
     "channel_url": "https://www.youtube.com/@luhanskdpsu/videos",
     "channel_title": "ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos",
-    "duration": 267
+    "duration": 267,
+    "source": null
   },
   {
     "video_id": "oO4EIQAuY9k",
@@ -253,7 +239,8 @@
     "url": "https://www.youtube.com/watch?v=oO4EIQAuY9k",
     "channel_url": "https://www.youtube.com/@72blackbrigade/videos",
     "channel_title": "72 ОМБр ім. Чорних Запорожців - Videos",
-    "duration": 131
+    "duration": 131,
+    "source": null
   },
   {
     "video_id": "_P8Pngy5ZaA",
@@ -261,7 +248,8 @@
     "url": "https://www.youtube.com/watch?v=_P8Pngy5ZaA",
     "channel_url": "https://www.youtube.com/@58brigade/videos",
     "channel_title": "58 окрема мотопіхотна бригада - Videos",
-    "duration": 267
+    "duration": 267,
+    "source": null
   },
   {
     "video_id": "zbgIU2w5gMU",
@@ -269,7 +257,8 @@
     "url": "https://www.youtube.com/watch?v=zbgIU2w5gMU",
     "channel_url": "https://www.youtube.com/@40OAbrigade/videos",
     "channel_title": "40 Окрема артилерійська бригада - Videos",
-    "duration": 110
+    "duration": 110,
+    "source": null
   },
   {
     "video_id": "koUPP6A3chk",
@@ -277,7 +266,8 @@
     "url": "https://www.youtube.com/watch?v=koUPP6A3chk",
     "channel_url": "https://www.youtube.com/@120obrtro/videos",
     "channel_title": "120 окрема бригада територіальної оборони Україна - Videos",
-    "duration": 413
+    "duration": 413,
+    "source": null
   },
   {
     "video_id": "gXLPNxrYGo8",
@@ -285,7 +275,8 @@
     "url": "https://www.youtube.com/watch?v=gXLPNxrYGo8",
     "channel_url": "https://www.youtube.com/@Taifunarmy/videos",
     "channel_title": "Тайфун - Videos",
-    "duration": 56
+    "duration": 56,
+    "source": null
   },
   {
     "video_id": "hjLfrImYxO8",
@@ -293,7 +284,8 @@
     "url": "https://www.youtube.com/watch?v=hjLfrImYxO8",
     "channel_url": "https://www.youtube.com/@3heavy/videos",
     "channel_title": "3 окрема важка механізована Залізна бригада - Videos",
-    "duration": 69
+    "duration": 69,
+    "source": null
   },
   {
     "video_id": "ImZewhjCC3A",
@@ -301,7 +293,8 @@
     "url": "https://www.youtube.com/watch?v=ImZewhjCC3A",
     "channel_url": "https://www.youtube.com/@77OAEMB/videos",
     "channel_title": "77 окрема аеромобільна бригада - Videos",
-    "duration": 192
+    "duration": 192,
+    "source": null
   },
   {
     "video_id": "NYYVeXiavIY",
@@ -309,7 +302,8 @@
     "url": "https://www.youtube.com/watch?v=NYYVeXiavIY",
     "channel_url": "https://www.youtube.com/@Kh127br/videos",
     "channel_title": "127 окрема важка механізована Харківська бригада - Videos",
-    "duration": 204
+    "duration": 204,
+    "source": null
   },
   {
     "video_id": "bMqTN6Qm0V8",
@@ -317,7 +311,8 @@
     "url": "https://www.youtube.com/watch?v=bMqTN6Qm0V8",
     "channel_url": "https://www.youtube.com/@33ombr/videos",
     "channel_title": "33 ОМБР - Videos",
-    "duration": 1158
+    "duration": 1158,
+    "source": null
   },
   {
     "video_id": "eGYLR1voPyw",
@@ -325,7 +320,8 @@
     "url": "https://www.youtube.com/watch?v=eGYLR1voPyw",
     "channel_url": "https://www.youtube.com/channel/UCl_4qPLlyz_BZn7wSTHz5sg/videos",
     "channel_title": "K-2 - Videos",
-    "duration": 1618
+    "duration": 1618,
+    "source": null
   },
   {
     "video_id": "m-Ur86wHstk",
@@ -333,7 +329,8 @@
     "url": "https://www.youtube.com/watch?v=m-Ur86wHstk",
     "channel_url": "https://www.youtube.com/@ab3army/videos",
     "channel_title": "Третій армійський корпус - Videos",
-    "duration": 812
+    "duration": 812,
+    "source": null
   },
   {
     "video_id": "EVAsrD2Wcq8",
@@ -341,7 +338,8 @@
     "url": "https://www.youtube.com/watch?v=EVAsrD2Wcq8",
     "channel_url": "https://www.youtube.com/@60omIbr/videos",
     "channel_title": "60th Separate Mechanized Brigade - Videos",
-    "duration": 247
+    "duration": 247,
+    "source": null
   },
   {
     "video_id": "pUt3GOAVRvg",
@@ -349,7 +347,8 @@
     "url": "https://www.youtube.com/watch?v=pUt3GOAVRvg",
     "channel_url": "https://www.youtube.com/@10armycorp/videos",
     "channel_title": "10-й армійський корпус - Videos",
-    "duration": 1000
+    "duration": 1000,
+    "source": null
   },
   {
     "video_id": "CgzWukuXp3c",
@@ -357,7 +356,8 @@
     "url": "https://www.youtube.com/watch?v=CgzWukuXp3c",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 95
+    "duration": 95,
+    "source": null
   },
   {
     "video_id": "o_efjcqYIZ8",
@@ -365,7 +365,8 @@
     "url": "https://www.youtube.com/watch?v=o_efjcqYIZ8",
     "channel_url": "www.youtube.com/@115окремабригадаТрО/videos",
     "channel_title": "115 окрема бригада ТрО - Videos",
-    "duration": 48
+    "duration": 48,
+    "source": null
   },
   {
     "video_id": "lgIaaa4R6p8",
@@ -373,7 +374,8 @@
     "url": "https://www.youtube.com/watch?v=lgIaaa4R6p8",
     "channel_url": "https://www.youtube.com/@ACHILLES_UA/videos",
     "channel_title": "429 окрема бригада БпС «АХІЛЛЕС» - Videos",
-    "duration": 41
+    "duration": 41,
+    "source": null
   },
   {
     "video_id": "tawAcBS3SWA",
@@ -381,7 +383,8 @@
     "url": "https://www.youtube.com/watch?v=tawAcBS3SWA",
     "channel_url": "https://www.youtube.com/@117%D0%BE%D0%B1%D1%80%D0%A2%D1%80%D0%9E/videos",
     "channel_title": "117 ОКРЕМА БРИГАДА ТЕРИТОРІАЛЬНОЇ ОБОРОНИ - Videos",
-    "duration": 550
+    "duration": 550,
+    "source": null
   },
   {
     "video_id": "r5yzlthwXGo",
@@ -389,7 +392,8 @@
     "url": "https://www.youtube.com/watch?v=r5yzlthwXGo",
     "channel_url": "https://www.youtube.com/@57_OMPBr/videos",
     "channel_title": "57th Separate Motorised Infantry Brigade  - Videos",
-    "duration": 483
+    "duration": 483,
+    "source": null
   },
   {
     "video_id": "SQkClxBZSUw",
@@ -397,7 +401,8 @@
     "url": "https://www.youtube.com/watch?v=SQkClxBZSUw",
     "channel_url": "https://www.youtube.com/@14ombr/videos",
     "channel_title": "14 ОМБр імені князя Романа Великого - Videos",
-    "duration": 290
+    "duration": 290,
+    "source": null
   },
   {
     "video_id": "drbXP_xwxoM",
@@ -405,7 +410,8 @@
     "url": "https://www.youtube.com/watch?v=drbXP_xwxoM",
     "channel_url": "https://www.youtube.com/@khartiiabrygada/videos",
     "channel_title": "ХАРТІЯ - Videos",
-    "duration": 585
+    "duration": 585,
+    "source": null
   },
   {
     "video_id": "a4Dcq64WLoE",
@@ -413,7 +419,8 @@
     "url": "https://www.youtube.com/watch?v=a4Dcq64WLoE",
     "channel_url": "https://www.youtube.com/@115ombr/videos",
     "channel_title": "115 окрема механізована бригада ЗСУ - Videos",
-    "duration": 598
+    "duration": 598,
+    "source": null
   },
   {
     "video_id": "lgF913V28ac",
@@ -421,7 +428,8 @@
     "url": "https://www.youtube.com/watch?v=lgF913V28ac",
     "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
     "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 70
+    "duration": 70,
+    "source": null
   },
   {
     "video_id": "7LJx0mhgfH4",
@@ -429,7 +437,8 @@
     "url": "https://www.youtube.com/watch?v=7LJx0mhgfH4",
     "channel_url": "https://www.youtube.com/channel/UCl_4qPLlyz_BZn7wSTHz5sg/videos",
     "channel_title": "K-2 - Videos",
-    "duration": 346
+    "duration": 346,
+    "source": null
   },
   {
     "video_id": "FZi_s36gqQc",
@@ -437,7 +446,8 @@
     "url": "https://www.youtube.com/watch?v=FZi_s36gqQc",
     "channel_url": "www.youtube.com/@115окремабригадаТрО/videos",
     "channel_title": "115 окрема бригада ТрО - Videos",
-    "duration": 60
+    "duration": 60,
+    "source": null
   },
   {
     "video_id": "8xj8FiQaA7I",
@@ -445,7 +455,8 @@
     "url": "https://www.youtube.com/watch?v=8xj8FiQaA7I",
     "channel_url": "https://www.youtube.com/@ab3army/videos",
     "channel_title": "Третій армійський корпус - Videos",
-    "duration": 735
+    "duration": 735,
+    "source": null
   },
   {
     "video_id": "zvERHH21xqQ",
@@ -453,7 +464,8 @@
     "url": "https://www.youtube.com/watch?v=zvERHH21xqQ",
     "channel_url": "https://www.youtube.com/@120obrtro/videos",
     "channel_title": "120 окрема бригада територіальної оборони Україна - Videos",
-    "duration": 893
+    "duration": 893,
+    "source": null
   },
   {
     "video_id": "hX2PboeTMVw",
@@ -461,7 +473,8 @@
     "url": "https://www.youtube.com/watch?v=hX2PboeTMVw",
     "channel_url": "https://www.youtube.com/@22ombr/videos",
     "channel_title": "22 окрема механізована бригада - Videos",
-    "duration": 65
+    "duration": 65,
+    "source": null
   },
   {
     "video_id": "-fSNhTQWHII",
@@ -469,7 +482,8 @@
     "url": "https://www.youtube.com/watch?v=-fSNhTQWHII",
     "channel_url": "https://www.youtube.com/@Taifunarmy/videos",
     "channel_title": "Тайфун - Videos",
-    "duration": 59
+    "duration": 59,
+    "source": null
   },
   {
     "video_id": "w1vnlItDq38",
@@ -477,7 +491,8 @@
     "url": "https://www.youtube.com/watch?v=w1vnlItDq38",
     "channel_url": "https://www.youtube.com/@115ombr/videos",
     "channel_title": "115 окрема механізована бригада ЗСУ - Videos",
-    "duration": 273
+    "duration": 273,
+    "source": null
   },
   {
     "video_id": "7_cjGh2Vqyc",
@@ -485,7 +500,8 @@
     "url": "https://www.youtube.com/watch?v=7_cjGh2Vqyc",
     "channel_url": "https://www.youtube.com/@luhanskdpsu/videos",
     "channel_title": "ЛУГАНСЬКИЙ ПРИКОРДОННИЙ ЗАГІН - Videos",
-    "duration": 267
+    "duration": 267,
+    "source": null
   },
   {
     "video_id": "NPYbiZuVxc4",
@@ -493,7 +509,8 @@
     "url": "https://www.youtube.com/watch?v=NPYbiZuVxc4",
     "channel_url": "https://www.youtube.com/@72blackbrigade/videos",
     "channel_title": "72 ОМБр ім. Чорних Запорожців - Videos",
-    "duration": 584
+    "duration": 584,
+    "source": null
   },
   {
     "video_id": "VKZsybzWZpI",
@@ -501,7 +518,8 @@
     "url": "https://www.youtube.com/watch?v=VKZsybzWZpI",
     "channel_url": "https://www.youtube.com/@3heavy/videos",
     "channel_title": "3 окрема важка механізована Залізна бригада - Videos",
-    "duration": 69
+    "duration": 69,
+    "source": null
   },
   {
     "video_id": "fvLMfCdgU_U",
@@ -509,7 +527,8 @@
     "url": "https://www.youtube.com/watch?v=fvLMfCdgU_U",
     "channel_url": "https://www.youtube.com/@77OAEMB/videos",
     "channel_title": "77 окрема аеромобільна бригада - Videos",
-    "duration": 84
+    "duration": 84,
+    "source": null
   },
   {
     "video_id": "drbXP_xwxoM",
@@ -517,7 +536,8 @@
     "url": "https://www.youtube.com/watch?v=drbXP_xwxoM",
     "channel_url": "https://www.youtube.com/@khartiiabrygada/videos",
     "channel_title": "ХАРТІЯ - Videos",
-    "duration": 585
+    "duration": 585,
+    "source": null
   },
   {
     "video_id": "gDMzuAm47G4",
@@ -525,7 +545,8 @@
     "url": "https://www.youtube.com/watch?v=gDMzuAm47G4",
     "channel_url": "https://www.youtube.com/@40OAbrigade/videos",
     "channel_title": "40 Окрема артилерійська бригада - Videos",
-    "duration": 121
+    "duration": 121,
+    "source": null
   },
   {
     "video_id": "xB77mOIkWYk",
@@ -533,7 +554,8 @@
     "url": "https://www.youtube.com/watch?v=xB77mOIkWYk",
     "channel_url": "https://www.youtube.com/@ACHILLES_UA/videos",
     "channel_title": "429 окрема бригада БпС «АХІЛЛЕС» - Videos",
-    "duration": 400
+    "duration": 400,
+    "source": null
   },
   {
     "video_id": "Tl-t8BpSj6Y",
@@ -541,7 +563,8 @@
     "url": "https://www.youtube.com/watch?v=Tl-t8BpSj6Y",
     "channel_url": "https://www.youtube.com/@26OABr/videos",
     "channel_title": "26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos",
-    "duration": 149
+    "duration": 149,
+    "source": null
   },
   {
     "video_id": "2lzQNCqIEys",
@@ -549,7 +572,8 @@
     "url": "https://www.youtube.com/watch?v=2lzQNCqIEys",
     "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
     "channel_title": "Бригада \"Гарт\" - Videos",
-    "duration": 216
+    "duration": 216,
+    "source": null
   },
   {
     "video_id": "B7doX8_qUKo",
@@ -557,7 +581,8 @@
     "url": "https://www.youtube.com/watch?v=B7doX8_qUKo",
     "channel_url": "https://www.youtube.com/@57_OMPBr/videos",
     "channel_title": "57th Separate Motorised Infantry Brigade  - Videos",
-    "duration": 443
+    "duration": 443,
+    "source": null
   },
   {
     "video_id": "lAtJrOavN4A",
@@ -565,7 +590,8 @@
     "url": "https://www.youtube.com/watch?v=lAtJrOavN4A",
     "channel_url": "https://www.youtube.com/@58brigade/videos",
     "channel_title": "58 окрема мотопіхотна бригада - Videos",
-    "duration": 99
+    "duration": 99,
+    "source": null
   },
   {
     "video_id": "SQkClxBZSUw",
@@ -573,7 +599,8 @@
     "url": "https://www.youtube.com/watch?v=SQkClxBZSUw",
     "channel_url": "https://www.youtube.com/@14ombr/videos",
     "channel_title": "14 ОМБр імені князя Романа Великого - Videos",
-    "duration": 290
+    "duration": 290,
+    "source": null
   },
   {
     "video_id": "bMqTN6Qm0V8",
@@ -581,7 +608,8 @@
     "url": "https://www.youtube.com/watch?v=bMqTN6Qm0V8",
     "channel_url": "https://www.youtube.com/@33ombr/videos",
     "channel_title": "33 ОМБР - Videos",
-    "duration": 1158
+    "duration": 1158,
+    "source": null
   },
   {
     "video_id": "dhuzIzj-I1o",
@@ -589,7 +617,8 @@
     "url": "https://www.youtube.com/watch?v=dhuzIzj-I1o",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 75
+    "duration": 75,
+    "source": null
   },
   {
     "video_id": "7TvZBlKJkGc",
@@ -597,7 +626,8 @@
     "url": "https://www.youtube.com/watch?v=7TvZBlKJkGc",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 95
+    "duration": 95,
+    "source": null
   },
   {
     "video_id": "ZGXn1aBKf0I",
@@ -605,7 +635,8 @@
     "url": "https://www.youtube.com/watch?v=ZGXn1aBKf0I",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 165
+    "duration": 165,
+    "source": null
   },
   {
     "video_id": "7TvZBlKJkGc",
@@ -613,7 +644,8 @@
     "url": "https://www.youtube.com/watch?v=7TvZBlKJkGc",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 95
+    "duration": 95,
+    "source": null
   },
   {
     "video_id": "Rx7WkANiQeg",
@@ -621,7 +653,8 @@
     "url": "https://www.youtube.com/watch?v=Rx7WkANiQeg",
     "channel_url": "https://www.youtube.com/@Kh127br/videos",
     "channel_title": "127 окрема важка механізована Харківська бригада - Videos",
-    "duration": 33
+    "duration": 33,
+    "source": null
   },
   {
     "video_id": "qHzAkQ-u8Js",
@@ -629,7 +662,8 @@
     "url": "https://www.youtube.com/watch?v=qHzAkQ-u8Js",
     "channel_url": "https://www.youtube.com/@10armycorp/videos",
     "channel_title": "10-й армійський корпус - Videos",
-    "duration": 687
+    "duration": 687,
+    "source": null
   },
   {
     "video_id": "dhuzIzj-I1o",
@@ -637,6 +671,52 @@
     "url": "https://www.youtube.com/watch?v=dhuzIzj-I1o",
     "channel_url": "https://www.youtube.com/@113obr_tro/videos",
     "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
-    "duration": 75
+    "duration": 75,
+    "source": null
+  },
+  {
+    "video_id": "ULcDbh81R3s",
+    "title": "ТрОшка (33 серія).",
+    "url": "https://www.youtube.com/watch?v=ULcDbh81R3s",
+    "channel_url": "https://www.youtube.com/@113obr_tro/videos",
+    "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
+    "duration": 88,
+    "source": null
+  },
+  {
+    "video_id": "Md4DyKln4EQ",
+    "title": "Пілоти проти пілотів: нові пріоритети загону безпілотних систем «Тайфун»",
+    "url": "https://www.youtube.com/watch?v=Md4DyKln4EQ",
+    "channel_url": "https://www.youtube.com/@Taifunarmy/videos",
+    "channel_title": "Тайфун - Videos",
+    "duration": 53,
+    "source": null
+  },
+  {
+    "video_id": "Tv9TId1PwUw",
+    "title": "Гармаші великим калібром знищують противника на одному з найгарячіших відтинків фронту",
+    "url": "https://www.youtube.com/watch?v=Tv9TId1PwUw",
+    "channel_url": "https://www.youtube.com/@22ombr/videos",
+    "channel_title": "22 окрема механізована бригада - Videos",
+    "duration": 35,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "hX2PboeTMVw",
+    "title": "Артилеристи 22-ї омбр знищують окупантів вогнем усіх калібрів",
+    "url": "https://www.youtube.com/watch?v=hX2PboeTMVw",
+    "channel_url": "https://www.youtube.com/@22ombr/videos",
+    "channel_title": "22 окрема механізована бригада - Videos",
+    "duration": 65,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "Tv9TId1PwUw",
+    "title": "Гармаші великим калібром знищують противника на одному з найгарячіших відтинків фронту",
+    "url": "https://www.youtube.com/watch?v=Tv9TId1PwUw",
+    "channel_url": "https://www.youtube.com/@22ombr/videos",
+    "channel_title": "22 окрема механізована бригада - Videos",
+    "duration": 35,
+    "source": "auto_foreign"
   }
 ]

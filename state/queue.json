@@ -1,1 +1,29 @@
-[]
+[
+  {
+    "video_id": "Tv9TId1PwUw",
+    "title": "Гармаші великим калібром знищують противника на одному з найгарячіших відтинків фронту",
+    "url": "https://www.youtube.com/watch?v=Tv9TId1PwUw",
+    "channel_url": "https://www.youtube.com/@22ombr/videos",
+    "channel_title": "22 окрема механізована бригада - Videos",
+    "duration": 35,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "bdXB8USvNH0",
+    "title": "Ігроманія і як з нею боротися: поради військового психолога",
+    "url": "https://www.youtube.com/watch?v=bdXB8USvNH0",
+    "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
+    "channel_title": "Бригада \"Гарт\" - Videos",
+    "duration": 108,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "XxNFDyqjIV0",
+    "title": "Що тримає людину, коли навколо війна: Борис Кутовий про віру, силу і внутрішній фронт",
+    "url": "https://www.youtube.com/watch?v=XxNFDyqjIV0",
+    "channel_url": "https://www.youtube.com/@JointForcesTaskForce/videos",
+    "channel_title": "Угруповання об'єднаних сил - Videos",
+    "duration": 31,
+    "source": "auto_our"
+  }
+]

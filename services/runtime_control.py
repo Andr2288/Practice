@@ -4,7 +4,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
-from config import STATE_DIR
+from config import CURRENT_ITEM_FILE, QUEUE_FILE, STATE_DIR
+from services.storage import save_current_item, save_queue
 
 CONTROL_FILE = STATE_DIR / "playback_control.json"
 PIDS_FILE = STATE_DIR / "playback_pids.json"
@@ -113,6 +114,8 @@ def stop_broadcasting() -> None:
     cur["broadcast_segment_started_at"] = None
     _atomic_write_json(CONTROL_FILE, cur)
     kill_playback_processes()
+    save_queue(QUEUE_FILE, [])
+    save_current_item(CURRENT_ITEM_FILE, None)
 
 
 def write_pids(*pids: int) -> None:

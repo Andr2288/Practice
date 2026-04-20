@@ -10,6 +10,8 @@ class VideoItem:
     channel_url: str
     channel_title: Optional[str] = None
     duration: Optional[int] = None
+    # auto_foreign / auto_our — планувальник; manual або None — додано з адмінки
+    source: Optional[str] = None
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -23,4 +25,5 @@ class VideoItem:
             channel_url=str(data["channel_url"]),
             channel_title=data.get("channel_title"),
             duration=data.get("duration"),
+            source=data.get("source"),
         )

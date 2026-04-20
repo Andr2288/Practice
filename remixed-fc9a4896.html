@@ -319,10 +319,27 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
   color:var(--t2);text-align:left;padding:9px 16px;
   background:var(--s1);border-bottom:1px solid var(--br);
 }
+.qt-th-gutter{width:36px;padding-left:14px;padding-right:4px}
+.qt-bullet-cell{
+  width:36px;text-align:center;vertical-align:middle;
+  padding:10px 6px 10px 14px;
+}
+.qt-bullet{
+  display:inline-block;width:7px;height:7px;border-radius:50%;
+  background:var(--br2);
+  box-sizing:border-box;
+}
+.qt-bullet--live{
+  background:var(--ok);
+  box-shadow:0 0 0 2px rgba(21,118,70,.2);
+}
 .qt td{padding:10px 16px;border-bottom:1px solid var(--br)}
 .qt tr:last-child td{border-bottom:none}
-.qt tbody tr{transition:background .1s;cursor:default}
-.qt tbody tr:hover{background:var(--s1)}
+.qt tbody tr{cursor:default}
+.qt tbody tr.qt-row-current{
+  background:linear-gradient(90deg,rgba(21,118,70,.12) 0%,var(--ok-l) 6px,var(--ok-l) 100%);
+  box-shadow:inset 3px 0 0 var(--ok);
+}
 
 .q-tag{
   display:inline-flex;align-items:center;gap:4px;
@@ -340,6 +357,14 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
 
 .q-title{font-size:13px;font-weight:500;max-width:230px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
 .q-channel{font-size:11px;color:var(--t2)}
+.q-synth-hint{font-size:10px;color:var(--t2);margin-top:5px;line-height:1.35;font-style:italic}
+.q-now-hint{font-size:10px;color:var(--ok);margin-top:5px;line-height:1.35;font-weight:500}
+.qt tbody tr.qt-row-now-playing td{border-bottom:1px solid var(--ok);}
+.m-qi-now-playing{margin-bottom:2px}
+.m-qi-now-hint{font-size:10px;color:var(--ok);margin-top:4px;line-height:1.3}
+.qt-empty{padding:18px 16px;text-align:center;color:var(--t2);font-size:13px;line-height:1.45}
+.m-queue-empty{padding:14px;color:var(--t2);font-size:13px;line-height:1.45}
+.m-qi-synth{color:var(--t2);font-weight:500}
 
 .ib{
   width:26px;height:26px;border:1px solid var(--br);background:transparent;
@@ -350,10 +375,6 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
 .ib:hover{background:var(--s1)}
 .ib.del:hover{background:var(--err-l);border-color:var(--err);color:var(--err)}
 
-.qt-footer{
-  padding:8px 16px;background:var(--s1);font-size:11px;color:var(--t2);
-  display:flex;gap:12px;align-items:center;border-top:1px solid var(--br);
-}
 
 /* ══ PLATFORMS PANEL ═════════════════ */
 .plt-item{
@@ -643,9 +664,18 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
 .m-qi{
   padding:11px 14px;border-bottom:1px solid var(--br);
   display:flex;align-items:center;gap:10px;
+  transition:background .15s,box-shadow .15s;
 }
 .m-qi:last-child{border-bottom:none}
-.m-qi-num{font-family:'Geist Mono',monospace;font-size:11px;color:var(--t2);width:16px;flex-shrink:0;text-align:right}
+.m-qi-current{
+  background:linear-gradient(90deg,rgba(21,118,70,.1) 0%,var(--ok-l) 8px,var(--ok-l) 100%);
+  box-shadow:inset 3px 0 0 var(--ok);
+}
+.m-qi-bullet{
+  width:10px;flex-shrink:0;align-self:center;
+  height:7px;border-radius:50%;background:var(--br2);display:inline-block;
+}
+.m-qi-bullet--live{background:var(--ok);box-shadow:0 0 0 2px rgba(21,118,70,.18)}
 .m-qi-thumb{
   width:40px;height:30px;border-radius:5px;
   background:var(--s1);display:flex;align-items:center;justify-content:center;
@@ -850,16 +880,11 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
           <table class="qt">
             <thead>
               <tr>
-                <th>#</th><th>Відео</th><th>Тривалість</th><th>Стан</th><th></th>
+                <th class="qt-th-gutter" aria-hidden="true"></th><th>Відео</th><th>Тривалість</th><th>Стан</th><th></th>
               </tr>
             </thead>
             <tbody id="d-queue-tbody"></tbody>
           </table>
-          <div class="qt-footer">
-            <span>Всього: <b style="color:var(--t0)" id="d-foot-total">0</b></span>
-            <span style="color:var(--t2)">Оновлення з бекенду</span>
-            <button type="button" class="panel-btn" style="margin-left:auto" onclick="openDrawer('add')">+ Додати</button>
-          </div>
         </div>
       </div>
 
@@ -1164,10 +1189,6 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
 
       <div id="m-queue-list"></div>
 
-      <div style="padding:8px 14px;background:var(--s1);font-size:11px;color:var(--t2);display:flex;gap:10px;border-top:1px solid var(--br)">
-        <span>Всього: <b style="color:var(--t0)" id="m-foot-total">0</b></span>
-        <button type="button" style="margin-left:auto;font-size:11px;color:var(--blue);background:none;border:none;font-weight:600;cursor:pointer" onclick="openDrawer('add')">+ Додати</button>
-      </div>
     </div>
 
   </div><!-- /m-view-home -->

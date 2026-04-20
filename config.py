@@ -22,6 +22,8 @@ ASSETS_DIR = BASE_DIR / "assets"
 CHANNELS_FILE = BASE_DIR / "channels.txt"
 SEEN_VIDEOS_FILE = STATE_DIR / "seen_videos.json"
 QUEUE_FILE = STATE_DIR / "queue.json"
+# Скільки відео додає движок у queue.json за раз (узгоджено з інтерфейсом: до 4 рядків разом із поточним)
+QUEUE_BATCH_SIZE = 4
 CURRENT_ITEM_FILE = STATE_DIR / "current_item.json"
 HISTORY_FILE = STATE_DIR / "history.json"
 BATCH_STATE_FILE = STATE_DIR / "batch_state.json"
