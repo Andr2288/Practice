@@ -28,6 +28,8 @@ class AppSettings:
     youtube_enabled: bool = True
     telegram_enabled: bool = True
     x_enabled: bool = True
+    # True → ffmpeg з -re перед stdin (темп ролика); False — як зараз (без -re, швидше за realtime).
+    ffmpeg_re_input: bool = False
 
     def to_dict(self) -> dict:
         return asdict(self)
@@ -83,6 +85,7 @@ class AppSettings:
             youtube_enabled=_as_bool(data.get("youtube_enabled"), True),
             telegram_enabled=_as_bool(data.get("telegram_enabled"), True),
             x_enabled=_as_bool(data.get("x_enabled"), True),
+            ffmpeg_re_input=_as_bool(data.get("ffmpeg_re_input"), False),
         )
 
 
@@ -150,4 +153,6 @@ def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
         cur.telegram_enabled = bool(patch["telegram_enabled"])
     if "x_enabled" in patch and patch["x_enabled"] is not None:
         cur.x_enabled = bool(patch["x_enabled"])
+    if "ffmpeg_re_input" in patch and patch["ffmpeg_re_input"] is not None:
+        cur.ffmpeg_re_input = bool(patch["ffmpeg_re_input"])
     return cur

@@ -141,17 +141,20 @@ class FFmpegService:
         logo_file: Optional[Path] = None,
         logo_opacity: float = LOGO_OPACITY,
         logo_zoom: float = LOGO_ZOOM,
+        re_input: bool = False,
     ) -> list[str]:
         if not source_is_pipe:
             raise ValueError("Only pipe input is supported in build_video_pipeline().")
 
-        # Pipe від yt-dlp: без -re — читаємо скільки є, інакше 1× realtime голодує ingest.
+        # Pipe від yt-dlp: за замовчуванням без -re (читаємо як є); з re_input=True — -re (темп відео).
         cmd = [
             self.ffmpeg_bin,
             "-hide_banner",
             "-loglevel", "error",
-            "-i", "pipe:0",
         ]
+        if re_input:
+            cmd.append("-re")
+        cmd += ["-i", "pipe:0"]
 
         logo_path = self._logo_path(logo_file)
         if logo_path is not None:

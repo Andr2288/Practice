@@ -147,6 +147,29 @@
     applyRow("m", "x", xOn, xKey);
   }
 
+  function renderFfmpegReToggle(st) {
+    const on = !!(st.settings && st.settings.ffmpeg_re_input);
+    const live = !!st.broadcasting;
+    ["d-ffmpeg-re-tgl", "m-ffmpeg-re-tgl"].forEach(function (id) {
+      const tgl = $(id);
+      if (tgl) {
+        tgl.classList.toggle("on", on);
+        tgl.dataset.enabled = on ? "1" : "0";
+        tgl.disabled = live;
+        tgl.setAttribute("aria-disabled", live ? "true" : "false");
+        tgl.style.opacity = live ? "0.5" : "";
+        tgl.style.cursor = live ? "not-allowed" : "";
+        tgl.title = live
+          ? "Змінюйте лише коли ефір вимкнено"
+          : "Увімкнути -re для stdin від yt-dlp";
+      }
+    });
+    const hd = $("d-ffmpeg-re-lock-hint");
+    const hm = $("m-ffmpeg-re-lock-hint");
+    if (hd) hd.style.display = live ? "block" : "none";
+    if (hm) hm.style.display = live ? "block" : "none";
+  }
+
   function queueRowState(item, current) {
     const live = current && item && item.video_id === current.video_id;
     if (live) return { tag: "q-live", label: "В ефірі", dot: true };
@@ -547,6 +570,7 @@
     renderNow(st);
     renderQueue(st);
     renderPlatforms(st);
+    renderFfmpegReToggle(st);
     renderAccFormFields(st);
     renderChannelsFields(st);
     renderBatchLine(st);
@@ -657,8 +681,10 @@
   document.addEventListener("click", (e) => {
     const t = e.target.closest("[data-setting-key]");
     if (!t) return;
+    if (t.disabled) return;
     const key = t.getAttribute("data-setting-key");
     if (!last || !key) return;
+    if (key === "ffmpeg_re_input" && last.broadcasting) return;
     const cur = !!last.settings[key];
     const patch = {};
     patch[key] = !cur;

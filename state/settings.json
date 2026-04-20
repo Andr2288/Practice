@@ -7,5 +7,6 @@
   "our_channel_url": "https://www.youtube.com/@JointForcesTaskForce/videos",
   "youtube_enabled": true,
   "telegram_enabled": true,
-  "x_enabled": true
+  "x_enabled": true,
+  "ffmpeg_re_input": true
 }

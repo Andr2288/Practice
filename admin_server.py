@@ -127,6 +127,7 @@ def create_app() -> Flask:
                 "youtube_enabled": settings.youtube_enabled,
                 "telegram_enabled": settings.telegram_enabled,
                 "x_enabled": settings.x_enabled,
+                "ffmpeg_re_input": settings.ffmpeg_re_input,
             },
             "youtube_stream_key_configured": yt_key,
             "telegram_stream_key_configured": tg_key,
@@ -275,6 +276,7 @@ def create_app() -> Flask:
                 "youtube_enabled": settings.youtube_enabled,
                 "telegram_enabled": settings.telegram_enabled,
                 "x_enabled": settings.x_enabled,
+                "ffmpeg_re_input": settings.ffmpeg_re_input,
                 "youtube_stream_key_configured": yt_key,
                 "telegram_stream_key_configured": tg_key,
                 "x_stream_key_configured": x_key,
@@ -285,6 +287,15 @@ def create_app() -> Flask:
     def api_settings_post():
         data = request.get_json(silent=True) or {}
         old_settings = load_settings()
+        if "ffmpeg_re_input" in data and data["ffmpeg_re_input"] is not None:
+            new_re = bool(data["ffmpeg_re_input"])
+            if is_broadcasting() and new_re != old_settings.ffmpeg_re_input:
+                return jsonify(
+                    {
+                        "ok": False,
+                        "error": "Параметр ffmpeg -re можна змінювати лише коли ефір вимкнено.",
+                    }
+                ), 400
         settings = merge_settings_patch(data)
         save_settings(settings)
 
@@ -315,7 +326,9 @@ def create_app() -> Flask:
             or old_settings.logo_opacity != settings.logo_opacity
             or old_settings.logo_zoom != settings.logo_zoom
         )
-        if is_broadcasting() and (destination_flags_changed or logo_or_look_changed):
+        if is_broadcasting() and (
+            destination_flags_changed or logo_or_look_changed
+        ):
             request_skip()
 
         return jsonify({"ok": True, **_status_payload()})

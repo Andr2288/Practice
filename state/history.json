@@ -1,13 +1,5 @@
 [
   {
-    "video_id": "1SooaNt_F3s",
-    "title": "🕹️ Сталеві логісти 1-го ББС 115-ї бригади ТрО.",
-    "url": "https://www.youtube.com/watch?v=1SooaNt_F3s",
-    "channel_url": "www.youtube.com/@115окремабригадаТрО/videos",
-    "channel_title": "115 окрема бригада ТрО - Videos",
-    "duration": 44
-  },
-  {
     "video_id": "Tv9TId1PwUw",
     "title": "Гармаші великим калібром знищують противника на одному з найгарячіших відтинків фронту",
     "url": "https://www.youtube.com/watch?v=Tv9TId1PwUw",
@@ -638,5 +630,13 @@
     "channel_url": "https://www.youtube.com/@10armycorp/videos",
     "channel_title": "10-й армійський корпус - Videos",
     "duration": 687
+  },
+  {
+    "video_id": "dhuzIzj-I1o",
+    "title": "Великоднє світло для тата! ТрОшка (32серія).",
+    "url": "https://www.youtube.com/watch?v=dhuzIzj-I1o",
+    "channel_url": "https://www.youtube.com/@113obr_tro/videos",
+    "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
+    "duration": 75
   }
 ]

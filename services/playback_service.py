@@ -298,6 +298,7 @@ class PlaybackService:
 
         ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
 
+        re_in = bool(load_settings().ffmpeg_re_input)
         ffmpeg_cmds = []
         for url in rtmp_urls:
             ffmpeg_cmds.append(
@@ -307,6 +308,7 @@ class PlaybackService:
                     logo_file=logo,
                     logo_opacity=self._effective_logo_opacity(),
                     logo_zoom=self._effective_logo_zoom(),
+                    re_input=re_in,
                 )
             )
 
