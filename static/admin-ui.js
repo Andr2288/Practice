@@ -283,11 +283,15 @@
     const tb = $("d-queue-tbody");
     if (tb) {
       if (!q.length && !syntheticFromCycle && !showNowPlayingRow) {
-        tb.innerHTML =
-          '<tr><td colspan="5" class="qt-empty">' +
-          "Черга порожня. Додайте відео кнопкою «Додати» — або ефір іде лише з циклу каналів " +
-          "(тоді тут з’явиться поточний ролик, коли він відомий бекенду)." +
-          "</td></tr>";
+        if (!!st.broadcasting) {
+          tb.innerHTML =
+            '<tr><td colspan="5" class="qt-loading" role="status" aria-live="polite">' +
+            '<span class="queue-spin" aria-hidden="true"></span>' +
+            '<span>Завантаження…</span></td></tr>';
+        } else {
+          tb.innerHTML =
+            '<tr><td colspan="5" class="qt-empty">Ефір вимкнено.</td></tr>';
+        }
       } else {
         const headNow = showNowPlayingRow ? renderDesktopNowPlayingRow(cur) : "";
         const bodyRows = qShow
@@ -340,11 +344,15 @@
     const mob = $("m-queue-list");
     if (mob) {
       if (!q.length && !syntheticFromCycle && !showNowPlayingRow) {
-        mob.innerHTML =
-          '<div class="m-queue-empty">' +
-          "Черга порожня. Додайте відео («Додати») або дивіться ефір з циклу каналів — " +
-          "поточний ролик з’явиться тут, коли бекенд його передасть." +
-          "</div>";
+        if (!!st.broadcasting) {
+          mob.innerHTML =
+            '<div class="m-queue-loading" role="status" aria-live="polite">' +
+            '<span class="queue-spin" aria-hidden="true"></span>' +
+            "<span>Завантаження…</span></div>";
+        } else {
+          mob.innerHTML =
+            '<div class="m-queue-empty">Ефір вимкнено.</div>';
+        }
       } else {
         const headMob = showNowPlayingRow ? renderMobileNowPlayingRow(cur) : "";
         const bodyMob = qShow
@@ -780,21 +788,36 @@
 
   function MH_addToQueue() {
     const inp = $("add-url-inp");
+    const btn = $("add-queue-btn");
     const url = inp && inp.value.trim();
     if (!url) {
       toast("Введіть посилання");
       return;
     }
-    const pri = window._mh_pri || "med";
-    const position = pri === "high" ? "front" : "back";
-    api("POST", "/api/queue/add", { type: "url", url: url, position: position })
+    const prevLabel = btn ? btn.textContent : "";
+    if (btn) {
+      btn.disabled = true;
+      btn.textContent = "Додається…";
+      btn.style.opacity = "0.72";
+      btn.style.cursor = "wait";
+    }
+    api("POST", "/api/queue/add", { url: url, position: "back" })
       .then(() => {
-        toast("Додано до черги");
+        toast("Додано в кінець черги");
         if (inp) inp.value = "";
-        if (typeof closeDrawer === "function") closeDrawer();
+        if (typeof closeAddModal === "function") closeAddModal();
+        else if (typeof closeDrawer === "function") closeDrawer();
         return refresh();
       })
-      .catch((e) => toast(e.message));
+      .catch((e) => toast(e.message))
+      .finally(() => {
+        if (btn) {
+          btn.disabled = false;
+          btn.textContent = prevLabel || "Додати в кінець черги";
+          btn.style.opacity = "";
+          btn.style.cursor = "";
+        }
+      });
   }
 
   document.addEventListener("click", (e) => {

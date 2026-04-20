@@ -4,7 +4,8 @@ from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
 
-from config import CURRENT_ITEM_FILE, QUEUE_FILE, STATE_DIR
+from config import BATCH_STATE_FILE, CURRENT_ITEM_FILE, QUEUE_FILE, STATE_DIR
+from services.batch_service import reset_foreign_since_our_for_new_broadcast
 from services.storage import save_current_item, save_queue
 
 CONTROL_FILE = STATE_DIR / "playback_control.json"
@@ -101,6 +102,7 @@ def start_broadcasting() -> None:
     cur["broadcast_segment_started_at"] = time.time()
     cur["broadcast_last_elapsed_sec"] = None
     _atomic_write_json(CONTROL_FILE, cur)
+    reset_foreign_since_our_for_new_broadcast(BATCH_STATE_FILE)
 
 
 def stop_broadcasting() -> None:
