@@ -6,11 +6,6 @@ from config import (
     AUDIO_FILTER,
     ENABLE_LOGO_OVERLAY,
     FFMPEG_BIN,
-    FILLER_BACKGROUND,
-    FILLER_SECONDS,
-    FILLER_TEXT,
-    FILLER_FONT_SIZE,
-    FILLER_TONE_FREQUENCY,
     LOGO_FILE,
     LOGO_FIT_MAX_H,
     LOGO_FIT_MAX_W,
@@ -177,59 +172,6 @@ class FFmpegService:
                 "-vf", self._video_base_filter(),
                 "-map", "0:v:0",
                 "-map", "0:a:0?",
-            ]
-
-        cmd += ["-af", self._audio_filter()]
-        cmd += self._encoding_args()
-        cmd += self._flv_output_args(rtmp_url)
-
-        return cmd
-
-    def build_filler_pipeline(
-        self,
-        rtmp_url: str,
-        seconds: Optional[int] = None,
-        logo_file: Optional[Path] = None,
-        logo_opacity: float = LOGO_OPACITY,
-        logo_zoom: float = LOGO_ZOOM,
-    ) -> list[str]:
-        duration = int(seconds or FILLER_SECONDS)
-
-        video_src = (
-            f"color=c={FILLER_BACKGROUND}:s={OUTPUT_WIDTH}x{OUTPUT_HEIGHT}:r={OUTPUT_FPS}:d={duration},"
-            f"drawtext=text='{FILLER_TEXT}':"
-            f"fontcolor=white:fontsize={FILLER_FONT_SIZE}:x=(w-text_w)/2:y=(h-text_h)/2,"
-            f"format=yuv420p"
-        )
-        audio_src = (
-            f"sine=frequency={FILLER_TONE_FREQUENCY}:sample_rate={OUTPUT_AUDIO_SAMPLE_RATE}:duration={duration}"
-        )
-
-        cmd = [
-            self.ffmpeg_bin,
-            "-hide_banner",
-            "-loglevel", "error",
-            "-re", "-f", "lavfi", "-i", video_src,
-            "-re", "-f", "lavfi", "-i", audio_src,
-        ]
-
-        logo_path = self._logo_path(logo_file)
-        if logo_path is not None:
-            cmd += ["-loop", "1", "-i", str(logo_path)]
-            lg = self._logo_preprocess_filter("2:v", logo_opacity, logo_zoom)
-            filter_complex = (
-                f"{lg};"
-                f"[0:v][lg]overlay=W-w-{LOGO_OFFSET_X}:{LOGO_OFFSET_Y}:format=auto[vout]"
-            )
-            cmd += [
-                "-filter_complex", filter_complex,
-                "-map", "[vout]",
-                "-map", "1:a:0",
-            ]
-        else:
-            cmd += [
-                "-map", "0:v:0",
-                "-map", "1:a:0",
             ]
 
         cmd += ["-af", self._audio_filter()]

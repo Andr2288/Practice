@@ -29,7 +29,6 @@ from config import (
 from services.batch_service import load_batch_state
 from services.models import VideoItem
 from services.our_videos_cache import peek_cached_videos, rescan_our_videos_cache
-from services.playback_service import PlaybackService
 from services.queue_service import QueueService
 from services.runtime_control import (
     is_broadcasting,
@@ -119,7 +118,6 @@ def create_app() -> Flask:
             },
             "batch": batch.to_dict() if batch else None,
             "settings": {
-                "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,
@@ -229,20 +227,16 @@ def create_app() -> Flask:
     @app.post("/api/queue/add")
     def api_queue_add():
         data = request.get_json(silent=True) or {}
-        kind = (data.get("type") or "url").strip().lower()
         q = QueueService().dedupe_queue(load_queue(QUEUE_FILE))
 
-        if kind == "filler":
-            item = PlaybackService().create_filler_item()
-        else:
-            url = (data.get("url") or "").strip()
-            if not url:
-                return jsonify({"ok": False, "error": "url is required"}), 400
-            ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
-            try:
-                item = ytdlp.fetch_video_by_url(url)
-            except Exception as e:
-                return jsonify({"ok": False, "error": str(e)}), 400
+        url = (data.get("url") or "").strip()
+        if not url:
+            return jsonify({"ok": False, "error": "url is required"}), 400
+        ytdlp = YtDlpClient(yt_dlp_bin=YT_DLP_BIN)
+        try:
+            item = ytdlp.fetch_video_by_url(url)
+        except Exception as e:
+            return jsonify({"ok": False, "error": str(e)}), 400
 
         pos = data.get("position")
         if pos == "front":
@@ -262,7 +256,6 @@ def create_app() -> Flask:
         x_key = _stream_key_configured(X_STREAM_KEY_FILE)
         return jsonify(
             {
-                "filler_url": settings.filler_url,
                 "logo_path": settings.logo_path,
                 "logo_opacity": settings.logo_opacity,
                 "logo_zoom": settings.logo_zoom,

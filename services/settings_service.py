@@ -12,13 +12,11 @@ SETTINGS_FILE = STATE_DIR / "settings.json"
 class AppSettings:
     """Параметри, що можна змінювати з адмінки (файл state/settings.json)."""
 
-    # Порожньо → вбудований lavfi-filler; інакше URL (https://...) для свого кліпу.
-    filler_url: str = ""
-    """Шлях до PNG для накладання (відносно кореня проєкту або абсолютний). Порожньо = config.LOGO_FILE."""
+    # Шлях до PNG (відносно кореня проєкту або абсолютний). Порожньо = config.LOGO_FILE.
     logo_path: str = ""
-    """Множник альфа-каналу логотипу (0…1). У JSON відсутній ключ → config.LOGO_OPACITY."""
+    # Множник альфа (0…1). У JSON немає ключа → config.LOGO_OPACITY.
     logo_opacity: float = 1.0
-    """Множник після підгонки PNG у рамку кадру; 1 = базовий розмір. У JSON немає ключа → config.LOGO_ZOOM."""
+    # Множник після підгонки PNG у рамку; 1 = базовий розмір. У JSON немає ключа → config.LOGO_ZOOM.
     logo_zoom: float = 1.0
     # Telegram RTMP server URL (e.g. rtmp://dc4-1.rtmp.t.me/s/)
     telegram_server_url: str = ""
@@ -50,11 +48,6 @@ class AppSettings:
                 return False
             return default
 
-        raw = data.get("filler_url")
-        if raw is None:
-            filler_url = ""
-        else:
-            filler_url = str(raw).strip()
         raw_lo = data.get("logo_opacity")
         if raw_lo is None:
             logo_opacity = float(LOGO_OPACITY)
@@ -81,7 +74,6 @@ class AppSettings:
         our_channel_url = str(raw_ocurl).strip() if raw_ocurl else ""
 
         return AppSettings(
-            filler_url=filler_url,
             logo_path=str(data.get("logo_path") or "").strip(),
             logo_opacity=logo_opacity,
             logo_zoom=logo_zoom,
@@ -134,8 +126,6 @@ def resolve_logo_path(settings: AppSettings) -> Optional[Path]:
 
 def merge_settings_patch(patch: dict[str, Any]) -> AppSettings:
     cur = load_settings()
-    if "filler_url" in patch and patch["filler_url"] is not None:
-        cur.filler_url = str(patch["filler_url"]).strip()
     if "logo_path" in patch and patch["logo_path"] is not None:
         cur.logo_path = str(patch["logo_path"]).strip()
     if "logo_opacity" in patch and patch["logo_opacity"] is not None:

@@ -26,7 +26,7 @@ from services.batch_service import (
 from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
 from services.our_videos_cache import fetch_our_videos_for_playback, warm_cache_from_disk
-from services.playback_service import PlaybackService, is_filler_item
+from services.playback_service import PlaybackService
 from services.runtime_control import (
     is_broadcasting,
 )
@@ -52,7 +52,7 @@ def _play_and_record(
     finally:
         save_current_item(CURRENT_ITEM_FILE, None)
 
-    if outcome == "completed" and record_history and not is_filler_item(item):
+    if outcome == "completed" and record_history:
         append_history(HISTORY_FILE, item)
         seen = load_seen_videos(SEEN_VIDEOS_FILE)
         seen.add(item.video_id)
@@ -68,16 +68,54 @@ def _play_our_video_sequential(
 ) -> str:
     """Play the next 'our video' in order (cyclic). Advances state.our_video_index."""
     if not our_videos:
-        item = playback.create_filler_item()
-    else:
-        idx = state.our_video_index % len(our_videos)
-        item = our_videos[idx]
-        state.our_video_index = idx + 1
-        log_play(
-            f"Our video [{idx + 1}/{len(our_videos)}]: {item.title} ({item.video_id})"
-        )
+        log_warn("No videos from our channel — skipping our-video slot")
+        return "skipped"
+
+    idx = state.our_video_index % len(our_videos)
+    item = our_videos[idx]
+    state.our_video_index = state.our_video_index + 1
+    log_play(
+        f"Our video [{idx + 1}/{len(our_videos)}]: {item.title} ({item.video_id})"
+    )
 
     return _play_and_record(playback, item, record_history=False)
+
+
+def _playback_our_channel_only(
+    playback: PlaybackService,
+    ytdlp: YtDlpClient,
+    settings,
+) -> None:
+    """Якщо список чужих каналів порожній — циклічно граємо лише відео з нашого каналу."""
+    channel_url = (settings.our_channel_url or "").strip()
+    if not channel_url:
+        log_warn("No foreign channels and no our channel URL — nothing to play")
+        time.sleep(5)
+        return
+
+    our_videos = fetch_our_videos_for_playback(
+        ytdlp=ytdlp,
+        channel_url=channel_url,
+        limit=OUR_VIDEOS_LIMIT,
+        cache_file=OUR_VIDEOS_CACHE_FILE,
+    )
+    if not our_videos:
+        log_warn("No foreign channels and no videos from our channel — nothing to play")
+        time.sleep(5)
+        return
+
+    state = load_batch_state(BATCH_STATE_FILE) or BatchState()
+    state.shuffled_channels = []
+    state.current_index = 0
+    idx = state.our_video_index % len(our_videos)
+    item = our_videos[idx]
+    state.our_video_index = state.our_video_index + 1
+    save_batch_state(BATCH_STATE_FILE, state)
+    log_play(
+        f"Our-channel-only [{idx + 1}/{len(our_videos)}]: "
+        f"{item.title} ({item.video_id})"
+    )
+    _play_and_record(playback, item, record_history=False)
 
 
 def playback_cycle_step(
@@ -98,9 +136,7 @@ def playback_cycle_step(
     settings = load_settings()
 
     if not channels:
-        log_warn("No channels configured — playing filler")
-        filler = playback.create_filler_item()
-        _play_and_record(playback, filler, record_history=False)
+        _playback_our_channel_only(playback, ytdlp, settings)
         return
 
     state = load_batch_state(BATCH_STATE_FILE)

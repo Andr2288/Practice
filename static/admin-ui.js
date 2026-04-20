@@ -264,7 +264,8 @@
     } else if ((st.channels || []).length) {
       txt = "Каналів у списку: " + st.channels.length;
     } else {
-      txt = "Канали не задані (channels.txt)";
+      txt =
+        "Чужі канали не задані — ефір лише з «нашого каналу» (якщо URL задано й є відео)";
     }
     setText("d-url", txt);
     setText("m-url", txt);
@@ -317,7 +318,6 @@
     "yt-key": ["acc-yt-key", "m-acc-yt-key"],
     "tg-key": ["acc-tg-key", "m-acc-tg-key"],
     "x-key": ["acc-x-key", "m-acc-x-key"],
-    "filler-url": ["acc-filler-url", "m-acc-filler-url"],
     "logo-op": ["acc-logo-op", "m-acc-logo-op"],
     "logo-zoom": ["acc-logo-zoom", "m-acc-logo-zoom"],
   };
@@ -422,15 +422,22 @@
     const s = st.settings || {};
     accSetPair("tg-url", s.telegram_server_url || "");
     accSetPair("x-url", s.x_stream_server_url || "");
-    accSetPair("filler-url", s.filler_url || "");
     if (s.logo_opacity != null) accSetPair("logo-op", String(s.logo_opacity));
     if (s.logo_zoom != null) accSetPair("logo-zoom", String(s.logo_zoom));
 
-    const filler = (s.filler_url || "").trim();
-    const short =
-      filler.length > 36 ? filler.slice(0, 33) + "…" : filler || "filler за замовч.";
-    setText("d-look-summary", "Поточний filler: " + short);
-    setText("m-look-summary", "Filler: " + short);
+    const lo =
+      s.logo_opacity != null && !Number.isNaN(Number(s.logo_opacity))
+        ? Number(s.logo_opacity)
+        : "—";
+    const lz =
+      s.logo_zoom != null && !Number.isNaN(Number(s.logo_zoom))
+        ? Number(s.logo_zoom)
+        : "—";
+    setText(
+      "d-look-summary",
+      "Логотип: прозорість " + lo + ", масштаб " + lz
+    );
+    setText("m-look-summary", "Лого: " + lo + " · " + lz);
   }
 
   function renderChannelsFields(st) {
@@ -644,9 +651,7 @@
   }
 
   async function accSaveExtra() {
-    const patch = {
-      filler_url: accPairVal("filler-url"),
-    };
+    const patch = {};
     const lo = accPairVal("logo-op");
     const lz = accPairVal("logo-zoom");
     if (lo !== "") {

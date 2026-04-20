@@ -4,11 +4,6 @@ import time
 from typing import Literal, Optional
 
 from config import (
-    FILLER_CHANNEL_URL,
-    FILLER_SECONDS,
-    FILLER_TITLE,
-    FILLER_URL,
-    FILLER_VIDEO_ID,
     TELEGRAM_STREAM_KEY_FILE,
     TEST_MODE,
     TEST_PLAYBACK_SECONDS,
@@ -31,14 +26,6 @@ from utils.logger import log_blank, log_info, log_play, log_warn
 
 PlayOutcome = Literal["completed", "skipped", "previous"]
 
-_FILLER_CH_URL = FILLER_CHANNEL_URL.strip().lower()
-
-
-def is_filler_item(item: VideoItem) -> bool:
-    if item.video_id == FILLER_VIDEO_ID:
-        return True
-    return (item.channel_url or "").strip().lower() == _FILLER_CH_URL
-
 
 class PlaybackService:
     def __init__(self) -> None:
@@ -53,34 +40,6 @@ class PlaybackService:
 
     def _effective_logo_zoom(self) -> float:
         return max(0.05, min(8.0, float(load_settings().logo_zoom)))
-
-    def _builtin_filler_item(self) -> VideoItem:
-        return VideoItem(
-            video_id=FILLER_VIDEO_ID,
-            title=FILLER_TITLE,
-            url=FILLER_URL,
-            channel_url=FILLER_CHANNEL_URL,
-            channel_title="System",
-            duration=FILLER_SECONDS,
-        )
-
-    def create_filler_item(self) -> VideoItem:
-        settings = load_settings()
-        raw = (settings.filler_url or "").strip()
-        if not raw:
-            return self._builtin_filler_item()
-
-        if raw.startswith("http://") or raw.startswith("https://"):
-            try:
-                item = self.ytdlp.fetch_video_by_url(raw)
-                item.channel_url = FILLER_CHANNEL_URL
-                item.channel_title = item.channel_title or "System"
-                return item
-            except Exception:
-                log_info("Filler URL недоступний — вбудований filler")
-                return self._builtin_filler_item()
-
-        return self._builtin_filler_item()
 
     def get_playback_duration(self, item: VideoItem) -> int:
         if TEST_MODE:
@@ -100,9 +59,6 @@ class PlaybackService:
 
         if TEST_MODE:
             return self._play_fake(item)
-
-        if item.video_id == FILLER_VIDEO_ID:
-            return self._play_filler()
 
         return self._play_real_video(item)
 
@@ -400,66 +356,5 @@ class PlaybackService:
             f"END   | channel={item.channel_title} | "
             f"title={item.title} | id={item.video_id}"
         )
-        log_blank()
-        return "completed"
-
-    # ── Filler: N independent ffmpeg processes (each generates its own) ──
-
-    def _play_filler(self) -> PlayOutcome:
-        filler_seconds = FILLER_SECONDS
-
-        log_blank()
-        log_play(
-            f"START | channel=System | title={FILLER_TITLE} | "
-            f"id={FILLER_VIDEO_ID} | duration={filler_seconds}s"
-        )
-
-        rtmp_urls = self._require_rtmp_urls()
-        self._log_destinations(rtmp_urls)
-
-        logo = self._effective_logo_path()
-        if logo and self.ffmpeg.logo_available(logo):
-            log_info(f"Logo overlay: ENABLED ({logo})")
-        else:
-            log_info("Logo overlay: DISABLED")
-
-        processors: list[subprocess.Popen] = []
-
-        try:
-            for url in rtmp_urls:
-                cmd = self.ffmpeg.build_filler_pipeline(
-                    rtmp_url=url,
-                    seconds=filler_seconds,
-                    logo_file=logo,
-                    logo_opacity=self._effective_logo_opacity(),
-                    logo_zoom=self._effective_logo_zoom(),
-                )
-                proc = self.ffmpeg.spawn(
-                    cmd,
-                    stdin_pipe=None,
-                    stdout_pipe=subprocess.DEVNULL,
-                    stderr_pipe=subprocess.PIPE,
-                )
-                processors.append(proc)
-
-            interrupt = self._interruptible_wait_multi(None, processors)
-
-            if interrupt == PlaybackCommand.PREVIOUS:
-                log_play(f"PREV  | id={FILLER_VIDEO_ID}")
-                log_blank()
-                return "previous"
-
-            if interrupt == PlaybackCommand.SKIP:
-                log_play(f"SKIP  | id={FILLER_VIDEO_ID}")
-                log_blank()
-                return "skipped"
-
-        except Exception:
-            for proc in processors:
-                self._terminate_process(proc, "ffmpeg")
-            clear_pids()
-            raise
-
-        log_play(f"END   | channel=System | title={FILLER_TITLE} | id={FILLER_VIDEO_ID}")
         log_blank()
         return "completed"

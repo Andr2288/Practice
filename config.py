@@ -48,14 +48,6 @@ TEST_PLAYBACK_SECONDS = 10
 
 PLAYBACK_ERROR_DELAY_SECONDS = 3
 
-# Filler
-FILLER_TITLE = "FILLER_LOOP"
-FILLER_VIDEO_ID = "__FILLER__"
-FILLER_URL = "filler://loop"
-# Усі варіанти filler у черзі позначаються цим channel_url (не потрапляють в історію для «попереднє»).
-FILLER_CHANNEL_URL = "local://filler"
-FILLER_SECONDS = 20
-
 # Формат, який yt-dlp стрімить у stdout.
 # Для локального MVP краще брати progressive/single stream, щоб менше ламалось.
 YT_DLP_PROGRESSIVE_FORMAT = (
@@ -139,12 +131,6 @@ NVENC_PRESET = "p5"
 
 # Аудіо без loudnorm (легше для CPU); лише стабілізація таймінгу з потоку.
 AUDIO_FILTER = "aresample=async=1:first_pts=0"
-
-# Filler visual/audio
-FILLER_BACKGROUND = "black"
-FILLER_TEXT = "MEDIAHUB UOS - FILLER"
-FILLER_FONT_SIZE = 36
-FILLER_TONE_FREQUENCY = 440
 
 
 def get_youtube_rtmp_url() -> Optional[str]:
