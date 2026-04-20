@@ -511,6 +511,17 @@
     return [ $("ch-channels-ta"), $("m-ch-channels-ta") ].filter(Boolean);
   }
 
+  /** Нормалізація для порівняння з останнім знімком з сервера (рядки без порожніх). */
+  function chNormalizeListText(s) {
+    return (s || "")
+      .split(/\r?\n/)
+      .map(function (line) {
+        return line.trim();
+      })
+      .filter(Boolean)
+      .join("\n");
+  }
+
   function chSetListLines(channels) {
     const text = Array.isArray(channels) ? channels.join("\n") : "";
     for (const el of chListEls()) {
@@ -519,13 +530,43 @@
     }
   }
 
+  /** Два textarea (десктоп / мобільна версія); під час poll оновлюється лише неактивне — вони роз’їжджаються. */
+  function chMirrorChannelsFrom(el) {
+    if (!el) return;
+    const v = el.value;
+    for (const o of chListEls()) {
+      if (o !== el) o.value = v;
+    }
+  }
+
+  function chBindChannelsListMirror() {
+    for (const el of chListEls()) {
+      el.addEventListener("blur", function () {
+        chMirrorChannelsFrom(this);
+      });
+    }
+  }
+
   function chListVal() {
     const els = chListEls();
     if (!els.length) return "";
     if (els.length === 1) return els[0].value || "";
-    if (document.activeElement === els[1]) return els[1].value || "";
-    if (document.activeElement === els[0]) return els[0].value || "";
-    return (els[0].value || els[1].value || "");
+    const active = document.activeElement;
+    if (active === els[0]) return els[0].value || "";
+    if (active === els[1]) return els[1].value || "";
+    const a = els[0].value || "";
+    const b = els[1].value || "";
+    if (a === b) return a;
+    const srv = last && Array.isArray(last.channels)
+      ? chNormalizeListText(last.channels.join("\n"))
+      : "";
+    const na = chNormalizeListText(a);
+    const nb = chNormalizeListText(b);
+    if (srv) {
+      if (na === srv && nb !== srv) return b;
+      if (nb === srv && na !== srv) return a;
+    }
+    return na.length >= nb.length ? a : b;
   }
 
   function setAdminTab(tab) {
@@ -940,6 +981,11 @@
   }
 
   async function chSaveChannelsList() {
+    const active = document.activeElement;
+    const els = chListEls();
+    if (els.length >= 2 && (active === els[0] || active === els[1])) {
+      chMirrorChannelsFrom(active);
+    }
     const raw = chListVal();
     const lines = raw
       .split(/\r?\n/)
@@ -981,6 +1027,7 @@
 
   function init() {
     bindLookPanelAutoSave();
+    chBindChannelsListMirror();
     refresh().then(function () {
       updateLogoPreview(Date.now());
     });

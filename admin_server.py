@@ -28,7 +28,11 @@ from config import (
 )
 from services.batch_service import load_batch_state
 from services.models import VideoItem
-from services.our_videos_cache import peek_cached_videos, rescan_our_videos_cache
+from services.our_videos_cache import (
+    invalidate_cache,
+    peek_cached_videos,
+    rescan_our_videos_cache,
+)
 from services.queue_service import QueueService
 from services.runtime_control import (
     is_broadcasting,
@@ -44,6 +48,7 @@ from services.storage import (
     save_queue,
 )
 from services.channel_scan_service import read_channels_list, save_channels_list
+from services.playback_schedule import reload_playback_after_channels_file_changed
 from services.ytdlp_client import YtDlpClient
 
 
@@ -179,7 +184,11 @@ def create_app() -> Flask:
                 s = x.strip()
                 if s:
                     urls.append(s)
+        previous = read_channels_list(CHANNELS_FILE)
         save_channels_list(CHANNELS_FILE, urls)
+        current = read_channels_list(CHANNELS_FILE)
+        if previous != current:
+            reload_playback_after_channels_file_changed(current)
         return jsonify({"ok": True, **_status_payload()})
 
     # ── Our videos ─────────────────────────────────────────────────────
@@ -298,6 +307,10 @@ def create_app() -> Flask:
                 ), 400
         settings = merge_settings_patch(data)
         save_settings(settings)
+
+        if (old_settings.our_channel_url or "").strip() != (settings.our_channel_url or "").strip():
+            # Інакше при помилці fetch лишаться ролики з попереднього каналу.
+            invalidate_cache(OUR_VIDEOS_CACHE_FILE)
 
         yt_key = (data.get("youtube_stream_key") or "").strip()
         if yt_key:
