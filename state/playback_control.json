@@ -1,5 +1,7 @@
 {
   "paused": false,
   "command": "",
-  "broadcasting": true
+  "broadcasting": true,
+  "broadcast_segment_started_at": 1776712903.497327,
+  "broadcast_last_elapsed_sec": null
 }

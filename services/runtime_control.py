@@ -1,4 +1,5 @@
 import json
+import time
 from enum import Enum
 from pathlib import Path
 from typing import Any, Optional
@@ -37,15 +38,19 @@ def _atomic_write_json(path: Path, data: dict[str, Any]) -> None:
 
 def load_control() -> dict[str, Any]:
     data = _read_json(CONTROL_FILE)
-    if not data:
-        return {"paused": False, "command": PlaybackCommand.NONE.value, "broadcasting": False}
+    if not isinstance(data, dict):
+        data = {}
     paused = bool(data.get("paused", False))
     broadcasting = bool(data.get("broadcasting", False))
     cmd = str(data.get("command") or "").strip().lower()
     allowed = ("", PlaybackCommand.SKIP.value, PlaybackCommand.PREVIOUS.value)
     if cmd not in allowed:
         cmd = ""
-    return {"paused": paused, "command": cmd, "broadcasting": broadcasting}
+    out = dict(data)
+    out["paused"] = paused
+    out["command"] = cmd
+    out["broadcasting"] = broadcasting
+    return out
 
 
 def save_control(
@@ -88,11 +93,25 @@ def is_broadcasting() -> bool:
 
 
 def start_broadcasting() -> None:
-    save_control(broadcasting=True, command=PlaybackCommand.NONE.value)
+    """Новий сеанс ефіру: таймер з 0; попередня «заморожена» тривалість скидається."""
+    cur = load_control()
+    cur["broadcasting"] = True
+    cur["command"] = PlaybackCommand.NONE.value
+    cur["broadcast_segment_started_at"] = time.time()
+    cur["broadcast_last_elapsed_sec"] = None
+    _atomic_write_json(CONTROL_FILE, cur)
 
 
 def stop_broadcasting() -> None:
-    save_control(broadcasting=False, command=PlaybackCommand.NONE.value)
+    """Зупинка ефіру: зберігаємо тривалість сеансу, не обнуляємо її для відображення."""
+    cur = load_control()
+    started = cur.get("broadcast_segment_started_at")
+    if started is not None:
+        cur["broadcast_last_elapsed_sec"] = max(0.0, time.time() - float(started))
+    cur["broadcasting"] = False
+    cur["command"] = PlaybackCommand.NONE.value
+    cur["broadcast_segment_started_at"] = None
+    _atomic_write_json(CONTROL_FILE, cur)
     kill_playback_processes()
 
 

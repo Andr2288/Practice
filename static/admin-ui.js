@@ -3,6 +3,8 @@
 
   let last = null;
   let pollTimer = null;
+  /** Різниця серверного часу й браузера (сек), щоб відлік ефіру збігався з бекендом */
+  let serverSkewSec = 0;
 
   function $(id) {
     return document.getElementById(id);
@@ -35,9 +37,24 @@
     return String(n).padStart(2, "0");
   }
 
-  function wallClock() {
-    const d = new Date();
-    return pad2(d.getHours()) + ":" + pad2(d.getMinutes()) + ":" + pad2(d.getSeconds());
+  function nowSyncSec() {
+    return Date.now() / 1000 + serverSkewSec;
+  }
+
+  function syncServerClock(st) {
+    if (st && st.server_time != null && !Number.isNaN(Number(st.server_time))) {
+      serverSkewSec = Number(st.server_time) - Date.now() / 1000;
+    }
+  }
+
+  /** Тривалість для бейджа ефіру: завжди ГГ:ХХ:СС */
+  function fmtClockDur(sec) {
+    if (sec == null || sec === "" || Number.isNaN(Number(sec))) return "00:00:00";
+    const s = Math.max(0, Math.floor(Number(sec)));
+    const h = Math.floor(s / 3600);
+    const m = Math.floor((s % 3600) / 60);
+    const r = s % 60;
+    return pad2(h) + ":" + pad2(m) + ":" + pad2(r);
   }
 
   function fmtDur(sec) {
@@ -55,35 +72,42 @@
     if (el) el.textContent = text;
   }
 
-  function setLiveUi(on) {
+  function updateBroadcastTimer(st) {
+    const on = !!st.broadcasting;
     const dt = $("d-timer");
     const mt = $("m-timer");
     const tag = $("d-live-tag");
     const mtag = $("m-live-tag");
     const dot = tag && tag.querySelector(".live-dot");
     const mdot = mtag && mtag.querySelector(".live-dot");
+
+    let line = "";
     if (on) {
-      if (dt) dt.textContent = "В ЕФІРІ · " + wallClock();
-      if (mt) mt.textContent = wallClock();
-      if (tag) {
-        tag.style.opacity = "1";
-        if (dot) dot.style.display = "";
-      }
-      if (mtag) {
-        mtag.style.opacity = "1";
-        if (mdot) mdot.style.display = "";
-      }
+      const started = st.broadcast_segment_started_at;
+      const sec =
+        started != null && !Number.isNaN(Number(started))
+          ? Math.max(0, Math.floor(nowSyncSec() - Number(started)))
+          : 0;
+      line = "В ЕФІРІ · " + fmtClockDur(sec);
     } else {
-      if (dt) dt.textContent = "Ефір зупинено";
-      if (mt) mt.textContent = "—";
-      if (tag) {
-        tag.style.opacity = "0.55";
-        if (dot) dot.style.display = "none";
+      const frozen = st.broadcast_last_elapsed_sec;
+      if (frozen != null && !Number.isNaN(Number(frozen)) && Number(frozen) >= 0) {
+        line = "Ефір зупинено · " + fmtClockDur(frozen);
+      } else {
+        line = "Ефір зупинено";
       }
-      if (mtag) {
-        mtag.style.opacity = "0.55";
-        if (mdot) mdot.style.display = "none";
-      }
+    }
+
+    if (dt) dt.textContent = line;
+    if (mt) mt.textContent = line;
+
+    if (tag) {
+      tag.style.opacity = on ? "1" : "0.55";
+      if (dot) dot.style.display = on ? "" : "none";
+    }
+    if (mtag) {
+      mtag.style.opacity = on ? "1" : "0.55";
+      if (mdot) mdot.style.display = on ? "" : "none";
     }
   }
 
@@ -251,7 +275,7 @@
   function renderNow(st) {
     const c = st.current;
     const on = !!st.broadcasting;
-    setLiveUi(on);
+    updateBroadcastTimer(st);
 
     if (c) {
       setText("d-np-title", c.title || "—");
@@ -293,11 +317,80 @@
     "yt-key": ["acc-yt-key", "m-acc-yt-key"],
     "tg-key": ["acc-tg-key", "m-acc-tg-key"],
     "x-key": ["acc-x-key", "m-acc-x-key"],
-    "our-channel": ["acc-our-channel", "m-acc-our-channel"],
     "filler-url": ["acc-filler-url", "m-acc-filler-url"],
     "logo-op": ["acc-logo-op", "m-acc-logo-op"],
     "logo-zoom": ["acc-logo-zoom", "m-acc-logo-zoom"],
   };
+
+  function chOurEls() {
+    return [ $("ch-our-channel"), $("m-ch-our-channel") ].filter(Boolean);
+  }
+
+  function chOurVal() {
+    const els = chOurEls();
+    if (!els.length) return "";
+    const a = (els[0].value || "").trim();
+    const b = els[1] ? (els[1].value || "").trim() : "";
+    return a || b;
+  }
+
+  function chSetOur(val) {
+    const v = val == null ? "" : String(val);
+    for (const el of chOurEls()) {
+      if (document.activeElement === el) continue;
+      el.value = v;
+    }
+  }
+
+  function chListEls() {
+    return [ $("ch-channels-ta"), $("m-ch-channels-ta") ].filter(Boolean);
+  }
+
+  function chSetListLines(channels) {
+    const text = Array.isArray(channels) ? channels.join("\n") : "";
+    for (const el of chListEls()) {
+      if (document.activeElement === el) continue;
+      el.value = text;
+    }
+  }
+
+  function chListVal() {
+    const els = chListEls();
+    if (!els.length) return "";
+    if (els.length === 1) return els[0].value || "";
+    if (document.activeElement === els[1]) return els[1].value || "";
+    if (document.activeElement === els[0]) return els[0].value || "";
+    return (els[0].value || els[1].value || "");
+  }
+
+  function setAdminTab(tab) {
+    const allowed = ["home", "channels", "look"];
+    const t = allowed.indexOf(tab) >= 0 ? tab : "home";
+    const homeD = $("d-view-home");
+    const chD = $("d-view-channels");
+    const lookD = $("d-view-look");
+    if (homeD) homeD.hidden = t !== "home";
+    if (chD) chD.hidden = t !== "channels";
+    if (lookD) lookD.hidden = t !== "look";
+    const mHome = $("m-view-home");
+    const mCh = $("m-view-channels");
+    const mLook = $("m-view-look");
+    if (mHome) mHome.hidden = t !== "home";
+    if (mCh) mCh.hidden = t !== "channels";
+    if (mLook) mLook.hidden = t !== "look";
+    document.querySelectorAll("[data-admin-tab]").forEach((a) => {
+      a.classList.toggle("on", a.getAttribute("data-admin-tab") === t);
+    });
+    document.querySelectorAll(".m-nav-item[data-mnav]").forEach((a) => {
+      a.classList.toggle("on", a.getAttribute("data-mnav") === t);
+    });
+    const mt = $("m-page-title");
+    if (mt) {
+      if (t === "channels") mt.textContent = "📻 Канали";
+      else if (t === "look") mt.textContent = "📻 Вигляд";
+      else mt.textContent = "📻 RadioStream";
+    }
+  }
 
   function accEls(name) {
     const ids = ACC_IDS[name];
@@ -329,23 +422,31 @@
     const s = st.settings || {};
     accSetPair("tg-url", s.telegram_server_url || "");
     accSetPair("x-url", s.x_stream_server_url || "");
-    accSetPair("our-channel", s.our_channel_url || "");
     accSetPair("filler-url", s.filler_url || "");
     if (s.logo_opacity != null) accSetPair("logo-op", String(s.logo_opacity));
     if (s.logo_zoom != null) accSetPair("logo-zoom", String(s.logo_zoom));
 
-    const oc = (s.our_channel_url || "").trim();
-    const short = oc.length > 36 ? oc.slice(0, 33) + "…" : oc || "канал не задано";
-    setText("d-extra-sub", short);
-    setText("m-extra-sub", short);
+    const filler = (s.filler_url || "").trim();
+    const short =
+      filler.length > 36 ? filler.slice(0, 33) + "…" : filler || "filler за замовч.";
+    setText("d-look-summary", "Поточний filler: " + short);
+    setText("m-look-summary", "Filler: " + short);
+  }
+
+  function renderChannelsFields(st) {
+    const s = st.settings || {};
+    chSetOur(s.our_channel_url || "");
+    chSetListLines(st.channels || []);
   }
 
   function render(st) {
     last = st;
+    syncServerClock(st);
     renderNow(st);
     renderQueue(st);
     renderPlatforms(st);
     renderAccFormFields(st);
+    renderChannelsFields(st);
     renderBatchLine(st);
   }
 
@@ -544,7 +645,6 @@
 
   async function accSaveExtra() {
     const patch = {
-      our_channel_url: accPairVal("our-channel"),
       filler_url: accPairVal("filler-url"),
     };
     const lo = accPairVal("logo-op");
@@ -560,6 +660,32 @@
     try {
       await api("POST", "/api/settings", patch);
       toast("Збережено");
+      await refresh();
+    } catch (err) {
+      toast(err.message);
+    }
+  }
+
+  async function chSaveOurChannel() {
+    const url = chOurVal();
+    try {
+      await api("POST", "/api/settings", { our_channel_url: url });
+      toast("Посилання на наш канал збережено");
+      await refresh();
+    } catch (err) {
+      toast(err.message);
+    }
+  }
+
+  async function chSaveChannelsList() {
+    const raw = chListVal();
+    const lines = raw
+      .split(/\r?\n/)
+      .map((s) => s.trim())
+      .filter(Boolean);
+    try {
+      await api("PUT", "/api/channels", { channels: lines });
+      toast("Список каналів збережено");
       await refresh();
     } catch (err) {
       toast(err.message);
@@ -600,9 +726,19 @@
   window.accSaveXKey = accSaveXKey;
   window.accSaveExtra = accSaveExtra;
   window.accUploadLogo = accUploadLogo;
+  window.chSaveOurChannel = chSaveOurChannel;
+  window.chSaveChannelsList = chSaveChannelsList;
+  window.setAdminTab = setAdminTab;
+
+  document.addEventListener("click", (e) => {
+    const a = e.target.closest("[data-admin-tab]");
+    if (!a) return;
+    e.preventDefault();
+    setAdminTab(a.getAttribute("data-admin-tab") || "home");
+  });
 
   function tickClock() {
-    if (last && last.broadcasting) setLiveUi(true);
+    if (last) updateBroadcastTimer(last);
   }
 
   function init() {

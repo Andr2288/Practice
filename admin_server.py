@@ -106,6 +106,9 @@ def create_app() -> Flask:
         return {
             "current": cur.to_dict() if cur else None,
             "broadcasting": bool(ctrl.get("broadcasting")),
+            "server_time": time.time(),
+            "broadcast_segment_started_at": ctrl.get("broadcast_segment_started_at"),
+            "broadcast_last_elapsed_sec": ctrl.get("broadcast_last_elapsed_sec"),
             "command": ctrl.get("command") or "",
             "channels": read_channels_list(CHANNELS_FILE),
             "queue": [v.to_dict() for v in q],
