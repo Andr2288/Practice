@@ -1006,7 +1006,20 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
         <span class="panel-title">Логотип</span>
       </div>
       <div style="padding:14px 18px 18px">
-        <p class="acc-hint" id="d-look-summary" style="margin:0 0 14px">—</p>
+        <p class="acc-hint" id="d-look-summary" style="margin:0 0 10px">—</p>
+        <div
+          class="look-logo-preview-box"
+          style="margin:0 0 16px;padding:12px;border:1px solid var(--br);border-radius:var(--rs);background:var(--s1);text-align:center;min-height:72px"
+        >
+          <img
+            id="d-look-logo-preview"
+            alt="Поточний логотип"
+            style="display:none;max-width:100%;max-height:200px;object-fit:contain;vertical-align:middle"
+          />
+          <p id="d-look-logo-placeholder" class="acc-hint" style="margin:0;padding:8px 0">
+            Логотип ще не завантажено
+          </p>
+        </div>
         <div class="acc-field">
           <label for="acc-logo-op">Прозорість логотипу (0…1)</label>
           <input type="number" id="acc-logo-op" min="0" max="1" step="0.05">
@@ -1016,12 +1029,8 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
           <input type="number" id="acc-logo-zoom" min="0.05" max="8" step="0.05">
         </div>
         <div class="acc-field">
-          <label for="acc-logo-file">PNG / JPEG логотипу</label>
+          <label for="acc-logo-file">PNG / JPEG / WebP логотипу</label>
           <input type="file" id="acc-logo-file" accept="image/png,image/jpeg,image/webp">
-        </div>
-        <div class="acc-actions">
-          <button type="button" class="acc-save secondary" onclick="accUploadLogo()">Лише логотип</button>
-          <button type="button" class="acc-save" onclick="accSaveExtra()">Зберегти поля</button>
         </div>
       </div>
     </div>
@@ -1177,11 +1186,23 @@ html,body{height:100%;width:100%;margin:0;font-family:var(--font-sans);backgroun
         <span class="m-sec-title">Вигляд</span>
       </div>
       <div style="padding:12px 14px 18px">
-        <p class="acc-hint" id="m-look-summary" style="margin:0 0 12px">—</p>
+        <p class="acc-hint" id="m-look-summary" style="margin:0 0 10px">—</p>
+        <div
+          class="look-logo-preview-box"
+          style="margin:0 0 14px;padding:10px;border:1px solid var(--br);border-radius:var(--rs);background:var(--s1);text-align:center;min-height:64px"
+        >
+          <img
+            id="m-look-logo-preview"
+            alt="Поточний логотип"
+            style="display:none;max-width:100%;max-height:180px;object-fit:contain;vertical-align:middle"
+          />
+          <p id="m-look-logo-placeholder" class="acc-hint" style="margin:0;padding:6px 0;font-size:12px">
+            Логотип ще не завантажено
+          </p>
+        </div>
         <div class="acc-field"><label for="m-acc-logo-op">Прозорість 0…1</label><input type="number" id="m-acc-logo-op" min="0" max="1" step="0.05"></div>
         <div class="acc-field"><label for="m-acc-logo-zoom">Масштаб</label><input type="number" id="m-acc-logo-zoom" min="0.05" max="8" step="0.05"></div>
         <div class="acc-field"><label for="m-acc-logo-file">Логотип</label><input type="file" id="m-acc-logo-file" accept="image/png,image/jpeg,image/webp"></div>
-        <div class="acc-actions"><button type="button" class="acc-save secondary" onclick="accUploadLogo()">Лого</button><button type="button" class="acc-save" onclick="accSaveExtra()">Зберегти</button></div>
       </div>
     </div>
   </div><!-- /m-view-look -->

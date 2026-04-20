@@ -440,6 +440,101 @@
     setText("m-look-summary", "Лого: " + lo + " · " + lz);
   }
 
+  /** Прев’ю файлу логотипу з /api/logo (bust — оновити кеш після завантаження нового файлу). */
+  function updateLogoPreview(bust) {
+    const qs = bust != null ? "?t=" + bust : "";
+    const url = "/api/logo" + qs;
+    function wire(idImg, idPh) {
+      const img = $(idImg);
+      const ph = $(idPh);
+      if (!img) return;
+      img.onload = function () {
+        img.style.display = "";
+        if (ph) ph.style.display = "none";
+      };
+      img.onerror = function () {
+        img.style.display = "none";
+        if (ph) ph.style.display = "";
+      };
+      img.src = url;
+    }
+    wire("d-look-logo-preview", "d-look-logo-placeholder");
+    wire("m-look-logo-preview", "m-look-logo-placeholder");
+  }
+
+  async function saveLogoLookFromInputs() {
+    const patch = {};
+    const lo = accPairVal("logo-op");
+    const lz = accPairVal("logo-zoom");
+    if (lo !== "") {
+      const n = parseFloat(lo.replace(",", "."));
+      if (!Number.isNaN(n)) patch.logo_opacity = Math.max(0, Math.min(1, n));
+    }
+    if (lz !== "") {
+      const n = parseFloat(lz.replace(",", "."));
+      if (!Number.isNaN(n)) patch.logo_zoom = Math.max(0.05, Math.min(8, n));
+    }
+    if (Object.keys(patch).length === 0) return;
+    try {
+      await api("POST", "/api/settings", patch);
+      await refresh();
+    } catch (err) {
+      toast(err.message);
+    }
+  }
+
+  async function uploadLogoFromFileInput(ev) {
+    const inp = ev.target;
+    if (!inp || !inp.files || !inp.files[0]) return;
+    try {
+      const fd = new FormData();
+      fd.append("file", inp.files[0]);
+      const r = await fetch("/api/settings/logo", { method: "POST", body: fd });
+      const data = await r.json().catch(() => ({}));
+      if (!r.ok) throw new Error(data.error || r.statusText);
+      inp.value = "";
+      const other = inp.id === "acc-logo-file" ? $("m-acc-logo-file") : $("acc-logo-file");
+      if (other) other.value = "";
+      await refresh();
+      updateLogoPreview(Date.now());
+      toast("Логотип збережено");
+    } catch (err) {
+      toast(err.message);
+    }
+  }
+
+  function debounce(fn, ms) {
+    let t = null;
+    return function () {
+      const args = arguments;
+      const self = this;
+      clearTimeout(t);
+      t = setTimeout(function () {
+        fn.apply(self, args);
+      }, ms);
+    };
+  }
+
+  const debouncedSaveLogoLook = debounce(saveLogoLookFromInputs, 400);
+
+  function bindLookPanelAutoSave() {
+    accEls("logo-op").forEach((el) => {
+      el.addEventListener("input", function () {
+        debouncedSaveLogoLook();
+      });
+    });
+    accEls("logo-zoom").forEach((el) => {
+      el.addEventListener("input", function () {
+        debouncedSaveLogoLook();
+      });
+    });
+    const f1 = $("acc-logo-file");
+    const f2 = $("m-acc-logo-file");
+    [f1, f2].forEach((inp) => {
+      if (inp) inp.addEventListener("change", uploadLogoFromFileInput);
+    });
+  }
+
   function renderChannelsFields(st) {
     const s = st.settings || {};
     chSetOur(s.our_channel_url || "");
@@ -650,27 +745,6 @@
     }
   }
 
-  async function accSaveExtra() {
-    const patch = {};
-    const lo = accPairVal("logo-op");
-    const lz = accPairVal("logo-zoom");
-    if (lo !== "") {
-      const n = parseFloat(lo.replace(",", "."));
-      if (!Number.isNaN(n)) patch.logo_opacity = Math.max(0, Math.min(1, n));
-    }
-    if (lz !== "") {
-      const n = parseFloat(lz.replace(",", "."));
-      if (!Number.isNaN(n)) patch.logo_zoom = Math.max(0.05, Math.min(8, n));
-    }
-    try {
-      await api("POST", "/api/settings", patch);
-      toast("Збережено");
-      await refresh();
-    } catch (err) {
-      toast(err.message);
-    }
-  }
-
   async function chSaveOurChannel() {
     const url = chOurVal();
     try {
@@ -697,28 +771,6 @@
     }
   }
 
-  async function accUploadLogo() {
-    const inp = $("acc-logo-file") || $("m-acc-logo-file");
-    if (!inp || !inp.files || !inp.files[0]) {
-      toast("Оберіть файл зображення");
-      return;
-    }
-    try {
-      const fd = new FormData();
-      fd.append("file", inp.files[0]);
-      const r = await fetch("/api/settings/logo", { method: "POST", body: fd });
-      const data = await r.json().catch(() => ({}));
-      if (!r.ok) throw new Error(data.error || r.statusText);
-      inp.value = "";
-      const other = inp.id === "acc-logo-file" ? $("m-acc-logo-file") : $("acc-logo-file");
-      if (other) other.value = "";
-      toast("Логотип оновлено");
-      await refresh();
-    } catch (err) {
-      toast(err.message);
-    }
-  }
-
   window.apiSkip = apiSkip;
   window.apiStop = apiStop;
   window.apiStart = apiStart;
@@ -729,8 +781,6 @@
   window.accSaveTgKey = accSaveTgKey;
   window.accSaveXUrl = accSaveXUrl;
   window.accSaveXKey = accSaveXKey;
-  window.accSaveExtra = accSaveExtra;
-  window.accUploadLogo = accUploadLogo;
   window.chSaveOurChannel = chSaveOurChannel;
   window.chSaveChannelsList = chSaveChannelsList;
   window.setAdminTab = setAdminTab;
@@ -747,7 +797,10 @@
   }
 
   function init() {
-    refresh();
+    bindLookPanelAutoSave();
+    refresh().then(function () {
+      updateLogoPreview(Date.now());
+    });
     pollTimer = setInterval(refresh, 2500);
     setInterval(tickClock, 1000);
   }

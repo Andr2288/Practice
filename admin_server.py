@@ -9,7 +9,7 @@ import webbrowser
 from io import BytesIO
 from pathlib import Path
 
-from flask import Flask, jsonify, request, send_from_directory
+from flask import Flask, jsonify, request, send_file, send_from_directory
 from PIL import Image, UnidentifiedImageError
 
 from config import (
@@ -136,6 +136,16 @@ def create_app() -> Flask:
     @app.get("/api/status")
     def api_status():
         return jsonify(_status_payload())
+
+    @app.get("/api/logo")
+    def api_logo_image():
+        """Поточний файл логотипу (для прев’ю на вкладці «Вигляд»)."""
+        from services.settings_service import load_settings, resolve_logo_path
+
+        p = resolve_logo_path(load_settings())
+        if p is None or not p.is_file():
+            return ("", 404)
+        return send_file(p, max_age=0)
 
     # ── Broadcast control ──────────────────────────────────────────────
 
@@ -293,15 +303,19 @@ def create_app() -> Flask:
             X_STREAM_KEY_FILE.parent.mkdir(parents=True, exist_ok=True)
             X_STREAM_KEY_FILE.write_text(x_key + "\n", encoding="utf-8")
 
-        # Apply destination toggles immediately for active broadcast:
-        # current ffmpeg workers are restarted by skip command and relaunched
-        # with updated enabled flags on the next playback cycle step.
+        # Під час ефіру: skip перезапускає ffmpeg з актуальними налаштуваннями
+        # (виходи, логотип, прозорість, масштаб).
         destination_flags_changed = (
             old_settings.youtube_enabled != settings.youtube_enabled
             or old_settings.telegram_enabled != settings.telegram_enabled
             or old_settings.x_enabled != settings.x_enabled
         )
-        if destination_flags_changed and is_broadcasting():
+        logo_or_look_changed = (
+            old_settings.logo_path != settings.logo_path
+            or old_settings.logo_opacity != settings.logo_opacity
+            or old_settings.logo_zoom != settings.logo_zoom
+        )
+        if is_broadcasting() and (destination_flags_changed or logo_or_look_changed):
             request_skip()
 
         return jsonify({"ok": True, **_status_payload()})
@@ -336,6 +350,8 @@ def create_app() -> Flask:
             logo_rel = str(dest)
         settings = merge_settings_patch({"logo_path": logo_rel})
         save_settings(settings)
+        if is_broadcasting():
+            request_skip()
         return jsonify({"ok": True, **_status_payload()})
 
     return app
