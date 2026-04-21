@@ -6,6 +6,7 @@ RUN apt-get update \
         ffmpeg \
         ca-certificates \
         curl \
+        unzip \
     && rm -rf /var/lib/apt/lists/*
 
 # Deno у PATH — для yt-dlp EJS/remote-components (див. config.YT_DLP_EXTRA_ARGS)
