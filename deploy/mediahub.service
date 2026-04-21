@@ -1,0 +1,36 @@
+# Встановлення на Hetzner VPS (bare metal, без Docker):
+#   sudo adduser --system --group --home /opt/mediahub mediahub
+#   sudo mkdir -p /opt/mediahub && sudo chown mediahub:mediahub /opt/mediahub
+#   sudo rsync -a backend/ /opt/mediahub/app/   # або git clone у /opt/mediahub/app
+#   cd /opt/mediahub/app && sudo -u mediahub python3 -m venv .venv
+#   sudo -u mediahub .venv/bin/pip install -r requirements.txt
+#   sudo apt install -y ffmpeg curl
+#   curl -fsSL https://deno.land/install.sh | DENO_INSTALL=/opt/deno sudo sh
+#   sudo ln -sf /opt/deno/bin/deno /usr/local/bin/deno
+#   sudo cp deploy/mediahub.service /etc/systemd/system/
+#   sudo cp deploy/mediahub.env.example /etc/mediahub.env && sudo nano /etc/mediahub.env
+#   sudo systemctl daemon-reload && sudo systemctl enable --now mediahub
+
+[Unit]
+Description=MediaHub broadcast (app.py)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=mediahub
+Group=mediahub
+WorkingDirectory=/opt/mediahub/app
+EnvironmentFile=-/etc/mediahub.env
+ExecStart=/opt/mediahub/app/.venv/bin/python -u app.py
+Restart=on-failure
+RestartSec=5
+# Стрім може довго працювати без нових логів
+TimeoutStopSec=120
+
+# Безопасність
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
