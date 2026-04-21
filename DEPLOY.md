@@ -125,13 +125,17 @@ nano .env
 
 У `nano`: відредагуйте що потрібно (ключі стріму тощо), збережіть — **Ctrl+O**, Enter, вийти — **Ctrl+X**.
 
-Якщо файлу каналів ще немає:
+Створіть на сервері **порожні** файли в тій самій папці, де `docker-compose.yml` (без них Docker зробить **каталоги** замість файлів, і збереження з адмінки «зникне» після перезбірки):
 
 ```bash
-touch channels.txt
+touch channels.txt youtube_stream_key.txt telegram_stream_key.txt x_stream_key.txt youtube_cookies.txt
 ```
 
-(Це важливо для Docker: інакше може створитись «папка» замість файлу.)
+Під час роботи ключі з веб-панелі пишуться саме в ці файли на диску сервера (вони змонтовані в контейнер).
+
+**YouTube з VPS (IP дата-центру):** часто з’являється *Sign in to confirm you’re not a bot*. Порожній `youtube_cookies.txt` не допоможе — потрібен **експорт куків Netscape** з браузера, де ви зайшли в Google ([інструкція yt-dlp](https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies)). Збережіть файл як `youtube_cookies.txt` у папці з `docker-compose` (або скопіюйте через `scp` поверх `touch`), потім `chown 1000:1000 youtube_cookies.txt` і `docker compose restart`.
+
+Для **Telegram** у блоці налаштувань також потрібен **URL RTMP-сервера** (окремо від ключа) — інакше вихід не збереться.
 
 ---
 
@@ -273,6 +277,6 @@ sudo ufw reload
 
 ## Коротко: чи можна з GitHub на сервері?
 
-**Так.** Алгоритм такий: **SSH на сервер → `git clone` → `cd` у `backend` → `.env` + `touch channels.txt` → `sudo docker compose up -d --build`.**
+**Так.** Алгоритм такий: **SSH на сервер → `git clone` → `cd` у `backend` → `.env` + `touch` для `channels.txt` і файлів ключів (див. крок 4) → `sudo docker compose up -d --build`.**
 
 Оновлення коду: **`git pull`** у тій самій папці, потім перезбірка/перезапуск контейнера.

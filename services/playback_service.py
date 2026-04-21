@@ -297,6 +297,7 @@ class PlaybackService:
         ytdlp_cmd = self.ytdlp.build_progressive_stream_cmd(item.url)
 
         re_in = bool(load_settings().ffmpeg_re_input)
+        log_info(f"ffmpeg stdin: {'-re (темп з pipe)' if re_in else 'без -re'}")
         ffmpeg_cmds = []
         for url in rtmp_urls:
             ffmpeg_cmds.append(

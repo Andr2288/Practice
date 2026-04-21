@@ -1,23 +1,5 @@
 [
   {
-    "video_id": "VKZsybzWZpI",
-    "title": "Христового захисту воїнству! Великодні вітання у підрозділах Залізної бригади",
-    "url": "https://www.youtube.com/watch?v=VKZsybzWZpI",
-    "channel_url": "https://www.youtube.com/@3heavy/videos",
-    "channel_title": "3 окрема важка механізована Залізна бригада - Videos",
-    "duration": 69,
-    "source": null
-  },
-  {
-    "video_id": "s911pL7U2ao",
-    "title": "From school to the front",
-    "url": "https://www.youtube.com/watch?v=s911pL7U2ao",
-    "channel_url": "https://www.youtube.com/@26OABr/videos",
-    "channel_title": "26 окрема артилерійська бригада ЗСУ, 26 ОАБр - Videos",
-    "duration": 732,
-    "source": null
-  },
-  {
     "video_id": "NPYbiZuVxc4",
     "title": "72 ОМБр імені Чорних Запорожців: Хроніка бойового шляху 2014-2021",
     "url": "https://www.youtube.com/watch?v=NPYbiZuVxc4",
@@ -717,6 +699,24 @@
     "channel_url": "https://www.youtube.com/@40OAbrigade/videos",
     "channel_title": "40 Окрема артилерійська бригада - Videos",
     "duration": 110,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "mZpFy3g5E34",
+    "title": "ТрОшка ( 35 серія )",
+    "url": "https://www.youtube.com/watch?v=mZpFy3g5E34",
+    "channel_url": "https://www.youtube.com/@113obr_tro/videos",
+    "channel_title": "Харківська окрема бригада територіальної оборони - Videos",
+    "duration": 83,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "bdXB8USvNH0",
+    "title": "Ігроманія і як з нею боротися: поради військового психолога",
+    "url": "https://www.youtube.com/watch?v=bdXB8USvNH0",
+    "channel_url": "https://www.youtube.com/@Hart_Brigade/videos",
+    "channel_title": "Бригада \"Гарт\" - Videos",
+    "duration": 108,
     "source": "auto_foreign"
   }
 ]
