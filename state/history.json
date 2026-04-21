@@ -1,14 +1,5 @@
 [
   {
-    "video_id": "6MI84GQALOo",
-    "title": "Замість великоднього кошика — роботи, які доставляють паски на передову!",
-    "url": "https://www.youtube.com/watch?v=6MI84GQALOo",
-    "channel_url": "https://www.youtube.com/@60omIbr/videos",
-    "channel_title": "60th Separate Mechanized Brigade - Videos",
-    "duration": 58,
-    "source": null
-  },
-  {
     "video_id": "VKZsybzWZpI",
     "title": "Христового захисту воїнству! Великодні вітання у підрозділах Залізної бригади",
     "url": "https://www.youtube.com/watch?v=VKZsybzWZpI",
@@ -717,6 +708,15 @@
     "channel_url": "https://www.youtube.com/@khartiiabrygada/videos",
     "channel_title": "ХАРТІЯ - Videos",
     "duration": 113,
+    "source": "auto_foreign"
+  },
+  {
+    "video_id": "zbgIU2w5gMU",
+    "title": "Привітання командира 40 ОАБр з 10-ю річнецею створення бригади",
+    "url": "https://www.youtube.com/watch?v=zbgIU2w5gMU",
+    "channel_url": "https://www.youtube.com/@40OAbrigade/videos",
+    "channel_title": "40 Окрема артилерійська бригада - Videos",
+    "duration": 110,
     "source": "auto_foreign"
   }
 ]

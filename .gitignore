@@ -1,0 +1,18 @@
+# Cookies для yt-dlp (YouTube); не комітити
+cookies.txt
+youtube_cookies.txt
+
+# Ключ YouTube Live — не комітити
+youtube_stream_key.txt
+telegram_stream_key.txt
+x_stream_key.txt
+
+# Змінні середовища на сервері
+.env
+
+# Тимчасовий рядок для ffmpeg drawtext (генерується при старті відтворення)
+state/ticker_text_runtime.txt
+
+__pycache__/
+*.pyc
+.idea/

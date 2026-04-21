@@ -74,6 +74,11 @@ def create_app() -> Flask:
         static_folder=str(BASE_DIR / "static"),
     )
 
+    @app.get("/health")
+    def health():
+        """Liveness для Docker/systemd/nginx; не вимагає автентифікації."""
+        return jsonify({"status": "ok"}), 200
+
     @app.get("/")
     def index_html():
         """Головна адмін-сторінка (той самий origin, що й `/api/*`)."""

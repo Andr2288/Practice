@@ -1,0 +1,21 @@
+# Деплой на одному сервері: порти лише на localhost — зовнішній доступ через nginx на хості.
+# cp .env.example .env && відредагувати секрети та MEDIAHUB_ADMIN_HOST.
+
+services:
+  mediahub:
+    build: .
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      MEDIAHUB_ADMIN_HOST: ${MEDIAHUB_ADMIN_HOST:-0.0.0.0}
+      MEDIAHUB_ADMIN_PORT: ${MEDIAHUB_ADMIN_PORT:-8765}
+    volumes:
+      - mediahub_state:/app/state
+      # Якщо файлу немає на хості: `touch channels.txt` перед першим up (інакше Docker створить каталог замість файлу).
+      - ./channels.txt:/app/channels.txt
+    ports:
+      - "127.0.0.1:8765:8765"
+
+volumes:
+  mediahub_state:

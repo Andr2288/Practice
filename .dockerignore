@@ -1,0 +1,14 @@
+.git
+__pycache__
+*.pyc
+.idea
+.env
+youtube_stream_key.txt
+telegram_stream_key.txt
+x_stream_key.txt
+cookies.txt
+*.tmp
+state/
+deploy/
+DEPLOY.md
+.gitignore
