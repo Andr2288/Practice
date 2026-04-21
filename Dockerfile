@@ -32,6 +32,9 @@ RUN useradd --create-home --uid 1000 mediahub \
         'if [ -f /app/channels.txt ]; then' \
         '    chown mediahub:mediahub /app/channels.txt' \
         'fi' \
+        'if [ -f /app/youtube_cookies.txt ]; then' \
+        '    chown mediahub:mediahub /app/youtube_cookies.txt' \
+        'fi' \
         'exec gosu mediahub "$@"' \
         > /app/docker-entrypoint.sh \
     && chmod +x /app/docker-entrypoint.sh \

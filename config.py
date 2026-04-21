@@ -41,6 +41,22 @@ YT_DLP_BIN = "yt-dlp"
 # YouTube EJS (challenge scripts). Див. https://github.com/yt-dlp/yt-dlp/wiki/EJS
 # Потрібен JS runtime у PATH (рекомендовано Deno ≥2, або Node ≥20 з --js-runtimes node у конфігу yt-dlp).
 YT_DLP_EXTRA_ARGS: tuple[str, ...] = ("--remote-components", "ejs:github")
+# Формат Netscape; з VPS YouTube часто вимагає куки («Sign in to confirm you're not a bot»).
+# Див. https://github.com/yt-dlp/yt-dlp/wiki/Extractors#exporting-youtube-cookies
+_YT_COOKIES_ENV = os.environ.get("YT_DLP_COOKIES_FILE", "").strip()
+YT_DLP_COOKIES_FILE: Path = (
+    Path(_YT_COOKIES_ENV) if _YT_COOKIES_ENV else (BASE_DIR / "youtube_cookies.txt")
+)
+
+
+def yt_dlp_cookies_argv() -> list[str]:
+    """Повертає `--cookies шлях`, якщо файл існує."""
+    try:
+        if YT_DLP_COOKIES_FILE.is_file():
+            return ["--cookies", str(YT_DLP_COOKIES_FILE)]
+    except OSError:
+        pass
+    return []
 FFMPEG_BIN = "ffmpeg"
 
 # True  -> тестова імітація sleep
