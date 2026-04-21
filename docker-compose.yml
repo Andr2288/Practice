@@ -15,7 +15,7 @@ services:
       # Якщо файлу немає на хості: `touch channels.txt` перед першим up (інакше Docker створить каталог замість файлу).
       - ./channels.txt:/app/channels.txt
     ports:
-      - "127.0.0.1:8765:8765"
+      - "0.0.0.0:8080:8765"
 
 volumes:
   mediahub_state:
