@@ -24,9 +24,18 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
+# Скрипт генерується в образі — не потрібен окремий файл у git на сервері.
 RUN useradd --create-home --uid 1000 mediahub \
-    && chown -R mediahub:mediahub /app \
-    && chmod +x /app/docker-entrypoint.sh
+    && printf '%s\n' \
+        '#!/bin/sh' 'set -e' \
+        'chown -R mediahub:mediahub /app/state' \
+        'if [ -f /app/channels.txt ]; then' \
+        '    chown mediahub:mediahub /app/channels.txt' \
+        'fi' \
+        'exec gosu mediahub "$@"' \
+        > /app/docker-entrypoint.sh \
+    && chmod +x /app/docker-entrypoint.sh \
+    && chown -R mediahub:mediahub /app
 
 # Старт як root лише для chown томів; робочий процес — gosu → mediahub
 USER root
