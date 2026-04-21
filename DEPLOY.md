@@ -178,10 +178,85 @@ ssh -L 8765:127.0.0.1:8765 root@ВАШ_IP
 
 ---
 
+## Публічний доступ у браузері (без SSH-тунелю)
+
+Ідея: **контейнер лишається на `127.0.0.1:8765`** (як у `docker-compose.yml`) — у інтернет дивиться лише **nginx** на портах **80** (HTTP) і за бажанням **443** (HTTPS). Так роблять майже завжди.
+
+### Крок 1 — nginx на сервері (SSH-сесія)
+
+```bash
+sudo apt update
+sudo apt install -y nginx
+```
+
+Переконайтеся, що контейнер працює і відповідає локально:
+
+```bash
+curl -s http://127.0.0.1:8765/health
+```
+
+### Крок 2 — два варіанти
+
+#### Варіант A: є домен (бажано: HTTPS)
+
+1. У панелі DNS домену додайте запис типу **A**: ім’я (наприклад `radio` або `@`) → **IP вашого сервера** (наприклад `164.90.174.228`). Зачекайте 5–30 хвилин.
+
+2. Скопіюйте приклад і вкажіть свій домен:
+
+```bash
+sudo nano /etc/nginx/sites-available/mediahub
+```
+
+Вставте вміст з файлу репо `deploy/nginx-mediahub.conf`, замініть `ваш.домен.example` на реальний (наприклад `radio.example.com`).
+
+3. Увімкніть сайт і перевірте конфіг:
+
+```bash
+sudo ln -sf /etc/nginx/sites-available/mediahub /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+```
+
+4. Відкрийте firewall і встановіть сертифікат:
+
+```bash
+sudo apt install -y certbot python3-certbot-nginx
+sudo ufw allow 'Nginx Full'
+sudo ufw reload
+sudo certbot --nginx -d ваш.піддомен.домен
+```
+
+5. У браузері відкривайте **https://ваш.піддомен.домен**
+
+#### Варіант B: без домену — лише IP (HTTP, без шифрування)
+
+Підійде для тесту. **Паролі та ключі в адмінці йдуть відкритим текстом** — для реального ефіру краще зробити домен + HTTPS (варіант A).
+
+```bash
+cd ~/apps/Practice
+# якщо deploy/ лежить у корені репо (поруч із docker-compose.yml):
+sudo cp deploy/nginx-mediahub-ip.conf /etc/nginx/sites-available/mediahub
+sudo ln -sf /etc/nginx/sites-available/mediahub /etc/nginx/sites-enabled/
+sudo rm -f /etc/nginx/sites-enabled/default
+sudo nginx -t && sudo systemctl reload nginx
+sudo ufw allow 80/tcp
+sudo ufw reload
+```
+
+У браузері: **http://ВАШ_IP** (наприклад `http://164.90.174.228`).
+
+Якщо сторінка не відкривається — у панелі **DigitalOcean** (Networking → Firewall) переконайтеся, що для droplet дозволені вхідні **80** (і для HTTPS — **443**).
+
+### Важливо про безпеку
+
+- Адмінка **не має вбудованого логіну** — будь-хто з лінком може керувати ефіром. Для публічного IP або домену варто додати **обмеження по IP** у nginx, **basic auth**, або Cloudflare Access — це вже окреме налаштування.
+- Після переходу на nginx **тунель SSH для порту 8765 не обов’язковий** — заходите напряму по домену/IP.
+
+---
+
 ## Що робити далі (коли освоїтесь)
 
-- **Домен і HTTPS** — ставлять **nginx** на сервері і **Let’s Encrypt** (сертифікат). Приклад конфігурації: `deploy/nginx-mediahub.conf`.
-- **Бекап** даних (черга, стан) — том Docker `mediahub_state`; його можна періодично копіювати (деталі можна додати окремо).
+- **Бекап** даних (черга, стан) — том Docker `mediahub_state`; його можна періодично копіювати.
 
 ---
 

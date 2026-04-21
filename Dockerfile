@@ -7,6 +7,7 @@ RUN apt-get update \
         ca-certificates \
         curl \
         unzip \
+        gosu \
     && rm -rf /var/lib/apt/lists/*
 
 # Deno у PATH — для yt-dlp EJS/remote-components (див. config.YT_DLP_EXTRA_ARGS)
@@ -24,13 +25,16 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY . .
 
 RUN useradd --create-home --uid 1000 mediahub \
-    && chown -R mediahub:mediahub /app
+    && chown -R mediahub:mediahub /app \
+    && chmod +x /app/docker-entrypoint.sh
 
-USER mediahub
+# Старт як root лише для chown томів; робочий процес — gosu → mediahub
+USER root
 
 EXPOSE 8765
 
 HEALTHCHECK --interval=30s --timeout=5s --start-period=20s --retries=3 \
     CMD curl -fsS http://127.0.0.1:8765/health || exit 1
 
+ENTRYPOINT ["/app/docker-entrypoint.sh"]
 CMD ["python", "-u", "app.py"]
