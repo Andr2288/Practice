@@ -17,6 +17,7 @@ from config import (
     YT_DLP_BIN,
     YT_DLP_COOKIES_FILE,
     yt_dlp_cookies_argv,
+    yt_dlp_extractor_argv,
 )
 from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
@@ -41,6 +42,10 @@ from utils.logger import log_blank, log_block, log_error, log_info, log_warn
 
 def _log_youtube_cookies_diagnostic() -> None:
     """Допомагає з VPS: без валідного файлу куків YouTube часто відповідає «not a bot»."""
+    ex = yt_dlp_extractor_argv()
+    if ex:
+        log_info(f"YT-DLP extractor-args: {ex[1] if len(ex) > 1 else '?'}")
+
     p = YT_DLP_COOKIES_FILE
     try:
         if p.is_dir():

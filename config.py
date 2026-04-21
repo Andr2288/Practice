@@ -57,6 +57,19 @@ def yt_dlp_cookies_argv() -> list[str]:
     except OSError:
         pass
     return []
+
+
+# Додаткові аргументи екстрактора (з VPS інколи не допомагають лише куки для веб-клієнта).
+# Приклад: youtube:player_client=android — див. --extractor-args у yt-dlp.
+_YT_DLP_EXTARGS = os.environ.get("YT_DLP_EXTRACTOR_ARGS", "").strip()
+
+
+def yt_dlp_extractor_argv() -> list[str]:
+    if not _YT_DLP_EXTARGS:
+        return []
+    return ["--extractor-args", _YT_DLP_EXTARGS]
+
+
 FFMPEG_BIN = "ffmpeg"
 
 # True  -> тестова імітація sleep

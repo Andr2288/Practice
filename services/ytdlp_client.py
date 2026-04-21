@@ -2,7 +2,12 @@ import json
 import subprocess
 from typing import List
 
-from config import YT_DLP_EXTRA_ARGS, YT_DLP_PROGRESSIVE_FORMAT, yt_dlp_cookies_argv
+from config import (
+    YT_DLP_EXTRA_ARGS,
+    YT_DLP_PROGRESSIVE_FORMAT,
+    yt_dlp_cookies_argv,
+    yt_dlp_extractor_argv,
+)
 from services.models import VideoItem
 
 
@@ -11,7 +16,12 @@ class YtDlpClient:
         self.yt_dlp_bin = yt_dlp_bin
 
     def _argv_head(self) -> list[str]:
-        return [self.yt_dlp_bin, *YT_DLP_EXTRA_ARGS, *yt_dlp_cookies_argv()]
+        return [
+            self.yt_dlp_bin,
+            *YT_DLP_EXTRA_ARGS,
+            *yt_dlp_cookies_argv(),
+            *yt_dlp_extractor_argv(),
+        ]
 
     def fetch_latest_videos(self, channel_url: str, limit: int = 7) -> List[VideoItem]:
         cmd = [
