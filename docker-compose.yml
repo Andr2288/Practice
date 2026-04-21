@@ -1,9 +1,10 @@
 # Деплой на одному сервері: порти лише на localhost — зовнішній доступ через nginx на хості.
 # cp .env.example .env && відредагувати секрети та MEDIAHUB_ADMIN_HOST.
 #
-# ОБОВʼЯЗКОВО на хості створіть порожні файли (інакше Docker зробить каталоги замість них):
+# ОБОВʼЯЗКОВО на хості мають існувати як ФАЙЛИ (інакше Docker створить каталоги):
 #   touch channels.txt youtube_stream_key.txt telegram_stream_key.txt x_stream_key.txt
-# Ключі з адмінки тоді зберігаються у цих файлах у ~/.../Practice і переживають перезбірку контейнера.
+#   touch youtube_cookies.txt   # потім ЗАМІНІТИ на експорт куків Netscape з браузера (порожній не рятує від «not a bot»)
+# Ключі з адмінки пишуться у stream_key файли; youtube_cookies — лише з ПК (див. DEPLOY.md).
 
 services:
   mediahub:
@@ -20,8 +21,7 @@ services:
       - ./youtube_stream_key.txt:/app/youtube_stream_key.txt
       - ./telegram_stream_key.txt:/app/telegram_stream_key.txt
       - ./x_stream_key.txt:/app/x_stream_key.txt
-      # Опційно, якщо вже є файл куків Netscape на хості:
-      # - ./youtube_cookies.txt:/app/youtube_cookies.txt:ro
+      - ./youtube_cookies.txt:/app/youtube_cookies.txt
     ports:
       - "0.0.0.0:8080:8765"
 
