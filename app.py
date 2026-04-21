@@ -15,6 +15,8 @@ from config import (
     SEEN_VIDEOS_FILE,
     STATE_DIR,
     YT_DLP_BIN,
+    YT_DLP_COOKIES_FILE,
+    yt_dlp_cookies_argv,
 )
 from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
@@ -34,7 +36,38 @@ from services.storage import (
     save_seen_videos,
 )
 from services.ytdlp_client import YtDlpClient
-from utils.logger import log_blank, log_block, log_error, log_warn
+from utils.logger import log_blank, log_block, log_error, log_info, log_warn
+
+
+def _log_youtube_cookies_diagnostic() -> None:
+    """Допомагає з VPS: без валідного файлу куків YouTube часто відповідає «not a bot»."""
+    p = YT_DLP_COOKIES_FILE
+    try:
+        if p.is_dir():
+            log_warn(
+                f"YT cookies: шлях {p} — це КАТАЛОГ (часто Docker зробив, якщо файлу не було). "
+                f"Видали його і поклади справжній youtube_cookies.txt (Netscape)."
+            )
+            return
+        if not p.exists():
+            log_warn(
+                f"YT cookies: файлу немає ({p}). Локальний файл у проєкті на ПК на сервер не копіюється сам — "
+                f"scp у ~/apps/Practice/ і docker compose restart."
+            )
+            return
+        if not p.is_file():
+            log_warn(f"YT cookies: очікувався файл, отримано інше: {p}")
+            return
+        size = p.stat().st_size
+        if size == 0:
+            log_warn(f"YT cookies: файл порожній ({p}).")
+            return
+        if yt_dlp_cookies_argv():
+            log_info(f"YT cookies: OK, {size} байт — yt-dlp отримає --cookies")
+        else:
+            log_warn("YT cookies: файл є, але --cookies не зібрано (перевір права читання).")
+    except OSError as e:
+        log_warn(f"YT cookies: не вдалося перевірити {p}: {e}")
 
 
 def _play_and_record(
@@ -80,6 +113,7 @@ def _start_admin_server() -> None:
 def main() -> None:
     STATE_DIR.mkdir(parents=True, exist_ok=True)
     warm_cache_from_disk(OUR_VIDEOS_CACHE_FILE)
+    _log_youtube_cookies_diagnostic()
 
     _start_admin_server()
 
