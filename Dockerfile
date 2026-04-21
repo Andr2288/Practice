@@ -29,12 +29,9 @@ RUN useradd --create-home --uid 1000 mediahub \
     && printf '%s\n' \
         '#!/bin/sh' 'set -e' \
         'chown -R mediahub:mediahub /app/state' \
-        'if [ -f /app/channels.txt ]; then' \
-        '    chown mediahub:mediahub /app/channels.txt' \
-        'fi' \
-        'if [ -f /app/youtube_cookies.txt ]; then' \
-        '    chown mediahub:mediahub /app/youtube_cookies.txt' \
-        'fi' \
+        'for f in /app/channels.txt /app/youtube_stream_key.txt /app/telegram_stream_key.txt /app/x_stream_key.txt /app/youtube_cookies.txt; do' \
+        '    [ -f "$f" ] && chown mediahub:mediahub "$f"' \
+        'done' \
         'exec gosu mediahub "$@"' \
         > /app/docker-entrypoint.sh \
     && chmod +x /app/docker-entrypoint.sh \

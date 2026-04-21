@@ -8,6 +8,7 @@ from config import (
     TEST_MODE,
     TEST_PLAYBACK_SECONDS,
     YT_DLP_BIN,
+    first_line_from_file,
     get_x_rtmp_url,
     get_youtube_rtmp_url,
 )
@@ -77,10 +78,7 @@ class PlaybackService:
             return None
         key = ""
         if TELEGRAM_STREAM_KEY_FILE.is_file():
-            try:
-                key = TELEGRAM_STREAM_KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
-            except OSError:
-                key = ""
+            key = first_line_from_file(TELEGRAM_STREAM_KEY_FILE)
         if not key:
             return None
         return f"{server}/{key}"

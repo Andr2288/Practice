@@ -151,16 +151,21 @@ NVENC_PRESET = "p5"
 AUDIO_FILTER = "aresample=async=1:first_pts=0"
 
 
+def first_line_from_file(path: Path) -> str:
+    try:
+        lines = path.read_text(encoding="utf-8").strip().splitlines()
+        return lines[0].strip() if lines else ""
+    except OSError:
+        return ""
+
+
 def get_youtube_rtmp_url() -> Optional[str]:
     """RTMP URL для YouTube Live. Ключ: YOUTUBE_RTMP_URL, YOUTUBE_STREAM_KEY або youtube_stream_key.txt."""
     if YOUTUBE_RTMP_URL:
         return YOUTUBE_RTMP_URL
     key = YOUTUBE_STREAM_KEY
     if not key and YOUTUBE_STREAM_KEY_FILE.is_file():
-        try:
-            key = YOUTUBE_STREAM_KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
-        except OSError:
-            key = ""
+        key = first_line_from_file(YOUTUBE_STREAM_KEY_FILE)
     if key:
         return f"{YOUTUBE_INGEST_BASE}{key}"
     return None
@@ -172,10 +177,7 @@ def get_x_rtmp_url(server_url_from_settings: str = "") -> Optional[str]:
         return X_RTMP_URL
     key = X_STREAM_KEY
     if not key and X_STREAM_KEY_FILE.is_file():
-        try:
-            key = X_STREAM_KEY_FILE.read_text(encoding="utf-8").strip().splitlines()[0].strip()
-        except OSError:
-            key = ""
+        key = first_line_from_file(X_STREAM_KEY_FILE)
     if not key:
         return None
     base = (server_url_from_settings or "").strip().rstrip("/") or X_INGEST_BASE
