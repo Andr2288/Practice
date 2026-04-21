@@ -60,14 +60,46 @@ def yt_dlp_cookies_argv() -> list[str]:
 
 
 # Додаткові аргументи екстрактора (з VPS інколи не допомагають лише куки для веб-клієнта).
-# Приклад: youtube:player_client=android — див. --extractor-args у yt-dlp.
+# Примітка: player_client=android НЕ сумісний з --cookies у yt-dlp («Skipping client android»).
 _YT_DLP_EXTARGS = os.environ.get("YT_DLP_EXTRACTOR_ARGS", "").strip()
 
 
-def yt_dlp_extractor_argv() -> list[str]:
+def _youtube_cookies_nonempty() -> bool:
+    try:
+        return (
+            YT_DLP_COOKIES_FILE.is_file() and YT_DLP_COOKIES_FILE.stat().st_size > 0
+        )
+    except OSError:
+        return False
+
+
+def _resolved_yt_dlp_extractor_args() -> tuple[str, bool]:
+    """Повертає (рядок для --extractor-args, чи зроблено заміну android→web)."""
     if not _YT_DLP_EXTARGS:
+        return "", False
+    s = _YT_DLP_EXTARGS
+    replaced = False
+    if _youtube_cookies_nonempty() and "player_client=android" in s:
+        s = s.replace("player_client=android", "player_client=web")
+        replaced = True
+    return s, replaced
+
+
+def yt_dlp_extractor_argv() -> list[str]:
+    s, _ = _resolved_yt_dlp_extractor_args()
+    if not s:
         return []
-    return ["--extractor-args", _YT_DLP_EXTARGS]
+    return ["--extractor-args", s]
+
+
+def yt_dlp_extractor_substitution_hint() -> str | None:
+    """Повідомлення для логу, якщо auto-fix."""
+    _, rep = _resolved_yt_dlp_extractor_args()
+    if rep:
+        return (
+            "YT-DLP: player_client=android замінено на web, бо з --cookies android не підтримується"
+        )
+    return None
 
 
 FFMPEG_BIN = "ffmpeg"

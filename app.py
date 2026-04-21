@@ -18,6 +18,7 @@ from config import (
     YT_DLP_COOKIES_FILE,
     yt_dlp_cookies_argv,
     yt_dlp_extractor_argv,
+    yt_dlp_extractor_substitution_hint,
 )
 from services.channel_scan_service import read_channels_list
 from services.models import VideoItem
@@ -45,6 +46,9 @@ def _log_youtube_cookies_diagnostic() -> None:
     ex = yt_dlp_extractor_argv()
     if ex:
         log_info(f"YT-DLP extractor-args: {ex[1] if len(ex) > 1 else '?'}")
+    hint = yt_dlp_extractor_substitution_hint()
+    if hint:
+        log_info(hint)
 
     p = YT_DLP_COOKIES_FILE
     try:
