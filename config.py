@@ -189,7 +189,7 @@ ENABLE_LOGO_OVERLAY = True
 
 # Відеокодек: "libx264" (CPU, універсально) або "h264_nvenc" (NVIDIA, менше навантаження на CPU).
 VIDEO_ENCODER = "libx264"
-X264_PRESET = "veryfast"
+X264_PRESET = "ultrafast"
 NVENC_PRESET = "p5"
 
 # Аудіо без loudnorm (легше для CPU); лише стабілізація таймінгу з потоку.
